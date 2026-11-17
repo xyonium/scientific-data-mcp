@@ -73,7 +73,7 @@ scripts/live_smoke.py
 ```
 错误：`{"error": "not_found: CID 999999999", "source": "pubchem", "hint": "..."}`。
 
-`source_url` 是实际调用的官方端点（便于引用/复核）；不返回本地时间戳（测试可复现）。
+`source_url` 是官方记录页/检索页（便于人工点击复核）；不返回本地时间戳（测试可复现）。
 
 **工具面（v0.1.0，12 个）**
 
