@@ -8,6 +8,7 @@ import pytest
 import respx
 
 from scientific_data_mcp.config import Settings
+from scientific_data_mcp.errors import NotFound
 from scientific_data_mcp.http import PoliteClient
 from scientific_data_mcp.providers.rcsb import RcsbProvider
 
@@ -76,5 +77,5 @@ async def test_unknown_entry_raises(provider):
     respx.get(url__regex=re.escape(f"{DATA}/entry/XXXX") + r".*").mock(
         return_value=httpx.Response(404)
     )
-    with pytest.raises(Exception):
+    with pytest.raises(NotFound):
         await provider.entry("XXXX")

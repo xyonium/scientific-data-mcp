@@ -9,6 +9,7 @@ from .http import PoliteClient
 from .providers.base import Provider
 from .providers.chembl import ChemBLProvider
 from .providers.pubchem import PubChemProvider
+from .providers.pubmed import PubMedProvider
 from .providers.rcsb import RcsbProvider
 from .providers.uniprot import UniProtProvider
 
@@ -31,5 +32,6 @@ def build_service(settings: Settings | None = None) -> Service:
         "chembl": ChemBLProvider(http, settings),
         "uniprot": UniProtProvider(http, settings),
         "rcsb": RcsbProvider(http, settings),
+        "pubmed": PubMedProvider(http, settings),
     }
     return Service(settings=settings, http=http, providers=providers)

@@ -39,6 +39,6 @@ class Settings:
         return self.host_delays.get(host, 0.1)
 
     @classmethod
-    def from_env(cls) -> "Settings":
+    def from_env(cls) -> Settings:
         key = os.environ.get("NCBI_API_KEY", "").strip() or None
         return cls(ncbi_api_key=key)

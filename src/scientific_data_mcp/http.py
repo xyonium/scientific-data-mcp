@@ -32,7 +32,7 @@ class PoliteClient:
         self._last: dict[str, float] = {}
         self._lock = asyncio.Lock()
 
-    async def __aenter__(self) -> "PoliteClient":
+    async def __aenter__(self) -> PoliteClient:
         return self
 
     async def __aexit__(self, *exc: object) -> None:
