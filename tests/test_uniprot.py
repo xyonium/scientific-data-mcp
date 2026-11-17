@@ -129,3 +129,23 @@ async def test_idmapping_failure_raises(monkeypatch, provider):
     )
     with pytest.raises(UpstreamError):
         await provider.map_ids("UniProtKB_AC-ID", "PDB", "P04637")
+
+
+@respx.mock
+async def test_idmapping_finishes_on_303_redirect(monkeypatch, provider):
+    monkeypatch.setattr(uniprot_module, "_POLL_INTERVAL", 0)
+    respx.post(f"{BASE}/idmapping/run").mock(
+        return_value=httpx.Response(200, json={"jobId": "j2"})
+    )
+    respx.get(f"{BASE}/idmapping/status/j2").mock(
+        return_value=httpx.Response(
+            303,
+            json={"jobStatus": "FINISHED"},
+            headers={"Location": f"{BASE}/idmapping/results/j2"},
+        )
+    )
+    respx.get(f"{BASE}/idmapping/results/j2").mock(
+        return_value=httpx.Response(200, json={"results": [{"from": "P04637", "to": "1A1U"}]})
+    )
+    result = await provider.map_ids("UniProtKB_AC-ID", "PDB", "P04637")
+    assert result["mappings"] == {"P04637": ["1A1U"]}

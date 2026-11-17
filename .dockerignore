@@ -1,0 +1,17 @@
+.git
+.github
+.venv
+.uv-cache
+.uv-python
+.pip-cache
+.pytest_cache
+.ruff_cache
+__pycache__
+*.pyc
+dist
+build
+docs
+tests
+scripts
+.gitignore
+.env

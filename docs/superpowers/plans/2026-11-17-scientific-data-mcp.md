@@ -93,7 +93,7 @@
 - Test: `tests/test_chembl.py`, extend `tests/test_tools_chemistry.py`
 
 **Interfaces:**
-- Produces: `ChemBLProvider(http, settings)` with `base_url = "https://www.ebi.ac.uk/chembl/api/data"`, `async search(resource: str, query: str, limit: int, offset: int) -> tuple[list[dict], int]` (items, total), `async molecule(chembl_id: str) -> dict`, `async target(chembl_id: str) -> dict`, `async activities(chembl_id: str | None, target_chembl_id: str | None, limit: int, offset: int) -> tuple[list[dict], int]`, `async mechanisms(chembl_id: str) -> list[dict]`.
+- Produces: `ChemBLProvider(http, settings)` with `base_url = "https://www.ebi.ac.uk/chembl/api/data"`, `async search(resource: str, query: str, limit: int, offset: int) -> dict` with `{"items", "total", "next_offset"}`, `async molecule(chembl_id: str) -> dict`, `async target(chembl_id: str) -> dict`, `async activities(chembl_id: str | None, target_chembl_id: str | None, limit: int, offset: int) -> dict` (same shape), `async mechanisms(chembl_id: str) -> list[dict]`. Search must use `/<resource>/search.json?q=`: the verdict's `search_parameters__q` is silently ignored by the API and can return unfiltered rows.
 - Produces tools: `chembl_search(resource: str, query: str, limit: int = 10, offset: int = 0)`, `chembl_bioactivity(chembl_id: str | None = None, target_chembl_id: str | None = None, limit: int = 20, offset: int = 0)`, `chembl_mechanisms(chembl_id: str)`.
 - List envelope gains `next_offset: int | None`; ChEMBL pagination reads `page_meta.next` (None → no next page).
 
@@ -147,11 +147,11 @@
 - Test: `tests/test_pubmed.py`, `tests/test_tools_literature.py`
 
 **Interfaces:**
-- Produces: `PubMedProvider(http, settings)` with `efetch_url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi"`, `idconv_url = "https://www.ncbi.nlm.nih.gov/pmc/utils/idconv/v1.0/"`, `async by_pmid(pmid: str) -> dict`, `async by_doi(doi: str) -> dict` (resolves then fetches).
+- Produces: `PubMedProvider(http, settings)` with `efetch_url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi"`, `idconv_url = "https://www.ncbi.nlm.nih.gov/pmc/utils/idconv/v1.0/"`, `async by_pmid(pmid: str) -> dict`, `async by_doi(doi: str) -> dict` (resolves via E-utilities `esearch` with `term={doi}[doi]` — the PMC ID converter on `www.ncbi.nlm.nih.gov` times out from this network — then fetches).
 - Produces tool: `pubmed_record(pmid: str | None = None, doi: str | None = None)`.
 - Record keys: `pmid`, `doi`, `pmcid`, `title`, `authors` (list of `"Family Given"` or collective), `journal`, `year`, `volume`, `issue`, `pages`, `abstract`.
 
-- [ ] **Step 1: Write failing tests** — efetch XML fixture with two `AbstractText` sections (one labelled) → `abstract` contains both texts, `authors[0] == "Doe Jane"`, `doi`/`pmcid` extracted from `ArticleIdList`; DOI path: idconv JSON `{"records":[{"pmid":"123"}]}` then efetch; idconv `{"records":[{}]}` → `NotFound`; both/neither params → tool error; efetch 500 → `{"error": ...}`.
+- [ ] **Step 1: Write failing tests** — efetch XML fixture with two `AbstractText` sections (one labelled) → `abstract` contains both texts, `authors[0] == "Doe Jane"`, `doi`/`pmcid` extracted from `ArticleIdList`; DOI path: esearch JSON `{"esearchresult":{"idlist":["123"]}}` then efetch; empty idlist → `NotFound`; both/neither params → tool error; efetch 500 → `{"error": ...}`.
 - [ ] **Step 2: Run, confirm failure.**
 - [ ] **Step 3: Implement** — `xml.etree.ElementTree.fromstring`; `AbstractText` join using `itertext()` and prefix `Label + ": "` when present; `api_key` param only when `settings.ncbi_api_key`; include `tool=scientific-data-mcp` and `email` omitted.
 - [ ] **Step 4: Run `pytest tests/test_pubmed.py tests/test_tools_literature.py -q`** — pass.

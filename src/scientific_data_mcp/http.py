@@ -65,6 +65,7 @@ class PoliteClient:
         json_body: dict | None = None,
         form: dict | None = None,
         headers: dict | None = None,
+        follow_redirects: bool = True,
     ) -> httpx.Response:
         host = urlparse(url).netloc
         last: Exception | None = None
@@ -78,6 +79,7 @@ class PoliteClient:
                     json=json_body,
                     data=form,
                     headers=headers,
+                    follow_redirects=follow_redirects,
                 )
             except httpx.HTTPError as exc:
                 last = UpstreamError(f"network error from {host}: {exc}")
@@ -86,6 +88,12 @@ class PoliteClient:
             if resp.status_code in (429, 503):
                 last = RateLimited(f"HTTP {resp.status_code} from {host}")
                 await asyncio.sleep(self._retry_after(resp, attempt))
+                continue
+            if resp.status_code in (500, 502, 504):
+                # Transient upstream failures: ChEMBL and UniProt both return
+                # sporadic 5xx under load, and the same call succeeds on retry.
+                last = UpstreamError(f"HTTP {resp.status_code} from {host}")
+                await asyncio.sleep(0.5 * (2**attempt))
                 continue
             if resp.status_code in (401, 403):
                 raise AuthError(f"HTTP {resp.status_code} from {host}")
@@ -101,16 +109,26 @@ class PoliteClient:
         url: str,
         params: dict | None = None,
         headers: dict | None = None,
+        follow_redirects: bool = True,
     ) -> httpx.Response:
-        return await self._request("GET", url, params=params, headers=headers)
+        return await self._request(
+            "GET",
+            url,
+            params=params,
+            headers=headers,
+            follow_redirects=follow_redirects,
+        )
 
     async def get_json(
         self,
         url: str,
         params: dict | None = None,
         headers: dict | None = None,
+        follow_redirects: bool = True,
     ) -> Any:
-        resp = await self.get_response(url, params=params, headers=headers)
+        resp = await self.get_response(
+            url, params=params, headers=headers, follow_redirects=follow_redirects
+        )
         try:
             return resp.json()
         except ValueError as exc:

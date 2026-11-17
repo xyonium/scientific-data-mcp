@@ -43,11 +43,29 @@ async def test_401_becomes_auth_error():
 
 
 @respx.mock
-async def test_500_becomes_upstream_error():
+async def test_500_becomes_upstream_error_after_retries():
     respx.get(URL).mock(return_value=httpx.Response(500))
-    async with PoliteClient(Settings()) as client:
+    async with PoliteClient(Settings(max_retries=0)) as client:
         with pytest.raises(UpstreamError):
             await client.get_json(URL)
+
+
+@respx.mock
+async def test_500_retries_then_succeeds():
+    route = respx.get(URL).mock(
+        side_effect=[httpx.Response(500), httpx.Response(200, json={"ok": True})]
+    )
+    async with PoliteClient(Settings(max_retries=1)) as client:
+        assert await client.get_json(URL) == {"ok": True}
+    assert route.call_count == 2
+
+
+@respx.mock
+async def test_303_is_returned_when_not_following():
+    respx.get(URL).mock(return_value=httpx.Response(303, json={"jobStatus": "FINISHED"}))
+    async with PoliteClient(Settings()) as client:
+        payload = await client.get_json(URL, follow_redirects=False)
+    assert payload == {"jobStatus": "FINISHED"}
 
 
 @respx.mock

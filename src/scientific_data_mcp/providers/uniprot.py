@@ -68,9 +68,13 @@ class UniProtProvider(Provider):
             raise UpstreamError("UniProt idmapping did not return a jobId")
         deadline = time.monotonic() + timeout
         while True:
-            status = await self.http.get_json(f"{self.base_url}/idmapping/status/{job_id}")
+            # The status endpoint answers 303 (+ a JSON body) once the job is
+            # done; do not follow it, or the jobStatus field is lost.
+            status = await self.http.get_json(
+                f"{self.base_url}/idmapping/status/{job_id}", follow_redirects=False
+            )
             state = status.get("jobStatus")
-            if state == "FINISHED":
+            if state == "FINISHED" or "results" in status:
                 break
             if state in ("ERROR", "FAILED"):
                 raise UpstreamError(f"UniProt idmapping job {job_id} failed: {status}")

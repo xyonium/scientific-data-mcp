@@ -30,7 +30,7 @@ HOST_DELAYS: dict[str, float] = {
 @dataclass
 class Settings:
     ncbi_api_key: str | None = None
-    timeout: float = 20.0
+    timeout: float = 30.0
     max_retries: int = 3
     user_agent: str = DEFAULT_USER_AGENT
     host_delays: dict[str, float] = field(default_factory=lambda: dict(HOST_DELAYS))
