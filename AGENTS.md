@@ -44,7 +44,7 @@ docker build -t scientific-data-mcp:dev .
 ## 发布纪律
 
 - 版本只来自 git tag（hatch-vcs，`pyproject.toml` 里 `dynamic = ["version"]`）。**永不手写 version**。
-- `v*` tag 推上去即 v0.1.0；改版本 = 打新 tag，不改文件。
+- `v*` tag 推上去即发布对应版本；改版本 = 打新 tag，不改文件。
 - 细节见 `docs/memory/publishing-hatch-vcs.md`。
 
 ## 记忆
@@ -53,7 +53,7 @@ docker build -t scientific-data-mcp:dev .
 
 - 改 PubChem / ChEMBL / UniProt / PDB / PubMed → `kimi-science-sources-verdicts.md`
 - 改 HTTP / 重试 / 超时 → `flaky-upstream-apis.md`
-- 改 key / 环境变量 / 限速 → `secrets-and-quotas.md`
+- 改 key / 环境变量 / 限速 / 申请步骤 → `secrets-and-quotas.md` + `docs/CREDENTIALS.md`
 - 改 docstring / 工具描述 → `tool-description-discipline.md`
 - 改边界（PubMed 搜索、全文、RAG） → `boundary-with-siblings.md`
 - 改发布 / 版本 → `publishing-hatch-vcs.md`

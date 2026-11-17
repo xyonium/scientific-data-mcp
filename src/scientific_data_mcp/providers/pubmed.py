@@ -34,6 +34,8 @@ class PubMedProvider(Provider):
         params: dict = {"tool": _TOOL}
         if self.settings.ncbi_api_key:
             params["api_key"] = self.settings.ncbi_api_key
+        if self.settings.ncbi_email:
+            params["email"] = self.settings.ncbi_email
         return params
 
     async def by_pmid(self, pmid: str) -> dict:

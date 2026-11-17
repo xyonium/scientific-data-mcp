@@ -20,7 +20,7 @@ kimi datasource 把一批本来就免 key 的官方科研 API（PubChem / ChEMBL
 
 ## 源与工具
 
-全部免 key。唯一可选配置是 `NCBI_API_KEY`（免费申请，把 E-utilities 从 3 req/s 提到 10 req/s；不配也能用）。
+全部免 key。唯一可选配置是 `NCBI_API_KEY`（免费申请，把 E-utilities 从 3 req/s 提到 10 req/s；不配也能用）和联系邮箱 `NCBI_EMAIL`。申请步骤与扩展源的 key 入口见 [docs/CREDENTIALS.md](./docs/CREDENTIALS.md)。
 
 | 域 | 源 | 工具 |
 |----|----|------|
@@ -76,7 +76,16 @@ mcpo 配置示例（`config.json`）：
 }
 ```
 
-需要 NCBI 提速时在 `env` 里加 `"NCBI_API_KEY": "..."`。
+### 可选 key（不是必需）
+
+```json
+"env": {
+  "NCBI_API_KEY": "免费申请，PubMed 限速 3 → 10 req/s",
+  "NCBI_EMAIL": "you@example.com"
+}
+```
+
+申请步骤、各源是否有 key、以及 M6 扩展源（Materials Project / openFDA / NOAA / BioGRID / NASA）的入口见 **[docs/CREDENTIALS.md](./docs/CREDENTIALS.md)**。不配 key 时五个源全部可用，只是 PubMed 慢一些。
 
 ## Docker
 

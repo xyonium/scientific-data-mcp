@@ -15,3 +15,8 @@ def test_from_env_blank_key_is_none(monkeypatch):
 
 def test_default_host_delay_for_eutils():
     assert Settings().host_delays["eutils.ncbi.nlm.nih.gov"] == 0.34
+
+
+def test_from_env_reads_ncbi_email(monkeypatch):
+    monkeypatch.setenv("NCBI_EMAIL", "eli@example.com")
+    assert Settings.from_env().ncbi_email == "eli@example.com"

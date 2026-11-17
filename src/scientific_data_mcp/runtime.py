@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 from dataclasses import dataclass, field
 
 from .config import Settings
@@ -25,6 +26,9 @@ class Service:
 
 
 def build_service(settings: Settings | None = None) -> Service:
+    # E-utilities carries NCBI_API_KEY in the query string (its only supported
+    # place); httpx's INFO request log would print the full URL, so keep it quiet.
+    logging.getLogger("httpx").setLevel(logging.WARNING)
     settings = settings or Settings.from_env()
     http = PoliteClient(settings)
     providers: dict[str, Provider] = {

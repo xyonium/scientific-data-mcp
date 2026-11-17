@@ -113,3 +113,15 @@ async def test_api_key_is_sent_when_configured():
         route = respx.get(EFETCH).mock(return_value=httpx.Response(200, text=ARTICLE_XML))
         await provider.by_pmid("23903748")
         assert route.calls.last.request.url.params["api_key"] == "secret"
+
+
+@respx.mock
+async def test_email_is_sent_when_configured():
+    settings = Settings(
+        ncbi_email="eli@example.com", host_delays={"eutils.ncbi.nlm.nih.gov": 0.0}
+    )
+    async with PoliteClient(settings) as client:
+        provider = PubMedProvider(client, settings)
+        route = respx.get(EFETCH).mock(return_value=httpx.Response(200, text=ARTICLE_XML))
+        await provider.by_pmid("23903748")
+        assert route.calls.last.request.url.params["email"] == "eli@example.com"

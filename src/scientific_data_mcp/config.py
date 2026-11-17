@@ -30,6 +30,7 @@ HOST_DELAYS: dict[str, float] = {
 @dataclass
 class Settings:
     ncbi_api_key: str | None = None
+    ncbi_email: str | None = None
     timeout: float = 30.0
     max_retries: int = 3
     user_agent: str = DEFAULT_USER_AGENT
@@ -41,4 +42,5 @@ class Settings:
     @classmethod
     def from_env(cls) -> Settings:
         key = os.environ.get("NCBI_API_KEY", "").strip() or None
-        return cls(ncbi_api_key=key)
+        email = os.environ.get("NCBI_EMAIL", "").strip() or None
+        return cls(ncbi_api_key=key, ncbi_email=email)
