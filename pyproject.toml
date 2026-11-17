@@ -1,0 +1,53 @@
+[build-system]
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
+
+[project]
+name = "scientific-data-mcp"
+dynamic = ["version"]
+description = "Free, keyless MCP server for scientific entity data: PubChem, ChEMBL, UniProt, RCSB PDB and PubMed E-utilities behind one tool surface."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "eli", email = "shark_xc@hotmail.com" }]
+keywords = ["mcp", "science", "chemistry", "bioinformatics", "pubchem", "chembl", "uniprot", "pdb", "pubmed"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+]
+dependencies = [
+  # Pinned <2: mcp 2.x removed mcp.server.fastmcp (FastMCP -> MCPServer).
+  "mcp[cli]>=1.27,<2",
+  "httpx>=0.27",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "pytest-asyncio>=0.23", "respx>=0.22", "ruff>=0.6"]
+
+[project.scripts]
+scientific-data-mcp = "scientific_data_mcp.__main__:main"
+
+[tool.hatch.version]
+source = "vcs"
+
+[tool.hatch.version.raw-options]
+fallback_version = "0.0.0"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/scientific_data_mcp"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+addopts = "-m 'not live'"
+markers = ["live: hits real upstream APIs; excluded from the default run and CI"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+ignore = ["E501"]
