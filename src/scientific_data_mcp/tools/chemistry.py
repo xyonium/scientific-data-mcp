@@ -7,6 +7,7 @@ from collections.abc import Callable
 from mcp.server.fastmcp import FastMCP
 
 from ..errors import ProviderError, tool_error
+from ..providers.chembl import RESOURCES as CHEMBL_RESOURCES
 from ..providers.pubchem import ID_TYPES, PROPERTY_MAP
 from ..runtime import Service
 
@@ -15,6 +16,7 @@ ToolMap = dict[str, Callable]
 
 def register(mcp: FastMCP, service: Service) -> ToolMap:
     pubchem = service.providers["pubchem"]
+    chembl = service.providers["chembl"]
 
     @mcp.tool(name="chem_compound")
     async def chem_compound(identifier: str, id_type: str = "name") -> dict:
@@ -104,8 +106,117 @@ def register(mcp: FastMCP, service: Service) -> ToolMap:
             "items": [{"cid": cid} for cid in cids],
         }
 
+    @mcp.tool(name="chembl_search")
+    async def chembl_search(
+        query: str, resource: str = "molecule", limit: int = 10, offset: int = 0
+    ) -> dict:
+        """Full-text search ChEMBL molecules, targets or assays.
+
+        Returns only rows ChEMBL returns, trimmed to stable identifier and
+        annotation fields. Empty results are a normal answer (`count: 0`),
+        not an error.
+
+        Args:
+            query: Free-text query, e.g. "imatinib", "ABL1", "kinase".
+            resource: "molecule", "target" or "assay".
+            limit: Rows per page, 1-100.
+            offset: Rows to skip.
+        """
+        if resource not in CHEMBL_RESOURCES:
+            return tool_error(
+                f"invalid resource: {resource!r}",
+                hint=f"use one of: {', '.join(CHEMBL_RESOURCES)}",
+                source="chembl",
+            )
+        if not query.strip():
+            return tool_error("query must not be empty", source="chembl")
+        if not 1 <= limit <= 100:
+            return tool_error(f"limit must be 1-100, got {limit}", source="chembl")
+        if offset < 0:
+            return tool_error(f"offset must be >= 0, got {offset}", source="chembl")
+        try:
+            page = await chembl.search(resource, query, limit, offset)
+        except ProviderError as exc:
+            return tool_error(f"{exc.kind}: {exc}", source="chembl")
+        return {
+            "source": "chembl",
+            "source_url": f"https://www.ebi.ac.uk/chembl/{resource}/search?q={query}",
+            "count": len(page["items"]),
+            "total": page["total"],
+            "items": page["items"],
+            "next_offset": page["next_offset"],
+        }
+
+    @mcp.tool(name="chembl_bioactivity")
+    async def chembl_bioactivity(
+        chembl_id: str | None = None,
+        target_chembl_id: str | None = None,
+        limit: int = 20,
+        offset: int = 0,
+    ) -> dict:
+        """List ChEMBL bioactivity measurements for one molecule or one target.
+
+        Pass exactly one of `chembl_id` (molecule, e.g. CHEMBL941) or
+        `target_chembl_id` (e.g. CHEMBL1862). Values are upstream standard
+        type/value/units and pChEMBL; nothing is converted or normalized.
+        An empty list is a valid answer for some molecules (ChEMBL records
+        mechanisms on the salt form) and is returned as `count: 0`.
+
+        Args:
+            chembl_id: ChEMBL molecule id.
+            target_chembl_id: ChEMBL target id.
+            limit: Rows per page, 1-100.
+            offset: Rows to skip.
+        """
+        if bool(chembl_id) == bool(target_chembl_id):
+            return tool_error(
+                "pass exactly one of chembl_id or target_chembl_id",
+                source="chembl",
+            )
+        if not 1 <= limit <= 100:
+            return tool_error(f"limit must be 1-100, got {limit}", source="chembl")
+        try:
+            page = await chembl.activities(chembl_id, target_chembl_id, limit, offset)
+        except ProviderError as exc:
+            return tool_error(f"{exc.kind}: {exc}", source="chembl")
+        return {
+            "source": "chembl",
+            "source_url": "https://www.ebi.ac.uk/chembl/activity/",
+            "count": len(page["items"]),
+            "total": page["total"],
+            "items": page["items"],
+            "next_offset": page["next_offset"],
+        }
+
+    @mcp.tool(name="chembl_mechanisms")
+    async def chembl_mechanisms(chembl_id: str) -> dict:
+        """Return ChEMBL mechanism-of-action records for one molecule.
+
+        Mechanisms are attached to the molecule form ChEMBL records them on
+        (often a salt, e.g. CHEMBL1642 for imatinib mesylate). An empty list
+        for a free-base id is the true upstream answer, not an error.
+
+        Args:
+            chembl_id: ChEMBL molecule id.
+        """
+        if not chembl_id.strip():
+            return tool_error("chembl_id must not be empty", source="chembl")
+        try:
+            rows = await chembl.mechanisms(chembl_id)
+        except ProviderError as exc:
+            return tool_error(f"{exc.kind}: {exc}", source="chembl")
+        return {
+            "source": "chembl",
+            "source_url": f"https://www.ebi.ac.uk/chembl/compound_report_card/{chembl_id}/",
+            "count": len(rows),
+            "items": rows,
+        }
+
     return {
         "chem_compound": chem_compound,
         "chem_compound_properties": chem_compound_properties,
         "chem_similar_compounds": chem_similar_compounds,
+        "chembl_search": chembl_search,
+        "chembl_bioactivity": chembl_bioactivity,
+        "chembl_mechanisms": chembl_mechanisms,
     }

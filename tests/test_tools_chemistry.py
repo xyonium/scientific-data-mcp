@@ -74,3 +74,34 @@ async def test_chem_similar_compounds_count(tools):
     result = await tools["chem_similar_compounds"]("CCO")
     assert result["count"] == 2
     assert result["items"] == [{"cid": 1}, {"cid": 2}]
+
+
+@respx.mock
+async def test_chembl_bioactivity_requires_exactly_one_selector(tools):
+    result = await tools["chembl_bioactivity"](chembl_id="CHEMBL941", target_chembl_id="CHEMBL1862")
+    assert "exactly one" in result["error"]
+    result = await tools["chembl_bioactivity"]()
+    assert "exactly one" in result["error"]
+
+
+@respx.mock
+async def test_chembl_bioactivity_empty_is_not_an_error(tools):
+    respx.get("https://www.ebi.ac.uk/chembl/api/data/activity.json").mock(
+        return_value=httpx.Response(
+            200,
+            json={"activities": [], "page_meta": {"limit": 20, "offset": 0, "total_count": 0, "next": None}},
+        )
+    )
+    result = await tools["chembl_bioactivity"](chembl_id="CHEMBL941")
+    assert result["count"] == 0
+    assert result["items"] == []
+
+
+@respx.mock
+async def test_chembl_search_404_returns_error_dict(tools):
+    respx.get("https://www.ebi.ac.uk/chembl/api/data/assay/search.json").mock(
+        return_value=httpx.Response(404)
+    )
+    result = await tools["chembl_search"]("x", resource="assay")
+    assert result["source"] == "chembl"
+    assert "not_found" in result["error"]
