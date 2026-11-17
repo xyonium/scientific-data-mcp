@@ -61,5 +61,5 @@ docker build -t scientific-data-mcp:dev .
 
 ## Agent 工具纪律
 
-- 仓库根有 `.codegraph/` 时，先 `codegraph explore "<符号或问题>"` 再 grep/read。
+- 仓库根有 `.codegraph/` 时，先用 MCP `codegraph_explore`（或 shell `codegraph query "<符号>"`）再 grep/read。注意 codegraph 0.9.9 没有 `explore` 子命令。
 - 取网页/搜索走 firecrawl（`firecrawl_scrape` / `firecrawl_search`），不用原生 WebFetch。
