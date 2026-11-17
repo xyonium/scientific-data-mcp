@@ -9,6 +9,7 @@ from .http import PoliteClient
 from .providers.base import Provider
 from .providers.chembl import ChemBLProvider
 from .providers.pubchem import PubChemProvider
+from .providers.uniprot import UniProtProvider
 
 
 @dataclass
@@ -27,5 +28,6 @@ def build_service(settings: Settings | None = None) -> Service:
     providers: dict[str, Provider] = {
         "pubchem": PubChemProvider(http, settings),
         "chembl": ChemBLProvider(http, settings),
+        "uniprot": UniProtProvider(http, settings),
     }
     return Service(settings=settings, http=http, providers=providers)
