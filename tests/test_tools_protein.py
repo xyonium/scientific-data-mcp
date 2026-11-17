@@ -114,3 +114,14 @@ async def test_protein_structure_search_returns_ids(tools):
 async def test_protein_structure_search_validates_rows(tools):
     result = await tools["protein_structure_search"]("x", rows=0)
     assert "1-100" in result["error"]
+
+
+@respx.mock
+async def test_structure_search_empty_204_returns_count_zero(tools):
+    respx.post("https://search.rcsb.org/rcsbsearch/v2/query").mock(
+        return_value=httpx.Response(204)
+    )
+    result = await tools["protein_structure_search"]("no-such-structure")
+    assert result["count"] == 0
+    assert result["items"] == []
+    assert result["total"] == 0

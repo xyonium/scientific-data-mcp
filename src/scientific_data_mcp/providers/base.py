@@ -16,3 +16,8 @@ class Provider:
 
     def available(self) -> bool:
         return True
+
+
+def omit_none(data: dict) -> dict:
+    """Drop only None values; keep real empty lists, 0 and False."""
+    return {key: value for key, value in data.items() if value is not None}

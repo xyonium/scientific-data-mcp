@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable
+from urllib.parse import quote
 
 from mcp.server.fastmcp import FastMCP
 
@@ -10,6 +11,7 @@ from ..errors import ProviderError, tool_error
 from ..providers.chembl import RESOURCES as CHEMBL_RESOURCES
 from ..providers.pubchem import ID_TYPES, PROPERTY_MAP
 from ..runtime import Service
+from ._guard import guarded_tool
 
 ToolMap = dict[str, Callable]
 
@@ -18,7 +20,7 @@ def register(mcp: FastMCP, service: Service) -> ToolMap:
     pubchem = service.providers["pubchem"]
     chembl = service.providers["chembl"]
 
-    @mcp.tool(name="chem_compound")
+    @guarded_tool(mcp, name="chem_compound", source="pubchem")
     async def chem_compound(identifier: str, id_type: str = "name") -> dict:
         """Look up one compound in PubChem and return its upstream record.
 
@@ -50,7 +52,7 @@ def register(mcp: FastMCP, service: Service) -> ToolMap:
             "record": record,
         }
 
-    @mcp.tool(name="chem_compound_properties")
+    @guarded_tool(mcp, name="chem_compound_properties", source="pubchem")
     async def chem_compound_properties(cid: int, properties: list[str] | None = None) -> dict:
         """Return selected PubChem properties for a known CID.
 
@@ -76,7 +78,7 @@ def register(mcp: FastMCP, service: Service) -> ToolMap:
             "record": {"cid": cid, **values},
         }
 
-    @mcp.tool(name="chem_similar_compounds")
+    @guarded_tool(mcp, name="chem_similar_compounds", source="pubchem")
     async def chem_similar_compounds(
         smiles: str, threshold: int = 90, max_records: int = 20
     ) -> dict:
@@ -106,7 +108,7 @@ def register(mcp: FastMCP, service: Service) -> ToolMap:
             "items": [{"cid": cid} for cid in cids],
         }
 
-    @mcp.tool(name="chembl_search")
+    @guarded_tool(mcp, name="chembl_search", source="chembl")
     async def chembl_search(
         query: str, resource: str = "molecule", limit: int = 10, offset: int = 0
     ) -> dict:
@@ -140,14 +142,14 @@ def register(mcp: FastMCP, service: Service) -> ToolMap:
             return tool_error(f"{exc.kind}: {exc}", source="chembl")
         return {
             "source": "chembl",
-            "source_url": f"https://www.ebi.ac.uk/chembl/{resource}/search?q={query}",
+            "source_url": f"https://www.ebi.ac.uk/chembl/g/#search_results/all/query={quote(query)}",
             "count": len(page["items"]),
             "total": page["total"],
             "items": page["items"],
             "next_offset": page["next_offset"],
         }
 
-    @mcp.tool(name="chembl_bioactivity")
+    @guarded_tool(mcp, name="chembl_bioactivity", source="chembl")
     async def chembl_bioactivity(
         chembl_id: str | None = None,
         target_chembl_id: str | None = None,
@@ -175,20 +177,26 @@ def register(mcp: FastMCP, service: Service) -> ToolMap:
             )
         if not 1 <= limit <= 100:
             return tool_error(f"limit must be 1-100, got {limit}", source="chembl")
+        if offset < 0:
+            return tool_error(f"offset must be >= 0, got {offset}", source="chembl")
         try:
             page = await chembl.activities(chembl_id, target_chembl_id, limit, offset)
         except ProviderError as exc:
             return tool_error(f"{exc.kind}: {exc}", source="chembl")
+        if chembl_id:
+            source_url = f"https://www.ebi.ac.uk/chembl/compound_report_card/{chembl_id}/"
+        else:
+            source_url = f"https://www.ebi.ac.uk/chembl/target_report_card/{target_chembl_id}/"
         return {
             "source": "chembl",
-            "source_url": "https://www.ebi.ac.uk/chembl/activity/",
+            "source_url": source_url,
             "count": len(page["items"]),
             "total": page["total"],
             "items": page["items"],
             "next_offset": page["next_offset"],
         }
 
-    @mcp.tool(name="chembl_mechanisms")
+    @guarded_tool(mcp, name="chembl_mechanisms", source="chembl")
     async def chembl_mechanisms(chembl_id: str) -> dict:
         """Return ChEMBL mechanism-of-action records for one molecule.
 

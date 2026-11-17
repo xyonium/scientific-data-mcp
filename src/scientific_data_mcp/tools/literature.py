@@ -8,6 +8,7 @@ from mcp.server.fastmcp import FastMCP
 
 from ..errors import ProviderError, tool_error
 from ..runtime import Service
+from ._guard import guarded_tool
 
 ToolMap = dict[str, Callable]
 
@@ -16,7 +17,7 @@ ToolMap = dict[str, Callable]
 def register(mcp: FastMCP, service: Service) -> ToolMap:
     pubmed = service.providers["pubmed"]
 
-    @mcp.tool(name="pubmed_record")
+    @guarded_tool(mcp, name="pubmed_record", source="pubmed")
     async def pubmed_record(pmid: str | None = None, doi: str | None = None) -> dict:
         """Return one structured PubMed record by PMID or DOI.
 

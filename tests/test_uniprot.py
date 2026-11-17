@@ -149,3 +149,27 @@ async def test_idmapping_finishes_on_303_redirect(monkeypatch, provider):
     )
     result = await provider.map_ids("UniProtKB_AC-ID", "PDB", "P04637")
     assert result["mappings"] == {"P04637": ["1A1U"]}
+
+
+@respx.mock
+async def test_idmapping_follows_all_result_pages(monkeypatch, provider):
+    monkeypatch.setattr(uniprot_module, "_POLL_INTERVAL", 0)
+    respx.post(f"{BASE}/idmapping/run").mock(
+        return_value=httpx.Response(200, json={"jobId": "j3"})
+    )
+    respx.get(f"{BASE}/idmapping/status/j3").mock(
+        return_value=httpx.Response(303, json={"jobStatus": "FINISHED"})
+    )
+    route = respx.get(f"{BASE}/idmapping/results/j3").mock(
+        side_effect=[
+            httpx.Response(
+                200,
+                json={"results": [{"from": "P1", "to": "A1"}]},
+                headers={"Link": f'<{BASE}/idmapping/results/j3?cursor=c1&size=1>; rel="next"'},
+            ),
+            httpx.Response(200, json={"results": [{"from": "P2", "to": "A2"}]}),
+        ]
+    )
+    result = await provider.map_ids("UniProtKB_AC-ID", "PDB", "P1,P2")
+    assert result["mappings"] == {"P1": ["A1"], "P2": ["A2"]}
+    assert route.call_count == 2

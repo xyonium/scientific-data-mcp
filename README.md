@@ -44,8 +44,8 @@ kimi datasource 把一批本来就免 key 的官方科研 API（PubChem / ChEMBL
 ```bash
 uv venv --python 3.12 .venv
 uv pip install -e . --python .venv/bin/python
-# 或
-pip install scientific-data-mcp
+# 或直接从仓库装（PyPI 尚未发布）
+uvx --from git+https://github.com/xyonium/scientific-data-mcp scientific-data-mcp
 ```
 
 ## 运行

@@ -36,6 +36,12 @@ class Settings:
     user_agent: str = DEFAULT_USER_AGENT
     host_delays: dict[str, float] = field(default_factory=lambda: dict(HOST_DELAYS))
 
+    def __post_init__(self) -> None:
+        # NCBI allows 10 req/s with a registered key, 3 req/s without.
+        if self.ncbi_api_key:
+            self.host_delays["eutils.ncbi.nlm.nih.gov"] = 0.1
+            self.host_delays["www.ncbi.nlm.nih.gov"] = 0.1
+
     def host_delay(self, host: str) -> float:
         return self.host_delays.get(host, 0.1)
 

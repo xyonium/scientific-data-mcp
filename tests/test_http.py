@@ -85,3 +85,20 @@ async def test_post_form_sends_urlencoded_body():
     async with PoliteClient(Settings()) as client:
         assert await client.post_form(URL, {"smiles": "C/C"}) == {"ok": True}
     assert route.calls.last.request.content == b"smiles=C%2FC"
+
+
+@respx.mock
+async def test_post_without_retry_fails_after_one_attempt():
+    route = respx.post(URL).mock(return_value=httpx.Response(500))
+    async with PoliteClient(Settings(max_retries=3)) as client:
+        with pytest.raises(UpstreamError):
+            await client.post_form(URL, {"a": "b"}, retry=False)
+    assert route.call_count == 1
+
+
+@respx.mock
+async def test_post_response_returns_raw_204():
+    respx.post(URL).mock(return_value=httpx.Response(204))
+    async with PoliteClient(Settings()) as client:
+        resp = await client.post_response(URL, {"q": 1})
+    assert resp.status_code == 204

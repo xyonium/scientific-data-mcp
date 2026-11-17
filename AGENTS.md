@@ -34,7 +34,8 @@ docker build -t scientific-data-mcp:dev .
 ## 架构纪律
 
 - `providers/<source>.py`：URL 构造、分页、字段归一化。`tools/<domain>.py`：LLM-facing schema、参数校验、错误包装。
-- 所有 HTTP 走 `http.PoliteClient`：per-host 限速（见 `config.HOST_DELAYS`）、429/503 与瞬时 5xx（500/502/504）重试、401/403→`AuthError`、404→`NotFound`。
+- 所有 HTTP 走 `http.PoliteClient`：per-host 限速（见 `config.HOST_DELAYS`）、429/503 与瞬时 5xx（500/502/504）重试、401/403→`AuthError`、404→`NotFound`。**创建服务端任务的 POST（PubChem 相似性、UniProt idmapping run）不自动重试**，只重试其后的轮询 GET。
+- 工具用 `guarded_tool(...)` 注册：最外层兜底任何 `Exception`，保证 never-raise；`CancelledError` 不捕。
 - **工具永不抛异常**：任何失败返回 `{"error": "...", "source": "..."}`；空结果是正常答案（`count: 0`），不是错误。
 - **反幻觉**：只返回上游真实字段；缺失字段省略，不推断、不补全；docstring 写明"不补全"。返回体不带时间戳（测试可复现）。
 - 返回值 `source_url` 指向官方记录页，便于人工复核。

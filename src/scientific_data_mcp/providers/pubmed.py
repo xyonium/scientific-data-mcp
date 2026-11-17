@@ -16,7 +16,7 @@ import xml.etree.ElementTree as ET
 from ..config import Settings
 from ..errors import NotFound, UpstreamError
 from ..http import PoliteClient
-from .base import Provider
+from .base import Provider, omit_none
 
 _EFETCH = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi"
 _ESEARCH = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi"
@@ -111,7 +111,7 @@ def parse_article(xml: str, requested_id: str) -> dict:
             medline_date = (pub_date.findtext("MedlineDate") or "").strip()
             year = medline_date[:4] if medline_date[:4].isdigit() else None
 
-    return {
+    return omit_none({
         "pmid": (citation.findtext("PMID") or requested_id).strip(),
         "doi": identifiers.get("doi") or None,
         "pmcid": identifiers.get("pmc") or None,
@@ -123,4 +123,4 @@ def parse_article(xml: str, requested_id: str) -> dict:
         "issue": (body.findtext("Journal/JournalIssue/Issue") or "").strip() or None,
         "pages": (body.findtext("Pagination/MedlinePgn") or "").strip() or None,
         "abstract": " ".join(abstract_parts) or None,
-    }
+    })

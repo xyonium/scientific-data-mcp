@@ -16,6 +16,8 @@ from .base import Provider
 
 _BASE = "https://www.ebi.ac.uk/chembl/api/data"
 RESOURCES = ("molecule", "target", "assay")
+_PAGE_SIZE = 1000
+_MAX_PAGES = 10
 
 
 class ChemBLProvider(Provider):
@@ -69,12 +71,20 @@ class ChemBLProvider(Provider):
         return page
 
     async def mechanisms(self, chembl_id: str) -> list[dict]:
-        payload = await self.http.get_json(
-            f"{self.base_url}/mechanism.json",
-            params={"molecule_chembl_id": chembl_id},
-        )
-        rows = payload.get("mechanisms") or []
-        return [_pick(row, MECHANISM_FIELDS) for row in rows]
+        rows: list[dict] = []
+        offset = 0
+        for _ in range(_MAX_PAGES):
+            payload = await self.http.get_json(
+                f"{self.base_url}/mechanism.json",
+                params={"molecule_chembl_id": chembl_id, "limit": _PAGE_SIZE, "offset": offset},
+            )
+            page = payload.get("mechanisms") or []
+            rows.extend(_pick(row, MECHANISM_FIELDS) for row in page)
+            meta = payload.get("page_meta") or {}
+            if not meta.get("next") or not page:
+                break
+            offset += len(page)
+        return rows
 
     async def _get(self, resource: str, chembl_id: str) -> dict:
         payload = await self.http.get_json(f"{self.base_url}/{resource}/{quote(chembl_id, safe='')}.json")

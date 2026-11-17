@@ -24,7 +24,7 @@ kimi datasource 把一批**本来就免 key 的官方科研 API**（PubChem / Ch
 - **全部源免 key**；唯一可选 key 是 `NCBI_API_KEY`（免费申请，3 req/s → 10 req/s），无 key 静默降速，不报错。
 - 反幻觉纪律：工具 docstring 与返回体只陈述上游真实字段；缺失字段省略，不推断、不补全；错误返回 `{"error": ..., "source": ...}`，**工具永不抛异常**。
 - 限速与重试（上游实测/文档；瞬时 5xx 也重试）：PubChem ≤5 req/s；ChEMBL "moderate"（≥0.5s 间隔）；UniProt 合理；RCSB 合理；NCBI 3/s（无 key）/10/s（有 key）。
-- 境外学术 API 在同网络下会间歇 SSL EOF/挂起（paper-search 记忆）：所有请求必须带退避重试；记录到 `docs/memory/`。
+- 境外学术 API 在同网络下会间歇 SSL EOF/挂起（paper-search 记忆）：幂等请求必须带退避重试；**创建服务端任务的 POST 不重试**（否则会重复建 job），只重试其后的轮询 GET；记录到 `docs/memory/`。
 - 发布：hatch-vcs，version 只来自 git tag；不再手写 `version = "..."`（finance-mcp 2026-09-11 duplicate 事故）。
 
 ## 方案

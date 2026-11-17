@@ -66,10 +66,12 @@ class PoliteClient:
         form: dict | None = None,
         headers: dict | None = None,
         follow_redirects: bool = True,
+        retry: bool = True,
     ) -> httpx.Response:
         host = urlparse(url).netloc
         last: Exception | None = None
-        for attempt in range(self._max_retries + 1):
+        attempts = self._max_retries + 1 if retry else 1
+        for attempt in range(attempts):
             await self._pace(host)
             try:
                 resp = await self._client.request(
@@ -83,16 +85,22 @@ class PoliteClient:
                 )
             except httpx.HTTPError as exc:
                 last = UpstreamError(f"network error from {host}: {exc}")
+                if not retry:
+                    raise last from exc
                 await asyncio.sleep(0.5 * (2**attempt))
                 continue
             if resp.status_code in (429, 503):
                 last = RateLimited(f"HTTP {resp.status_code} from {host}")
+                if not retry:
+                    raise last
                 await asyncio.sleep(self._retry_after(resp, attempt))
                 continue
             if resp.status_code in (500, 502, 504):
                 # Transient upstream failures: ChEMBL and UniProt both return
                 # sporadic 5xx under load, and the same call succeeds on retry.
                 last = UpstreamError(f"HTTP {resp.status_code} from {host}")
+                if not retry:
+                    raise last
                 await asyncio.sleep(0.5 * (2**attempt))
                 continue
             if resp.status_code in (401, 403):
@@ -143,13 +151,28 @@ class PoliteClient:
         resp = await self.get_response(url, params=params, headers=headers)
         return resp.text
 
+    async def post_response(
+        self,
+        url: str,
+        json_body: dict,
+        headers: dict | None = None,
+        retry: bool = True,
+    ) -> httpx.Response:
+        """POST and return the raw response (for 204/3xx handling by callers)."""
+        return await self._request(
+            "POST", url, json_body=json_body, headers=headers, retry=retry
+        )
+
     async def post_json(
         self,
         url: str,
         json_body: dict,
         headers: dict | None = None,
+        retry: bool = True,
     ) -> Any:
-        resp = await self._request("POST", url, json_body=json_body, headers=headers)
+        resp = await self._request(
+            "POST", url, json_body=json_body, headers=headers, retry=retry
+        )
         try:
             return resp.json()
         except ValueError as exc:
@@ -160,8 +183,9 @@ class PoliteClient:
         url: str,
         fields: dict,
         headers: dict | None = None,
+        retry: bool = True,
     ) -> Any:
-        resp = await self._request("POST", url, form=fields, headers=headers)
+        resp = await self._request("POST", url, form=fields, headers=headers, retry=retry)
         try:
             return resp.json()
         except ValueError as exc:

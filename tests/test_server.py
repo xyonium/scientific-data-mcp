@@ -21,3 +21,11 @@ EXPECTED_TOOLS = {
 async def test_server_exposes_exactly_the_twelve_tools():
     mcp = build_server()
     assert {tool.name for tool in await mcp.list_tools()} == EXPECTED_TOOLS
+
+
+async def test_guarded_tools_keep_their_input_schema():
+    mcp = build_server()
+    tools = {tool.name: tool for tool in await mcp.list_tools()}
+    props = tools["chem_compound"].inputSchema["properties"]
+    assert {"identifier", "id_type"} <= set(props)
+    assert tools["chem_compound"].inputSchema["required"] == ["identifier"]

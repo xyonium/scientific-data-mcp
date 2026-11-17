@@ -13,12 +13,13 @@ from urllib.parse import parse_qs, quote, urlparse
 from ..config import Settings
 from ..errors import UpstreamError
 from ..http import PoliteClient
-from .base import Provider
+from .base import Provider, omit_none
 
 _BASE = "https://rest.uniprot.org"
 _SEARCH_FIELDS = "accession,id,protein_name,gene_names,organism_name,length"
 _POLL_INTERVAL = 0.5
 _MAPPING_PAGE = 500
+_MAPPING_MAX_PAGES = 10
 
 
 class UniProtProvider(Provider):
@@ -59,9 +60,11 @@ class UniProtProvider(Provider):
     async def map_ids(
         self, from_db: str, to_db: str, ids: str, timeout: float = 30.0
     ) -> dict:
+        # Creates a server-side job: never auto-retry the submit.
         payload = await self.http.post_form(
             f"{self.base_url}/idmapping/run",
             {"from": from_db, "to": to_db, "ids": ids},
+            retry=False,
         )
         job_id = payload.get("jobId")
         if not job_id:
@@ -81,15 +84,24 @@ class UniProtProvider(Provider):
             if time.monotonic() >= deadline:
                 raise UpstreamError(f"UniProt idmapping job {job_id} timed out after {timeout:.0f}s")
             await asyncio.sleep(_POLL_INTERVAL)
-        results = await self.http.get_json(
-            f"{self.base_url}/idmapping/results/{job_id}", params={"size": _MAPPING_PAGE}
-        )
+        url: str | None = f"{self.base_url}/idmapping/results/{job_id}"
+        params: dict | None = {"size": _MAPPING_PAGE}
         mappings: dict[str, list[str]] = {}
-        for row in results.get("results") or []:
-            src = row.get("from")
-            dst = row.get("to")
-            if src and dst:
-                mappings.setdefault(src, []).append(dst)
+        pages = 0
+        while url and pages < _MAPPING_MAX_PAGES:
+            resp = await self.http.get_response(url, params=params)
+            try:
+                payload = resp.json()
+            except ValueError as exc:
+                raise UpstreamError(f"non-JSON UniProt results response: {exc}") from exc
+            for row in payload.get("results") or []:
+                src = row.get("from")
+                dst = row.get("to")
+                if src and dst:
+                    mappings.setdefault(src, []).append(dst)
+            url = _next_url(resp.headers.get("link", ""))
+            params = None
+            pages += 1
         return {"job_id": job_id, "mappings": mappings}
 
 
@@ -129,16 +141,18 @@ def _is_reviewed(row: dict) -> bool:
 
 def _normalize_summary(row: dict) -> dict:
     name, taxid = _organism(row)
-    return {
-        "accession": row.get("primaryAccession"),
-        "entry_name": row.get("uniProtkbId"),
-        "protein_name": _protein_name(row),
-        "genes": _genes(row),
-        "organism": name,
-        "taxid": taxid,
-        "reviewed": _is_reviewed(row),
-        "sequence_length": _sequence_length(row),
-    }
+    return omit_none(
+        {
+            "accession": row.get("primaryAccession"),
+            "entry_name": row.get("uniProtkbId"),
+            "protein_name": _protein_name(row),
+            "genes": _genes(row),
+            "organism": name,
+            "taxid": taxid,
+            "reviewed": _is_reviewed(row),
+            "sequence_length": _sequence_length(row),
+        }
+    )
 
 
 def _normalize_entry(row: dict, include_sequence: bool) -> dict:
@@ -163,11 +177,11 @@ def _normalize_entry(row: dict, include_sequence: bool) -> dict:
     out["pdb_ids"] = pdb_ids
     if include_sequence and sequence.get("value"):
         out["sequence"] = sequence["value"]
-    return out
+    return omit_none(out)
 
 
-def _next_cursor(link_header: str) -> str | None:
-    """Extract the cursor from the RFC 5988 ``rel="next"`` link."""
+def _next_url(link_header: str) -> str | None:
+    """Return the RFC 5988 ``rel="next"`` URL, if any."""
     for part in link_header.split(","):
         if 'rel="next"' not in part:
             continue
@@ -175,8 +189,14 @@ def _next_cursor(link_header: str) -> str | None:
         end = part.find(">", start + 1)
         if start < 0 or end < 0:
             continue
-        query = parse_qs(urlparse(part[start + 1 : end]).query)
-        cursor = (query.get("cursor") or [None])[0]
-        if cursor:
-            return cursor
+        return part[start + 1 : end]
     return None
+
+
+def _next_cursor(link_header: str) -> str | None:
+    """Extract the cursor from the RFC 5988 ``rel="next"`` link."""
+    url = _next_url(link_header)
+    if not url:
+        return None
+    cursor = (parse_qs(urlparse(url).query).get("cursor") or [None])[0]
+    return cursor or None

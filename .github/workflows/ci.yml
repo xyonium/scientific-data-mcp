@@ -26,3 +26,14 @@ jobs:
         run: ruff check .
       - name: Test
         run: pytest -q
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Build image
+        run: docker build -t scientific-data-mcp:ci .
+      - name: Smoke the entrypoint
+        run: docker run --rm scientific-data-mcp:ci --help

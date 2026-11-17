@@ -120,9 +120,11 @@ class PubChemProvider(Provider):
     async def similar_cids(
         self, smiles: str, threshold: int = 90, max_records: int = 20
     ) -> list[int]:
+        # Not idempotent: a retried submit starts a second server-side job.
         payload = await self.http.post_form(
             f"{self.base_url}/compound/similarity/smiles/JSON",
             {"smiles": smiles, "Threshold": threshold, "MaxRecords": max_records},
+            retry=False,
         )
         key = (payload.get("Waiting") or {}).get("ListKey")
         if not key:

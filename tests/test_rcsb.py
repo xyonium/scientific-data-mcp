@@ -79,3 +79,10 @@ async def test_unknown_entry_raises(provider):
     )
     with pytest.raises(NotFound):
         await provider.entry("XXXX")
+
+
+@respx.mock
+async def test_empty_search_204_is_a_normal_empty_page(provider):
+    respx.post(SEARCH).mock(return_value=httpx.Response(204))
+    result = await provider.search("no-such-structure")
+    assert result == {"total": 0, "identifiers": [], "next_start": None}

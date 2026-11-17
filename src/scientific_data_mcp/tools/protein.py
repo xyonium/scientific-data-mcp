@@ -8,6 +8,7 @@ from mcp.server.fastmcp import FastMCP
 
 from ..errors import ProviderError, tool_error
 from ..runtime import Service
+from ._guard import guarded_tool
 
 ToolMap = dict[str, Callable]
 
@@ -16,7 +17,7 @@ def register(mcp: FastMCP, service: Service) -> ToolMap:
     uniprot = service.providers["uniprot"]
     rcsb = service.providers["rcsb"]
 
-    @mcp.tool(name="protein_entry")
+    @guarded_tool(mcp, name="protein_entry", source="uniprot")
     async def protein_entry(accession: str, include_sequence: bool = False) -> dict:
         """Fetch one UniProtKB entry by accession.
 
@@ -41,7 +42,7 @@ def register(mcp: FastMCP, service: Service) -> ToolMap:
             "record": record,
         }
 
-    @mcp.tool(name="protein_search")
+    @guarded_tool(mcp, name="protein_search", source="uniprot")
     async def protein_search(query: str, size: int = 10, cursor: str | None = None) -> dict:
         """Search UniProtKB with a UniProt query string.
 
@@ -71,7 +72,7 @@ def register(mcp: FastMCP, service: Service) -> ToolMap:
             "next_cursor": page["next_cursor"],
         }
 
-    @mcp.tool(name="protein_map_ids")
+    @guarded_tool(mcp, name="protein_map_ids", source="uniprot")
     async def protein_map_ids(from_db: str, to_db: str, ids: str) -> dict:
         """Map identifiers between UniProt and other databases.
 
@@ -101,7 +102,7 @@ def register(mcp: FastMCP, service: Service) -> ToolMap:
             "mappings": result["mappings"],
         }
 
-    @mcp.tool(name="protein_structure")
+    @guarded_tool(mcp, name="protein_structure", source="rcsb")
     async def protein_structure(pdb_id: str) -> dict:
         """Fetch one experimental structure from RCSB PDB.
 
@@ -125,7 +126,7 @@ def register(mcp: FastMCP, service: Service) -> ToolMap:
             "record": record,
         }
 
-    @mcp.tool(name="protein_structure_search")
+    @guarded_tool(mcp, name="protein_structure_search", source="rcsb")
     async def protein_structure_search(query: str, rows: int = 10, start: int = 0) -> dict:
         """Full-text search RCSB PDB entries.
 

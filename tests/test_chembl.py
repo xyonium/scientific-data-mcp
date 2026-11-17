@@ -130,3 +130,28 @@ async def test_mechanisms_are_trimmed(provider):
             "direct_interaction": True,
         }
     ]
+
+
+@respx.mock
+async def test_mechanisms_follow_all_pages(provider):
+    route = respx.get(f"{BASE}/mechanism.json").mock(
+        side_effect=[
+            httpx.Response(
+                200,
+                json={
+                    "mechanisms": [{"molecule_chembl_id": "M1", "mechanism_of_action": "a"}],
+                    "page_meta": {"limit": 1000, "offset": 0, "total_count": 2, "next": "x"},
+                },
+            ),
+            httpx.Response(
+                200,
+                json={
+                    "mechanisms": [{"molecule_chembl_id": "M1", "mechanism_of_action": "b"}],
+                    "page_meta": {"limit": 1000, "offset": 1, "total_count": 2, "next": None},
+                },
+            ),
+        ]
+    )
+    rows = await provider.mechanisms("CHEMBL1")
+    assert [r["mechanism_of_action"] for r in rows] == ["a", "b"]
+    assert route.call_count == 2
