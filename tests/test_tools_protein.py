@@ -78,3 +78,39 @@ async def test_protein_search_rejects_bad_size(tools):
 async def test_protein_map_ids_requires_ids(tools):
     result = await tools["protein_map_ids"]("UniProtKB_AC-ID", "PDB", "  ")
     assert "ids" in result["error"]
+
+
+@respx.mock
+async def test_protein_structure_envelope(tools):
+    respx.get("https://data.rcsb.org/rest/v1/core/entry/4HHB").mock(
+        return_value=httpx.Response(
+            200,
+            json={
+                "struct": {"title": "HUMAN DEOXYHAEMOGLOBIN"},
+                "exptl": [{"method": "X-RAY DIFFRACTION"}],
+                "rcsb_entry_info": {"resolution_combined": [1.74]},
+                "rcsb_entry_container_identifiers": {"polymer_entity_ids": []},
+            },
+        )
+    )
+    result = await tools["protein_structure"]("4hhb")
+    assert result["source"] == "rcsb"
+    assert result["record"]["pdb_id"] == "4HHB"
+    assert result["source_url"] == "https://www.rcsb.org/structure/4HHB"
+
+
+@respx.mock
+async def test_protein_structure_search_returns_ids(tools):
+    respx.post("https://search.rcsb.org/rcsbsearch/v2/query").mock(
+        return_value=httpx.Response(
+            200, json={"total_count": 1, "result_set": [{"identifier": "1A3N"}]}
+        )
+    )
+    result = await tools["protein_structure_search"]("hemoglobin")
+    assert result["total"] == 1
+    assert result["items"] == [{"pdb_id": "1A3N"}]
+
+
+async def test_protein_structure_search_validates_rows(tools):
+    result = await tools["protein_structure_search"]("x", rows=0)
+    assert "1-100" in result["error"]

@@ -14,6 +14,7 @@ ToolMap = dict[str, Callable]
 
 def register(mcp: FastMCP, service: Service) -> ToolMap:
     uniprot = service.providers["uniprot"]
+    rcsb = service.providers["rcsb"]
 
     @mcp.tool(name="protein_entry")
     async def protein_entry(accession: str, include_sequence: bool = False) -> dict:
@@ -100,8 +101,67 @@ def register(mcp: FastMCP, service: Service) -> ToolMap:
             "mappings": result["mappings"],
         }
 
+    @mcp.tool(name="protein_structure")
+    async def protein_structure(pdb_id: str) -> dict:
+        """Fetch one experimental structure from RCSB PDB.
+
+        Returns title, experimental method, resolution, deposit date and up to
+        five polymer entities (description, type, chain ids, length). Only
+        structures deposited in PDB exist here; predicted models are not
+        included. Unknown ids return a not_found error, not an empty record.
+
+        Args:
+            pdb_id: Four-character PDB id, e.g. "4HHB".
+        """
+        if not pdb_id.strip():
+            return tool_error("pdb_id must not be empty", source="rcsb")
+        try:
+            record = await rcsb.entry(pdb_id.strip())
+        except ProviderError as exc:
+            return tool_error(f"{exc.kind}: {exc}", source="rcsb")
+        return {
+            "source": "rcsb",
+            "source_url": f"https://www.rcsb.org/structure/{record['pdb_id']}",
+            "record": record,
+        }
+
+    @mcp.tool(name="protein_structure_search")
+    async def protein_structure_search(query: str, rows: int = 10, start: int = 0) -> dict:
+        """Full-text search RCSB PDB entries.
+
+        The query is passed to the RCSB search service unchanged (e.g.
+        "hemoglobin", "kinase inhibitor"); results are PDB ids only, because
+        the search index does not return full records. Use `protein_structure`
+        on an id to fetch its record. `next_start` is null on the last page.
+
+        Args:
+            query: Free-text query.
+            rows: Page size, 1-100 (default 10).
+            start: Offset into the result set.
+        """
+        if not query.strip():
+            return tool_error("query must not be empty", source="rcsb")
+        if not 1 <= rows <= 100:
+            return tool_error(f"rows must be 1-100, got {rows}", source="rcsb")
+        if start < 0:
+            return tool_error(f"start must be >= 0, got {start}", source="rcsb")
+        try:
+            page = await rcsb.search(query.strip(), rows, start)
+        except ProviderError as exc:
+            return tool_error(f"{exc.kind}: {exc}", source="rcsb")
+        return {
+            "source": "rcsb",
+            "source_url": "https://www.rcsb.org/search",
+            "total": page["total"],
+            "count": len(page["identifiers"]),
+            "items": [{"pdb_id": pdb_id} for pdb_id in page["identifiers"]],
+            "next_start": page["next_start"],
+        }
+
     return {
         "protein_entry": protein_entry,
         "protein_search": protein_search,
         "protein_map_ids": protein_map_ids,
+        "protein_structure": protein_structure,
+        "protein_structure_search": protein_structure_search,
     }
