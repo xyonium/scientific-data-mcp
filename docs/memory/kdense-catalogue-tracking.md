@@ -18,3 +18,9 @@
 ## 边界
 
 清单是"可以考虑的源"，不是"已接的源"。当前已接：PubChem/ChEMBL/UniProt/PDB/PubMed（免 key）+ Materials Project（需 key）。
+
+## 2026-11-18 兄弟项目归属审计
+
+- finance-mcp（HEAD `36d4230`）：14 个经济/监管/社科源里，真正值得补的只有 **SEC EDGAR**；World Bank 任意指标透传、Treasury Fiscal Data 是低成本增量；BEA/BLS 由 FRED 派生覆盖，Eurostat/WHO/Census/Data Commons 暂缓。
+- paper-search：USPTO 官方直连完全未覆盖，但 ODP 需 ID.me 实名 + 个人 key、仅美国、无全文/语义检索；PatentsView 搜索暂停。结论 **暂不新增**，patsnap 继续用；触发条件是 patsnap 失效或需要美国审查文书。
+- 交接：`docs/handoff/2026-11-18-kdense-finance-gaps.md`（dockerno1 副本在 `~/finance-mcp/docs/handoff-2026-11-18-kdense-gaps.md`）。
