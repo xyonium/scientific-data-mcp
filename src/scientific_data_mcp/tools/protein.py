@@ -22,7 +22,7 @@ def register(mcp: FastMCP, service: Service) -> ToolMap:
 
     @guarded_tool(mcp, name="protein_record", source="protein")
     async def protein_record(
-        kind: str = "uniprot", identifier: str = "", include_sequence: bool = False
+        identifier: str, kind: str = "uniprot", include_sequence: bool = False
     ) -> dict:
         """Fetch one protein record from UniProt or RCSB PDB.
 
@@ -39,8 +39,8 @@ def register(mcp: FastMCP, service: Service) -> ToolMap:
         Only upstream fields are returned; missing annotations stay missing.
 
         Args:
-            kind: "uniprot" or "pdb".
             identifier: UniProt accession or PDB id.
+            kind: "uniprot" or "pdb".
             include_sequence: UniProt only; include the full sequence.
         """
         kind = kind.strip().lower()
@@ -68,8 +68,8 @@ def register(mcp: FastMCP, service: Service) -> ToolMap:
 
     @guarded_tool(mcp, name="protein_search", source="protein")
     async def protein_search(
+        query: str,
         kind: str = "uniprot",
-        query: str = "",
         size: int = 10,
         cursor: str | None = None,
     ) -> dict:
@@ -90,8 +90,8 @@ def register(mcp: FastMCP, service: Service) -> ToolMap:
         answers. Use `protein_record` to fetch a full record for an id.
 
         Args:
-            kind: "uniprot" or "pdb".
             query: UniProt query string or PDB free text.
+            kind: "uniprot" or "pdb".
             size: Page size (uniprot 1-500, pdb 1-100).
             cursor: Opaque next-page token from a previous call.
         """

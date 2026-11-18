@@ -21,7 +21,7 @@ def register(mcp: FastMCP, service: Service) -> ToolMap:
         return {}
 
     @guarded_tool(mcp, name="material", source="materials_project")
-    async def material(by: str = "formula", query: str = "", limit: int = 10) -> dict:
+    async def material(query: str, by: str = "formula", limit: int = 10) -> dict:
         """Query Materials Project summaries (requires MATERIALS_PROJECT_API_KEY).
 
         Pick `by`:
@@ -39,8 +39,8 @@ def register(mcp: FastMCP, service: Service) -> ToolMap:
         registered when no key is configured.
 
         Args:
-            by: "id", "formula", "chemsys" or "elements".
             query: Identifier or formula/system/elements string.
+            by: "id", "formula", "chemsys" or "elements".
             limit: Maximum rows for non-id queries, 1-100.
         """
         by = by.strip().lower()

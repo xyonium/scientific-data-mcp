@@ -39,7 +39,7 @@ async def test_not_registered_without_key():
 @respx.mock
 async def test_material_by_id(tools):
     respx.get(BASE).mock(return_value=httpx.Response(200, json={"data": [ROW], "meta": {}}))
-    result = await tools["material"](by="id", query="mp-149")
+    result = await tools["material"]("mp-149", by="id")
     assert result["count"] == 1
     assert result["items"][0]["formula"] == "SiO2"
     assert result["source_url"] == "https://materialsproject.org/materials/mp-149"
@@ -50,16 +50,16 @@ async def test_material_by_formula(tools):
     route = respx.get(BASE).mock(
         return_value=httpx.Response(200, json={"data": [ROW], "meta": {}})
     )
-    result = await tools["material"](by="formula", query="SiO2", limit=5)
+    result = await tools["material"]("SiO2", by="formula", limit=5)
     assert route.calls.last.request.url.params["formula"] == "SiO2"
     assert route.calls.last.request.url.params["_limit"] == "5"
     assert result["count"] == 1
 
 
 async def test_material_validates_inputs(tools):
-    assert "invalid by" in (await tools["material"](by="nope", query="x"))["error"]
-    assert "query" in (await tools["material"](query="  "))["error"]
-    assert "1-100" in (await tools["material"](by="formula", query="SiO2", limit=0))["error"]
+    assert "invalid by" in (await tools["material"]("x", by="nope"))["error"]
+    assert "query" in (await tools["material"]("  "))["error"]
+    assert "1-100" in (await tools["material"]("SiO2", by="formula", limit=0))["error"]
 
 
 @respx.mock
@@ -67,7 +67,7 @@ async def test_material_400_marks_contact_admin(tools):
     respx.get(BASE).mock(
         return_value=httpx.Response(400, json={"detail": "unknown query parameter"})
     )
-    result = await tools["material"](by="id", query="mp-149")
+    result = await tools["material"]("mp-149", by="id")
     assert result["suspect_drift"] is True
     assert result["action"] == "contact_admin"
 
@@ -75,6 +75,6 @@ async def test_material_400_marks_contact_admin(tools):
 @respx.mock
 async def test_material_401_is_auth_not_drift(tools):
     respx.get(BASE).mock(return_value=httpx.Response(401))
-    result = await tools["material"](by="id", query="mp-149")
+    result = await tools["material"]("mp-149", by="id")
     assert "auth" in result["error"]
     assert "suspect_drift" not in result

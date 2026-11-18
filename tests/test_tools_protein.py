@@ -51,7 +51,7 @@ async def test_protein_record_uniprot(tools):
     respx.get(f"{UNIPROT}/uniprotkb/P05067.json").mock(
         return_value=httpx.Response(200, json=ENTRY)
     )
-    result = await tools["protein_record"]("uniprot", "P05067")
+    result = await tools["protein_record"]("P05067", kind="uniprot")
     assert result["source"] == "uniprot"
     assert result["record"]["protein_name"] == "Amyloid-beta precursor protein"
     assert result["source_url"] == "https://www.uniprot.org/uniprotkb/P05067/entry"
@@ -60,21 +60,21 @@ async def test_protein_record_uniprot(tools):
 @respx.mock
 async def test_protein_record_pdb(tools):
     respx.get(f"{RCSB}/entry/4HHB").mock(return_value=httpx.Response(200, json=PDB_ENTRY))
-    result = await tools["protein_record"](kind="pdb", identifier="4hhb")
+    result = await tools["protein_record"]("4hhb", kind="pdb")
     assert result["source"] == "rcsb"
     assert result["record"]["pdb_id"] == "4HHB"
     assert result["source_url"] == "https://www.rcsb.org/structure/4HHB"
 
 
 async def test_protein_record_validates_kind_and_id(tools):
-    assert "invalid kind" in (await tools["protein_record"](kind="nope"))["error"]
-    assert "identifier" in (await tools["protein_record"](identifier=" "))["error"]
+    assert "invalid kind" in (await tools["protein_record"]("X", kind="nope"))["error"]
+    assert "identifier" in (await tools["protein_record"](" "))["error"]
 
 
 @respx.mock
 async def test_protein_entry_404_returns_error_dict(tools):
     respx.get(f"{UNIPROT}/uniprotkb/XXXX.json").mock(return_value=httpx.Response(404))
-    result = await tools["protein_record"]("uniprot", "XXXX")
+    result = await tools["protein_record"]("XXXX", kind="uniprot")
     assert result["source"] == "uniprot"
     assert "not_found" in result["error"]
 
@@ -88,7 +88,7 @@ async def test_protein_search_uniprot_exposes_next_cursor(tools):
             headers={"Link": '<https://rest.uniprot.org/uniprotkb/search?cursor=c2>; rel="next"'},
         )
     )
-    result = await tools["protein_search"]("uniprot", "gene:APP", size=1)
+    result = await tools["protein_search"]("gene:APP", kind="uniprot", size=1)
     assert result["source"] == "uniprot"
     assert result["count"] == 1
     assert result["next_cursor"] == "c2"
@@ -105,7 +105,7 @@ async def test_protein_search_pdb_uses_cursor_as_offset(tools):
             },
         )
     )
-    result = await tools["protein_search"]("pdb", "hemoglobin", size=2)
+    result = await tools["protein_search"]("hemoglobin", kind="pdb", size=2)
     assert result["source"] == "rcsb"
     assert result["total"] == 3
     assert result["items"] == [{"pdb_id": "1A3N"}, {"pdb_id": "1IT2"}]
@@ -113,9 +113,9 @@ async def test_protein_search_pdb_uses_cursor_as_offset(tools):
 
 
 async def test_protein_search_validates_inputs(tools):
-    assert "1-500" in (await tools["protein_search"]("uniprot", "x", size=0))["error"]
-    assert "1-100" in (await tools["protein_search"]("pdb", "x", size=0))["error"]
-    assert "cursor" in (await tools["protein_search"]("pdb", "x", cursor="abc"))["error"]
+    assert "1-500" in (await tools["protein_search"]("x", kind="uniprot", size=0))["error"]
+    assert "1-100" in (await tools["protein_search"]("x", kind="pdb", size=0))["error"]
+    assert "cursor" in (await tools["protein_search"]("x", kind="pdb", cursor="abc"))["error"]
 
 
 async def test_protein_map_ids_validates_inputs(tools):
