@@ -1,16 +1,17 @@
-"""Live smoke test: one real call per tool against the five upstream APIs.
+"""Live smoke test: one real call per tool against the upstream APIs.
 
 Not part of CI and not run by pytest (it makes real network calls). Run it
 manually, ideally once or twice per session:
 
     python scripts/live_smoke.py
 
-Exit code 0 only when all 12 tools return a payload without an "error" key.
+Exit code 0 only when every enabled tool returns a payload without an "error" key.
 """
 
 from __future__ import annotations
 
 import asyncio
+import os
 import sys
 import time
 
@@ -38,6 +39,12 @@ CASES: list[tuple[str, dict, str]] = [
     ("protein_structure_search", {"query": "hemoglobin", "rows": 2}, "total"),
     ("pubmed_record", {"pmid": "23903748"}, "record"),
 ]
+
+if os.environ.get("MATERIALS_PROJECT_API_KEY", "").strip():
+    CASES += [
+        ("material_get", {"material_id": "mp-149"}, "record"),
+        ("material_search", {"formula": "SiO2", "limit": 2}, "count"),
+    ]
 
 
 def _summarize(result: dict) -> str:

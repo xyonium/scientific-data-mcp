@@ -1,0 +1,488 @@
+{
+  "source_url": "https://raw.githubusercontent.com/K-Dense-AI/scientific-agent-skills/main/skills/database-lookup/SKILL.md",
+  "fetched_at": "2026-11-18T01:41:44+00:00",
+  "skill_version": "1.8",
+  "last_reviewed": "2026-09-30",
+  "databases": [
+    {
+      "name": "NASA",
+      "reference": "references/nasa.md",
+      "category": "Physics & Astronomy",
+      "coverage": "NEO asteroids, APOD migration and archival rover data"
+    },
+    {
+      "name": "NASA Exoplanet Archive",
+      "reference": "references/nasa-exoplanet-archive.md",
+      "category": "Physics & Astronomy",
+      "coverage": "Exoplanets, orbital parameters"
+    },
+    {
+      "name": "NIST",
+      "reference": "references/nist.md",
+      "category": "Physics & Astronomy",
+      "coverage": "Physical constants, atomic spectra"
+    },
+    {
+      "name": "SDSS",
+      "reference": "references/sdss.md",
+      "category": "Physics & Astronomy",
+      "coverage": "Galaxy/star spectra, photometry"
+    },
+    {
+      "name": "SIMBAD",
+      "reference": "references/simbad.md",
+      "category": "Physics & Astronomy",
+      "coverage": "Astronomical object catalog"
+    },
+    {
+      "name": "USGS",
+      "reference": "references/usgs.md",
+      "category": "Earth & Environmental Sciences",
+      "coverage": "Earthquakes, water data"
+    },
+    {
+      "name": "NOAA",
+      "reference": "references/noaa.md",
+      "category": "Earth & Environmental Sciences",
+      "coverage": "Climate, weather station data"
+    },
+    {
+      "name": "EPA",
+      "reference": "references/epa.md",
+      "category": "Earth & Environmental Sciences",
+      "coverage": "Air quality, toxic releases"
+    },
+    {
+      "name": "OpenWeatherMap",
+      "reference": "references/openweathermap.md",
+      "category": "Earth & Environmental Sciences",
+      "coverage": "Weather current/forecast"
+    },
+    {
+      "name": "PubChem",
+      "reference": "references/pubchem.md",
+      "category": "Chemistry & Drugs",
+      "coverage": "Compounds, properties, synonyms"
+    },
+    {
+      "name": "ChEMBL",
+      "reference": "references/chembl.md",
+      "category": "Chemistry & Drugs",
+      "coverage": "Bioactivity, drug discovery"
+    },
+    {
+      "name": "DrugBank",
+      "reference": "references/drugbank.md",
+      "category": "Chemistry & Drugs",
+      "coverage": "Drug data, interactions (paid)"
+    },
+    {
+      "name": "FDA (OpenFDA)",
+      "reference": "references/fda.md",
+      "category": "Chemistry & Drugs",
+      "coverage": "Drug labels, adverse events, recalls"
+    },
+    {
+      "name": "DailyMed",
+      "reference": "references/dailymed.md",
+      "category": "Chemistry & Drugs",
+      "coverage": "Drug labels (NIH/NLM)"
+    },
+    {
+      "name": "KEGG",
+      "reference": "references/kegg.md",
+      "category": "Chemistry & Drugs",
+      "coverage": "Pathways, genes, compounds"
+    },
+    {
+      "name": "ChEBI",
+      "reference": "references/chebi.md",
+      "category": "Chemistry & Drugs",
+      "coverage": "Chemical entities of biological interest"
+    },
+    {
+      "name": "ZINC",
+      "reference": "references/zinc.md",
+      "category": "Chemistry & Drugs",
+      "coverage": "Commercially available compounds, virtual screening"
+    },
+    {
+      "name": "BindingDB",
+      "reference": "references/bindingdb.md",
+      "category": "Chemistry & Drugs",
+      "coverage": "Experimentally measured binding affinities"
+    },
+    {
+      "name": "Materials Project",
+      "reference": "references/materials-project.md",
+      "category": "Materials Science",
+      "coverage": "Band gaps, elastic properties, crystal structures"
+    },
+    {
+      "name": "COD",
+      "reference": "references/cod.md",
+      "category": "Materials Science",
+      "coverage": "Crystal structures, CIF files"
+    },
+    {
+      "name": "Reactome",
+      "reference": "references/reactome.md",
+      "category": "Biology & Genomics",
+      "coverage": "Biological pathways, reactions"
+    },
+    {
+      "name": "BRENDA",
+      "reference": "references/brenda.md",
+      "category": "Biology & Genomics",
+      "coverage": "Enzyme kinetics, catalysis (SOAP)"
+    },
+    {
+      "name": "UniProt",
+      "reference": "references/uniprot.md",
+      "category": "Biology & Genomics",
+      "coverage": "Protein sequences, function"
+    },
+    {
+      "name": "STRING",
+      "reference": "references/string.md",
+      "category": "Biology & Genomics",
+      "coverage": "Protein-protein interactions"
+    },
+    {
+      "name": "Ensembl",
+      "reference": "references/ensembl.md",
+      "category": "Biology & Genomics",
+      "coverage": "Genomes, variants, sequences, VEP (+ CADD)"
+    },
+    {
+      "name": "NCBI Gene",
+      "reference": "references/ncbi-gene.md",
+      "category": "Biology & Genomics",
+      "coverage": "Gene information, links"
+    },
+    {
+      "name": "NCBI Protein",
+      "reference": "references/ncbi-protein.md",
+      "category": "Biology & Genomics",
+      "coverage": "Protein sequences, records"
+    },
+    {
+      "name": "NCBI Taxonomy",
+      "reference": "references/ncbi-taxonomy.md",
+      "category": "Biology & Genomics",
+      "coverage": "Taxonomic classification"
+    },
+    {
+      "name": "GEO (NCBI)",
+      "reference": "references/geo.md",
+      "category": "Biology & Genomics",
+      "coverage": "Gene expression datasets"
+    },
+    {
+      "name": "GTEx",
+      "reference": "references/gtex.md",
+      "category": "Biology & Genomics",
+      "coverage": "Gene expression across tissues"
+    },
+    {
+      "name": "PDB",
+      "reference": "references/pdb.md",
+      "category": "Biology & Genomics",
+      "coverage": "Protein 3D structures"
+    },
+    {
+      "name": "AlphaFold DB",
+      "reference": "references/alphafold.md",
+      "category": "Biology & Genomics",
+      "coverage": "Predicted protein structures"
+    },
+    {
+      "name": "EMDB",
+      "reference": "references/emdb.md",
+      "category": "Biology & Genomics",
+      "coverage": "Electron microscopy maps"
+    },
+    {
+      "name": "InterPro",
+      "reference": "references/interpro.md",
+      "category": "Biology & Genomics",
+      "coverage": "Protein families, domains"
+    },
+    {
+      "name": "BioGRID",
+      "reference": "references/biogrid.md",
+      "category": "Biology & Genomics",
+      "coverage": "Protein/genetic interactions"
+    },
+    {
+      "name": "Gene Ontology",
+      "reference": "references/gene-ontology.md",
+      "category": "Biology & Genomics",
+      "coverage": "GO terms, gene annotations"
+    },
+    {
+      "name": "QuickGO",
+      "reference": "references/quickgo.md",
+      "category": "Biology & Genomics",
+      "coverage": "GO annotations (EBI, recommended)"
+    },
+    {
+      "name": "dbSNP",
+      "reference": "references/dbsnp.md",
+      "category": "Biology & Genomics",
+      "coverage": "SNP/variant data"
+    },
+    {
+      "name": "SRA",
+      "reference": "references/sra.md",
+      "category": "Biology & Genomics",
+      "coverage": "Sequencing run metadata"
+    },
+    {
+      "name": "gnomAD",
+      "reference": "references/gnomad.md",
+      "category": "Biology & Genomics",
+      "coverage": "Population variant frequencies (POST)"
+    },
+    {
+      "name": "UCSC Genome Browser",
+      "reference": "references/ucsc-genome.md",
+      "category": "Biology & Genomics",
+      "coverage": "Genome annotations, tracks"
+    },
+    {
+      "name": "ENCODE",
+      "reference": "references/encode.md",
+      "category": "Biology & Genomics",
+      "coverage": "DNA elements, ChIP-seq, ATAC-seq"
+    },
+    {
+      "name": "JASPAR",
+      "reference": "references/jaspar.md",
+      "category": "Biology & Genomics",
+      "coverage": "TF binding profiles/motifs"
+    },
+    {
+      "name": "RegulomeDB",
+      "reference": "references/regulomedb.md",
+      "category": "Biology & Genomics",
+      "coverage": "Noncoding SNV regulatory rank (0-based window)"
+    },
+    {
+      "name": "MyVariant.info",
+      "reference": "references/myvariant.md",
+      "category": "Biology & Genomics",
+      "coverage": "Cached variant annotation bundle (hg19 ids)"
+    },
+    {
+      "name": "Human Protein Atlas",
+      "reference": "references/human-protein-atlas.md",
+      "category": "Biology & Genomics",
+      "coverage": "Protein expression across tissues"
+    },
+    {
+      "name": "Human Cell Atlas",
+      "reference": "references/hca.md",
+      "category": "Biology & Genomics",
+      "coverage": "Single-cell atlas data"
+    },
+    {
+      "name": "LINCS L1000",
+      "reference": "references/lincs-l1000.md",
+      "category": "Biology & Genomics",
+      "coverage": "Gene expression signatures (CMap)"
+    },
+    {
+      "name": "RummaGEO",
+      "reference": "references/rummageo.md",
+      "category": "Biology & Genomics",
+      "coverage": "GEO gene set enrichment (POST)"
+    },
+    {
+      "name": "PRIDE",
+      "reference": "references/pride.md",
+      "category": "Biology & Genomics",
+      "coverage": "Proteomics data repository"
+    },
+    {
+      "name": "Metabolomics Workbench",
+      "reference": "references/metabolomics-workbench.md",
+      "category": "Biology & Genomics",
+      "coverage": "Metabolomics studies, metabolites"
+    },
+    {
+      "name": "MouseMine",
+      "reference": "references/mousemine.md",
+      "category": "Biology & Genomics",
+      "coverage": "Mouse genome informatics"
+    },
+    {
+      "name": "ENA",
+      "reference": "references/ena.md",
+      "category": "Biology & Genomics",
+      "coverage": "Nucleotide sequences, reads, assemblies, taxonomy (EMBL-EBI)"
+    },
+    {
+      "name": "Addgene",
+      "reference": "references/addgene.md",
+      "category": "Biology & Genomics",
+      "coverage": "Plasmid repository"
+    },
+    {
+      "name": "Open Targets",
+      "reference": "references/opentargets.md",
+      "category": "Disease & Clinical",
+      "coverage": "Target-disease associations (POST)"
+    },
+    {
+      "name": "COSMIC",
+      "reference": "references/cosmic.md",
+      "category": "Disease & Clinical",
+      "coverage": "Somatic mutations in cancer"
+    },
+    {
+      "name": "ClinPGx (PharmGKB)",
+      "reference": "references/clinpgx.md",
+      "category": "Disease & Clinical",
+      "coverage": "Pharmacogenomics"
+    },
+    {
+      "name": "ClinicalTrials.gov",
+      "reference": "references/clinicaltrials.md",
+      "category": "Disease & Clinical",
+      "coverage": "Clinical trial registry"
+    },
+    {
+      "name": "OMIM",
+      "reference": "references/omim.md",
+      "category": "Disease & Clinical",
+      "coverage": "Mendelian disease-gene data"
+    },
+    {
+      "name": "ClinVar",
+      "reference": "references/clinvar.md",
+      "category": "Disease & Clinical",
+      "coverage": "Variant clinical significance"
+    },
+    {
+      "name": "GDC (TCGA)",
+      "reference": "references/tcga-gdc.md",
+      "category": "Disease & Clinical",
+      "coverage": "Cancer genomics, mutations (GET/POST)"
+    },
+    {
+      "name": "cBioPortal",
+      "reference": "references/cbioportal.md",
+      "category": "Disease & Clinical",
+      "coverage": "Cancer study mutations, CNA, expression, clinical data"
+    },
+    {
+      "name": "DisGeNET",
+      "reference": "references/disgenet.md",
+      "category": "Disease & Clinical",
+      "coverage": "Gene-disease associations"
+    },
+    {
+      "name": "GWAS Catalog",
+      "reference": "references/gwas-catalog.md",
+      "category": "Disease & Clinical",
+      "coverage": "GWAS SNP-trait associations"
+    },
+    {
+      "name": "Monarch Initiative",
+      "reference": "references/monarch.md",
+      "category": "Disease & Clinical",
+      "coverage": "Disease-phenotype-gene links"
+    },
+    {
+      "name": "HPO",
+      "reference": "references/hpo.md",
+      "category": "Disease & Clinical",
+      "coverage": "Human Phenotype Ontology"
+    },
+    {
+      "name": "USPTO",
+      "reference": "references/uspto.md",
+      "category": "Patents & Regulatory",
+      "coverage": "Patents, trademarks"
+    },
+    {
+      "name": "SEC EDGAR",
+      "reference": "references/sec-edgar.md",
+      "category": "Patents & Regulatory",
+      "coverage": "Company filings (needs User-Agent header)"
+    },
+    {
+      "name": "FRED",
+      "reference": "references/fred.md",
+      "category": "Economics & Finance",
+      "coverage": "US economic time series"
+    },
+    {
+      "name": "Federal Reserve",
+      "reference": "references/federal-reserve.md",
+      "category": "Economics & Finance",
+      "coverage": "Monetary/financial data"
+    },
+    {
+      "name": "BEA",
+      "reference": "references/bea.md",
+      "category": "Economics & Finance",
+      "coverage": "GDP, national accounts"
+    },
+    {
+      "name": "BLS (optional for basic v1)",
+      "reference": "references/bls.md",
+      "category": "Economics & Finance",
+      "coverage": "Employment, wages, CPI"
+    },
+    {
+      "name": "World Bank",
+      "reference": "references/worldbank.md",
+      "category": "Economics & Finance",
+      "coverage": "Development indicators"
+    },
+    {
+      "name": "ECB",
+      "reference": "references/ecb.md",
+      "category": "Economics & Finance",
+      "coverage": "Euro exchange rates, monetary stats"
+    },
+    {
+      "name": "US Treasury",
+      "reference": "references/treasury.md",
+      "category": "Economics & Finance",
+      "coverage": "Debt, yield curves, fiscal data"
+    },
+    {
+      "name": "Alpha Vantage",
+      "reference": "references/alphavantage.md",
+      "category": "Economics & Finance",
+      "coverage": "Stocks, forex, crypto"
+    },
+    {
+      "name": "Data Commons",
+      "reference": "references/datacommons.md",
+      "category": "Economics & Finance",
+      "coverage": "Statistical knowledge graph"
+    },
+    {
+      "name": "US Census (optional below anonymous quota)",
+      "reference": "references/census.md",
+      "category": "Social Sciences & Demographics",
+      "coverage": "Population, housing, economic surveys"
+    },
+    {
+      "name": "Eurostat",
+      "reference": "references/eurostat.md",
+      "category": "Social Sciences & Demographics",
+      "coverage": "EU statistics"
+    },
+    {
+      "name": "WHO GHO",
+      "reference": "references/who.md",
+      "category": "Social Sciences & Demographics",
+      "coverage": "Global health indicators"
+    }
+  ]
+}

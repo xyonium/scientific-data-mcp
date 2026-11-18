@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "scientific-data-mcp"
 dynamic = ["version"]
-description = "Free, keyless MCP server for scientific entity data: PubChem, ChEMBL, UniProt, RCSB PDB and PubMed E-utilities behind one tool surface."
+description = "Scientific entity data MCP: PubChem, ChEMBL, UniProt, RCSB PDB, PubMed E-utilities, plus key-gated Materials Project, behind one tool surface."
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }

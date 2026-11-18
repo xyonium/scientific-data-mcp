@@ -1,6 +1,6 @@
 # scientific-data-mcp
 
-科研**实体数据** MCP —— 化合物 / 生物活性 / 蛋白序列与结构 / 文献元数据的**免费官方 API 直连**。一个 server，12 个工具，零 key、零额度。
+科研**实体数据** MCP —— 化合物 / 生物活性 / 蛋白序列与结构 / 文献元数据的**免费官方 API 直连**。一个 server，12 个基础工具（配 Materials Project key 时 14 个），零额度。
 
 > 与 [paper-search](https://github.com/xyonium/paper-search)（文献检索 + RAG）、[finance-mcp](https://github.com/xyonium/finance-mcp)（金融/宏观）互补，不做重复。
 
@@ -20,7 +20,7 @@ kimi datasource 把一批本来就免 key 的官方科研 API（PubChem / ChEMBL
 
 ## 源与工具
 
-全部免 key。唯一可选配置是 `NCBI_API_KEY`（免费申请，把 E-utilities 从 3 req/s 提到 10 req/s；不配也能用）和联系邮箱 `NCBI_EMAIL`。申请步骤与扩展源的 key 入口见 [docs/CREDENTIALS.md](./docs/CREDENTIALS.md)。
+四个源免 key；PubMed 可选 `NCBI_API_KEY` 提速（3→10 req/s）；**Materials Project 需要免费 key**，未配置时其 2 个工具不会注册。申请步骤见 [docs/CREDENTIALS.md](./docs/CREDENTIALS.md)。
 
 | 域 | 源 | 工具 |
 |----|----|------|
@@ -36,6 +36,8 @@ kimi datasource 把一批本来就免 key 的官方科研 API（PubChem / ChEMBL
 | 结构 | **RCSB PDB**（Data + Search API） | `protein_structure` — 条目 + 聚合物实体摘要 |
 | 结构 | RCSB PDB | `protein_structure_search` — 全文检索 PDB 条目 |
 | 文献 | **PubMed**（E-utilities） | `pubmed_record` — pmid / doi → 标题、作者、期刊、年卷期页、摘要、DOI、PMCID |
+| 材料 | **Materials Project**（需免费 key） | `material_get` — 单个材料摘要（带隙、energy above hull、密度、对称性、稳定性） |
+| 材料 | Materials Project | `material_search` — 按 formula / chemsys / elements 检索 |
 
 所有工具只返回上游真实字段：缺字段就是上游没有，不推断、不补全。失败返回 `{"error": ..., "source": ...}`，不会让一次调用炸掉整轮对话。
 
@@ -81,11 +83,12 @@ mcpo 配置示例（`config.json`）：
 ```json
 "env": {
   "NCBI_API_KEY": "免费申请，PubMed 限速 3 → 10 req/s",
-  "NCBI_EMAIL": "you@example.com"
+  "NCBI_EMAIL": "you@example.com",
+  "MATERIALS_PROJECT_API_KEY": "免费申请；不配则不注册材料工具"
 }
 ```
 
-申请步骤、各源是否有 key、以及 M6 扩展源（Materials Project / openFDA / NOAA / BioGRID / NASA）的入口见 **[docs/CREDENTIALS.md](./docs/CREDENTIALS.md)**。不配 key 时五个源全部可用，只是 PubMed 慢一些。
+申请步骤、各源是否有 key、以及 M6 扩展源（openFDA / NOAA / BioGRID / NASA）的入口见 **[docs/CREDENTIALS.md](./docs/CREDENTIALS.md)**。不配任何 key 时五个免 key 源全部可用，只是 PubMed 慢一些、材料工具隐藏。
 
 ## Docker
 
@@ -93,6 +96,17 @@ mcpo 配置示例（`config.json`）：
 docker build -t scientific-data-mcp:dev .
 docker run --rm -p 8000:8000 scientific-data-mcp:dev --http --host 0.0.0.0
 ```
+
+## 数据源清单追踪
+
+[docs/research/kdense-databases.json](./docs/research/kdense-databases.json) 是 [K-Dense scientific-agent-skills](https://github.com/K-Dense-AI/scientific-agent-skills) `database-lookup` 的数据库快照（当前 v1.8，80 库，2026-09-30 复核）。
+
+```bash
+python scripts/kdense_sources.py --check    # 与上游 diff
+python scripts/kdense_sources.py --update   # 刷新快照
+```
+
+GitHub Action `kdense-sources` 每季度（1/4/7/10 月 1 日）自动扫描；上游新增或移除数据库时开 issue（已有 open issue 则追加评论）。
 
 ## 开发
 

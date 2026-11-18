@@ -1,6 +1,6 @@
 # 配置与 API key 获取指南
 
-先说结论：**五个源全部免 key，什么都不配也能完整使用。** 唯一有免费配额收益的是 NCBI E-utilities（PubMed）——注册一个免费 key，限速从 3 req/s 提到 10 req/s。其余四个源（PubChem / ChEMBL / UniProt / RCSB PDB）官方**不签发 API key**，没有可申请的额度。
+先说结论：**五个基础源全部免 key，什么都不配也能完整使用。** 两个可选 key：NCBI E-utilities（PubMed 3→10 req/s）和 Materials Project（材料域 2 个工具，未配 key 时不注册）。其余四个源（PubChem / ChEMBL / UniProt / RCSB PDB）官方**不签发 API key**。
 
 > 配好后把值写进你的配置处：
 > - **mcpo**：`config.json` 的 `scientific-data.env` 块
@@ -34,6 +34,17 @@ python scripts/live_smoke.py   # pubmed_record 一项 PASS 即通
 
 > key 通过 E-utilities 唯一支持的 query 参数传递，因此会出现在请求 URL 里；本项目在 `build_service()` 里把 httpx 的 INFO 请求日志压到 WARNING，避免 key 落进日志。错误信息只带 host，不带 URL。
 
+### 2. Materials Project key（`MATERIALS_PROJECT_API_KEY`）
+
+影响 `material_get` / `material_search`：没有 key 时这两个工具**不注册**（不是报错），配置后服务启动即多 2 个工具。
+
+1. 打开 [materialsproject.org](https://materialsproject.org/) 注册/登录（免费账号）
+2. 进入 Dashboard → **API** 页（[materialsproject.org/api](https://materialsproject.org/api)）生成 API key
+3. 设 `MATERIALS_PROJECT_API_KEY=<key>`；请求头为 `X-API-KEY`
+4. 免费额度足以做常规查询；MP 明确会对侵略性流量限速/封 IP，本项目对 `api.materialsproject.org` 固定 1 req/s
+
+验证：`MATERIALS_PROJECT_API_KEY=... python scripts/live_smoke.py` 会多跑两条材料用例（无 key 时自动跳过）。
+
 ---
 
 ## 第 1 级 · M6 扩展源（尚未接入，先给入口）
@@ -42,7 +53,6 @@ python scripts/live_smoke.py   # pubmed_record 一项 PASS 即通
 
 | 变量（约定） | 源 | 免费额度 | 申请入口 |
 |--------------|----|----------|----------|
-| `MATERIALS_PROJECT_API_KEY` | Materials Project | 免费（学术/非营利） | [materialsproject.org](https://materialsproject.org/) 登录 → Dashboard → API |
 | `OPENFDA_API_KEY` | openFDA | 可选 key 提高限额 | [open.fda.gov/apis/authentication](https://open.fda.gov/apis/authentication/) |
 | `NOAA_TOKEN` | NOAA CDO | 免费 token，5 req/s | [ncdc.noaa.gov/cdo-web/token](https://www.ncdc.noaa.gov/cdo-web/token) |
 | `BIOGRID_ACCESS_KEY` | BioGRID | 免费 access key | [webservice.thebiogrid.org](https://webservice.thebiogrid.org/) |

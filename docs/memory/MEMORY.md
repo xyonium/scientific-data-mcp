@@ -9,3 +9,5 @@
 - [工具描述纪律](tool-description-discipline.md) — 给人看的源列表不可删；反幻觉 docstring 是硬要求
 - [与兄弟项目的边界](boundary-with-siblings.md) — paper-search 管文献检索/RAG，本项目管实体数据
 - [从 Claude Code 迁到 DSH](dsh-migration.md) — 迁移做了什么、为什么、以后别再引入 .claude 依赖
+- [Materials Project 的 key-gated 形态](materials-project-key-gate.md) — 无 key 不注册工具；MP 是 80 库里唯一需 key 的当前源
+- [K-Dense 数据源清单追踪](kdense-catalogue-tracking.md) — v1.8 仍 80 库；季度 Action + 快照 diff

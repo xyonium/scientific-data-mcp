@@ -24,6 +24,7 @@ HOST_DELAYS: dict[str, float] = {
     "search.rcsb.org": 0.5,
     "eutils.ncbi.nlm.nih.gov": 0.34,
     "www.ncbi.nlm.nih.gov": 0.34,
+    "api.materialsproject.org": 1.0,
 }
 
 
@@ -31,6 +32,7 @@ HOST_DELAYS: dict[str, float] = {
 class Settings:
     ncbi_api_key: str | None = None
     ncbi_email: str | None = None
+    materials_project_api_key: str | None = None
     timeout: float = 30.0
     max_retries: int = 3
     user_agent: str = DEFAULT_USER_AGENT
@@ -49,4 +51,5 @@ class Settings:
     def from_env(cls) -> Settings:
         key = os.environ.get("NCBI_API_KEY", "").strip() or None
         email = os.environ.get("NCBI_EMAIL", "").strip() or None
-        return cls(ncbi_api_key=key, ncbi_email=email)
+        mp_key = os.environ.get("MATERIALS_PROJECT_API_KEY", "").strip() or None
+        return cls(ncbi_api_key=key, ncbi_email=email, materials_project_api_key=mp_key)

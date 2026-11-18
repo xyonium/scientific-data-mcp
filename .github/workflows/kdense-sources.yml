@@ -1,0 +1,54 @@
+name: kdense-sources
+
+on:
+  schedule:
+    # Quarterly: 03:00 UTC on Jan/Apr/Jul/Oct 1st.
+    - cron: "0 3 1 1,4,7,10 *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Diff the upstream K-Dense catalogue
+        id: scan
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -o pipefail
+          python scripts/kdense_sources.py --check --report kdense-diff.md | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: Open or update the tracking issue
+        if: steps.scan.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          if head -1 kdense-diff.md | grep -q "扫描失败"; then
+            title="K-Dense 扫描失败（上游不可达或格式变了）"
+          else
+            title="K-Dense 数据源清单有变化"
+          fi
+          num=$(gh issue list --state open --search "$title in:title" --json number --jq '.[0].number // empty')
+          if [ -n "$num" ]; then
+            gh issue comment "$num" --body-file kdense-diff.md
+          else
+            gh issue create --title "$title" --body-file kdense-diff.md
+          fi
+
+      - name: Upload the diff
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kdense-diff
+          path: kdense-diff.md
+          if-no-files-found: ignore

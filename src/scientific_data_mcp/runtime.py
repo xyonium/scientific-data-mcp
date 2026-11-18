@@ -9,6 +9,7 @@ from .config import Settings
 from .http import PoliteClient
 from .providers.base import Provider
 from .providers.chembl import ChemBLProvider
+from .providers.materials_project import MaterialsProjectProvider
 from .providers.pubchem import PubChemProvider
 from .providers.pubmed import PubMedProvider
 from .providers.rcsb import RcsbProvider
@@ -38,4 +39,6 @@ def build_service(settings: Settings | None = None) -> Service:
         "rcsb": RcsbProvider(http, settings),
         "pubmed": PubMedProvider(http, settings),
     }
+    if settings.materials_project_api_key:
+        providers["materials_project"] = MaterialsProjectProvider(http, settings)
     return Service(settings=settings, http=http, providers=providers)
