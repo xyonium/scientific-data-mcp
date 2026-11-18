@@ -25,6 +25,11 @@ dependencies = [
 [project.optional-dependencies]
 dev = ["pytest>=8", "pytest-asyncio>=0.23", "respx>=0.22", "ruff>=0.6"]
 
+[project.urls]
+Homepage = "https://github.com/xyonium/scientific-data-mcp"
+Repository = "https://github.com/xyonium/scientific-data-mcp"
+Issues = "https://github.com/xyonium/scientific-data-mcp/issues"
+
 [project.scripts]
 scientific-data-mcp = "scientific_data_mcp.__main__:main"
 

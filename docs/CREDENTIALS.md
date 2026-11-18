@@ -36,7 +36,7 @@ python scripts/live_smoke.py   # pubmed_record 一项 PASS 即通
 
 ### 2. Materials Project key（`MATERIALS_PROJECT_API_KEY`）
 
-影响 `material_get` / `material_search`：没有 key 时这两个工具**不注册**（不是报错），配置后服务启动即多 2 个工具。
+影响 `material` 工具：没有 key 时它**不注册**（不是报错），配置后服务启动即多 1 个工具。
 
 1. 打开 [materialsproject.org](https://materialsproject.org/) 注册/登录（免费账号）
 2. 进入 Dashboard → **API** 页（[materialsproject.org/api](https://materialsproject.org/api)）生成 API key

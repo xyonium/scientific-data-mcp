@@ -23,28 +23,32 @@ from scientific_data_mcp.tools import register_all
 
 CASES: list[tuple[str, dict, str]] = [
     ("chem_compound", {"identifier": "aspirin"}, "record"),
-    ("chem_compound_properties", {"cid": 2244, "properties": ["MolecularFormula", "XLogP"]}, "record"),
+    (
+        "chem_compound",
+        {"identifier": "aspirin", "properties": ["MolecularFormula", "XLogP"]},
+        "record",
+    ),
     (
         "chem_similar_compounds",
         {"smiles": "CC(=O)Oc1ccccc1C(=O)O", "threshold": 95, "max_records": 3},
         "count",
     ),
-    ("chembl_search", {"query": "imatinib", "resource": "molecule", "limit": 2}, "count"),
-    ("chembl_bioactivity", {"chembl_id": "CHEMBL941", "limit": 2}, "count"),
-    ("chembl_mechanisms", {"chembl_id": "CHEMBL1642"}, "count"),
-    ("protein_entry", {"accession": "P05067"}, "record"),
-    ("protein_search", {"query": "gene:APP AND organism_id:9606", "size": 2}, "count"),
+    ("chembl_data", {"kind": "search", "query": "imatinib", "limit": 2}, "count"),
+    ("chembl_data", {"kind": "activities", "chembl_id": "CHEMBL941", "limit": 2}, "count"),
+    ("chembl_data", {"kind": "mechanisms", "chembl_id": "CHEMBL1642"}, "count"),
+    ("protein_record", {"kind": "uniprot", "identifier": "P05067"}, "record"),
+    ("protein_record", {"kind": "pdb", "identifier": "4HHB"}, "record"),
+    ("protein_search", {"kind": "uniprot", "query": "gene:APP AND organism_id:9606", "size": 2}, "count"),
+    ("protein_search", {"kind": "pdb", "query": "hemoglobin", "size": 2}, "count"),
     ("protein_map_ids", {"from_db": "UniProtKB_AC-ID", "to_db": "PDB", "ids": "P04637"}, "count"),
-    ("protein_structure", {"pdb_id": "4HHB"}, "record"),
-    ("protein_structure_search", {"query": "hemoglobin", "rows": 2}, "total"),
     ("pubmed_record", {"pmid": "23903748"}, "record"),
     ("who_data", {"indicator": "WHOSIS_000001", "country": "CHN", "year": 2022, "limit": 2}, "count"),
 ]
 
 if os.environ.get("MATERIALS_PROJECT_API_KEY", "").strip():
     CASES += [
-        ("material_get", {"material_id": "mp-149"}, "record"),
-        ("material_search", {"formula": "SiO2", "limit": 2}, "count"),
+        ("material", {"by": "id", "query": "mp-149"}, "count"),
+        ("material", {"by": "formula", "query": "SiO2", "limit": 2}, "count"),
     ]
 
 

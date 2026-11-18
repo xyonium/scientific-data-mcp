@@ -10,6 +10,13 @@ from scientific_data_mcp.runtime import build_service
 from scientific_data_mcp.tools.materials import register
 
 BASE = "https://api.materialsproject.org/materials/summary/"
+ROW = {
+    "material_id": "mp-149",
+    "formula_pretty": "SiO2",
+    "chemsys": "Si-O",
+    "band_gap": 1.15,
+    "symmetry": {"crystal_system": "tetragonal"},
+}
 
 
 @pytest.fixture
@@ -29,53 +36,45 @@ async def test_not_registered_without_key():
     assert register(FastMCP("test"), service) == {}
 
 
-async def test_search_requires_exactly_one_selector(tools):
-    empty = await tools["material_search"]()
-    both = await tools["material_search"](formula="SiO2", chemsys="Si-O")
-    assert "exactly one" in empty["error"]
-    assert "exactly one" in both["error"]
-
-
-async def test_search_rejects_bad_limit(tools):
-    result = await tools["material_search"](formula="SiO2", limit=0)
-    assert "1-100" in result["error"]
+@respx.mock
+async def test_material_by_id(tools):
+    respx.get(BASE).mock(return_value=httpx.Response(200, json={"data": [ROW], "meta": {}}))
+    result = await tools["material"](by="id", query="mp-149")
+    assert result["count"] == 1
+    assert result["items"][0]["formula"] == "SiO2"
+    assert result["source_url"] == "https://materialsproject.org/materials/mp-149"
 
 
 @respx.mock
-async def test_search_empty_is_count_zero(tools):
-    respx.get(BASE).mock(return_value=httpx.Response(200, json={"data": [], "meta": {}}))
-    result = await tools["material_search"](chemsys="Xx-Yy")
-    assert result["count"] == 0
-    assert result["items"] == []
+async def test_material_by_formula(tools):
+    route = respx.get(BASE).mock(
+        return_value=httpx.Response(200, json={"data": [ROW], "meta": {}})
+    )
+    result = await tools["material"](by="formula", query="SiO2", limit=5)
+    assert route.calls.last.request.url.params["formula"] == "SiO2"
+    assert route.calls.last.request.url.params["_limit"] == "5"
+    assert result["count"] == 1
+
+
+async def test_material_validates_inputs(tools):
+    assert "invalid by" in (await tools["material"](by="nope", query="x"))["error"]
+    assert "query" in (await tools["material"](query="  "))["error"]
+    assert "1-100" in (await tools["material"](by="formula", query="SiO2", limit=0))["error"]
 
 
 @respx.mock
-async def test_get_404_returns_error_dict(tools):
-    respx.get(BASE).mock(return_value=httpx.Response(404))
-    result = await tools["material_get"]("mp-999999")
-    assert result["source"] == "materials_project"
-    assert "not_found" in result["error"]
-
-
-@respx.mock
-async def test_auth_error_is_reported(tools):
-    respx.get(BASE).mock(return_value=httpx.Response(401))
-    result = await tools["material_get"]("mp-149")
-    assert "auth" in result["error"]
-
-
-@respx.mock
-async def test_400_marks_contact_admin(tools):
+async def test_material_400_marks_contact_admin(tools):
     respx.get(BASE).mock(
         return_value=httpx.Response(400, json={"detail": "unknown query parameter"})
     )
-    result = await tools["material_get"]("mp-149")
+    result = await tools["material"](by="id", query="mp-149")
     assert result["suspect_drift"] is True
     assert result["action"] == "contact_admin"
 
 
 @respx.mock
-async def test_500_is_transient_not_drift(tools):
-    respx.get(BASE).mock(return_value=httpx.Response(500))
-    result = await tools["material_get"]("mp-149")
+async def test_material_401_is_auth_not_drift(tools):
+    respx.get(BASE).mock(return_value=httpx.Response(401))
+    result = await tools["material"](by="id", query="mp-149")
+    assert "auth" in result["error"]
     assert "suspect_drift" not in result

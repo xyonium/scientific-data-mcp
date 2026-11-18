@@ -14,3 +14,9 @@
 - 超时要有界，不要用无限等待；用户可见的失败是 `{"error": "unavailable: ..."}`，不是挂死。
 - 区分"偶发 SSL EOF/超时"（重试可解）和"必现 4xx/404"（代码/端点 bug，重试无用）。
 - 新增源时优先选同一 host 上更稳的端点（例：DOI→PubMed 用 esearch 而不是 idconv）。
+
+## 全球出口 / 代理
+
+- 目前**没有任何源是因为 IP 被限制而排除的**：USPTO 是 ID.me 实名（身份，不是 IP），Eurostat/Census/DataCommons 是解析成本/优先级，WHO 目录端点是 CDN 504，ChEMBL 的 500 在外部 IP（Jina/Firecrawl）同样复现，属上游故障。
+- 若要把不稳定 host 走全球出口：`httpx` 默认 `trust_env=True`，给 MCP 进程/容器设 `HTTPS_PROXY` / `ALL_PROXY` 即可全局生效；**按域名分流**需要本地转发代理（Envoy/Privoxy 等）按 host 规则转发，应用层未实现 per-host 代理。
+- 值得单独路由观察的 host：`www.ebi.ac.uk`（ChEMBL 慢/500）、`ghoapi.azureedge.net`（WHO 502/504）、`rest.uniprot.org`（偶发 network error）、`eutils.ncbi.nlm.nih.gov`、`api.materialsproject.org`。注意：全局故障换出口无效。

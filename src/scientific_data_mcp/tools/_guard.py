@@ -11,15 +11,26 @@ from mcp.server.fastmcp import FastMCP
 from ..errors import DRIFT_HINT, ProviderError, UpstreamDrift, tool_error
 
 
+def provider_error_payload(exc: ProviderError, source: str) -> dict:
+    """Error dict for a provider failure, preserving drift signalling."""
+    if isinstance(exc, UpstreamDrift):
+        return tool_error(
+            f"{exc.kind}: {exc}",
+            hint=DRIFT_HINT,
+            suspect_drift=True,
+            source=source,
+        )
+    return tool_error(f"{exc.kind}: {exc}", source=source)
+
+
 def guarded_tool(
     mcp: FastMCP, *, name: str, source: str
 ) -> Callable[[Callable[..., Awaitable[dict]]], Callable[..., Awaitable[dict]]]:
     """Register ``fn`` as an MCP tool whose every failure becomes an error dict.
 
-    Provider errors keep their kind prefix; validation ValueErrors keep their
-    message; anything else is reported as ``unexpected <Type>: <message>``.
-    ``asyncio.CancelledError`` is a BaseException and is deliberately not
-    caught.
+    Merged tools that hit more than one upstream should catch ProviderError
+    themselves (via ``provider_error_payload``) so the error names the right
+    source; this outer guard covers unexpected adapter bugs.
     """
 
     def decorate(fn: Callable[..., Awaitable[dict]]):
@@ -27,15 +38,8 @@ def guarded_tool(
         async def wrapper(*args: Any, **kwargs: Any) -> dict:
             try:
                 return await fn(*args, **kwargs)
-            except UpstreamDrift as exc:
-                return tool_error(
-                    f"{exc.kind}: {exc}",
-                    hint=DRIFT_HINT,
-                    suspect_drift=True,
-                    source=source,
-                )
             except ProviderError as exc:
-                return tool_error(f"{exc.kind}: {exc}", source=source)
+                return provider_error_payload(exc, source)
             except ValueError as exc:
                 return tool_error(str(exc), source=source)
             except Exception as exc:  # noqa: BLE001 - the whole point of the guard

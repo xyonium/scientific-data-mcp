@@ -1,4 +1,4 @@
-"""Materials Project tools (registered only when a key is configured)."""
+"""Materials Project tool (registered only when a key is configured)."""
 
 from __future__ import annotations
 
@@ -6,11 +6,13 @@ from collections.abc import Callable
 
 from mcp.server.fastmcp import FastMCP
 
-from ..errors import tool_error
+from ..errors import ProviderError, tool_error
 from ..runtime import Service
-from ._guard import guarded_tool
+from ._guard import guarded_tool, provider_error_payload
 
 ToolMap = dict[str, Callable]
+
+BY = ("id", "formula", "chemsys", "elements")
 
 
 def register(mcp: FastMCP, service: Service) -> ToolMap:
@@ -18,61 +20,57 @@ def register(mcp: FastMCP, service: Service) -> ToolMap:
     if provider is None:
         return {}
 
-    @guarded_tool(mcp, name="material_get", source="materials_project")
-    async def material_get(material_id: str) -> dict:
-        """Fetch one Materials Project summary by material id.
+    @guarded_tool(mcp, name="material", source="materials_project")
+    async def material(by: str = "formula", query: str = "", limit: int = 10) -> dict:
+        """Query Materials Project summaries (requires MATERIALS_PROJECT_API_KEY).
 
-        Returns only fields the summary endpoint carries: formula, chemical
-        system, band gap, energy above hull, density, stability, site count,
-        theoretical flag and crystal symmetry. Requires a free
-        MATERIALS_PROJECT_API_KEY; without one this tool is not registered.
+        Pick `by`:
 
-        Args:
-            material_id: Materials Project id, e.g. "mp-149" or "mp-aaaa...".
-        """
-        if not material_id.strip():
-            return tool_error("material_id must not be empty", source="materials_project")
-        record = await provider.get(material_id.strip())
-        return {
-            "source": "materials_project",
-            "source_url": f"https://materialsproject.org/materials/{record['material_id']}",
-            "record": record,
-        }
+        - `id`: one Materials Project id, e.g. "mp-149"; returns count 0/1.
+        - `formula`: reduced formula, e.g. "SiO2".
+        - `chemsys`: dash-separated chemical system, e.g. "Si-O".
+        - `elements`: comma-separated elements that must all be present,
+          e.g. "Si,O".
 
-    @guarded_tool(mcp, name="material_search", source="materials_project")
-    async def material_search(
-        formula: str | None = None,
-        chemsys: str | None = None,
-        elements: str | None = None,
-        limit: int = 10,
-    ) -> dict:
-        """Search Materials Project summaries by formula, chemical system or elements.
-
-        Pass exactly one selector: `formula` ("SiO2"), `chemsys` ("Si-O") or
-        `elements` ("Si,O"). Results are upstream summaries, nothing is
-        inferred; an empty list is a valid answer. Requires a free
-        MATERIALS_PROJECT_API_KEY.
+        Returns a list envelope (`count`, `items`) of upstream summaries:
+        formula, chemical system, band gap, energy above hull, density,
+        stability, site count, theoretical flag and crystal symmetry. Values
+        are upstream only; missing fields stay missing. This tool is not
+        registered when no key is configured.
 
         Args:
-            formula: Reduced formula.
-            chemsys: Dash-separated chemical system.
-            elements: Comma-separated elements that must all be present.
-            limit: Maximum rows, 1-100 (default 10).
+            by: "id", "formula", "chemsys" or "elements".
+            query: Identifier or formula/system/elements string.
+            limit: Maximum rows for non-id queries, 1-100.
         """
-        selectors = [value.strip() for value in (formula, chemsys, elements) if value and value.strip()]
-        if len(selectors) != 1:
+        by = by.strip().lower()
+        if by not in BY:
             return tool_error(
-                "pass exactly one of formula, chemsys or elements",
+                f"invalid by: {by!r}", hint=f"use one of: {', '.join(BY)}",
                 source="materials_project",
             )
+        query = query.strip()
+        if not query:
+            return tool_error("query must not be empty", source="materials_project")
         if not 1 <= limit <= 100:
             return tool_error(f"limit must be 1-100, got {limit}", source="materials_project")
-        rows = await provider.search(
-            formula=formula.strip() if formula and formula.strip() else None,
-            chemsys=chemsys.strip() if chemsys and chemsys.strip() else None,
-            elements=elements.strip() if elements and elements.strip() else None,
-            limit=limit,
-        )
+        try:
+            if by == "id":
+                record = await provider.get(query)
+                return {
+                    "source": "materials_project",
+                    "source_url": f"https://materialsproject.org/materials/{record['material_id']}",
+                    "count": 1,
+                    "items": [record],
+                }
+            rows = await provider.search(
+                formula=query if by == "formula" else None,
+                chemsys=query if by == "chemsys" else None,
+                elements=query if by == "elements" else None,
+                limit=limit,
+            )
+        except ProviderError as exc:
+            return provider_error_payload(exc, "materials_project")
         return {
             "source": "materials_project",
             "source_url": "https://materialsproject.org/",
@@ -80,4 +78,4 @@ def register(mcp: FastMCP, service: Service) -> ToolMap:
             "items": rows,
         }
 
-    return {"material_get": material_get, "material_search": material_search}
+    return {"material": material}

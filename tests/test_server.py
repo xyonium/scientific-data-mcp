@@ -3,23 +3,18 @@ from __future__ import annotations
 from scientific_data_mcp.server import build_server
 
 EXPECTED_TOOLS = {
-    "who_data",
     "chem_compound",
-    "chem_compound_properties",
     "chem_similar_compounds",
-    "chembl_search",
-    "chembl_bioactivity",
-    "chembl_mechanisms",
-    "protein_entry",
+    "chembl_data",
+    "protein_record",
     "protein_search",
     "protein_map_ids",
-    "protein_structure",
-    "protein_structure_search",
     "pubmed_record",
+    "who_data",
 }
 
 
-MATERIALS_TOOLS = {"material_get", "material_search"}
+MATERIALS_TOOLS = {"material"}
 
 
 async def test_server_exposes_exactly_the_base_tools():

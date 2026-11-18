@@ -14,3 +14,4 @@
 - [2026-11-18 K-Dense 归属审计](kdense-catalogue-tracking.md) — finance 只补 SEC EDGAR；paper 的 USPTO 暂不加
 - [WHO GHO 接入](who-gho.md) — 免 key OData；必须给指标代码，目录端点 504 不可用
 - [上游漂移信号](upstream-drift-signal.md) — suspect_drift/contact_admin 的分类与纪律
+- [工具面收敛 v0.4](tool-surface-v0.4.md) — 同类 I/O 合并，kind/by 切换；旧→新映射

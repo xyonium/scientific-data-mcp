@@ -1,6 +1,6 @@
 # scientific-data-mcp — 维护指南
 
-科研**实体数据** MCP：化合物（PubChem）、生物活性（ChEMBL）、蛋白序列/功能（UniProt）、实验结构（RCSB PDB）、文献元数据（PubMed E-utilities），以及需免费 key 的材料数据（Materials Project）。一个 FastMCP server：13 个基础工具（含 WHO GHO）+ 配 MP key 时 2 个材料工具。
+科研**实体数据** MCP：化合物（PubChem）、生物活性（ChEMBL）、蛋白序列/功能（UniProt）、实验结构（RCSB PDB）、文献元数据（PubMed E-utilities），以及需免费 key 的材料数据（Materials Project）。一个 FastMCP server：8 个基础工具 + 配 MP key 时 1 个材料工具。同类输入输出的源合并为一个工具（`kind`/`by` 参数切换）。
 
 本项目由 **DSH 维护**（2026-11-17 从 Claude Code 项目迁移）。`AGENTS.md` 是唯一常驻指令；`docs/memory/` 是本项目的工作记忆，动手前先读 `docs/memory/MEMORY.md`。
 
@@ -41,8 +41,8 @@ docker build -t scientific-data-mcp:dev .
 - **反幻觉**：只返回上游真实字段；缺失字段省略，不推断、不补全；docstring 写明"不补全"。返回体不带时间戳（测试可复现）。
 - 返回值 `source_url` 指向官方记录页，便于人工复核。
 - 分页：列表返回 `next_cursor`/`next_offset`/`next_start`，最后一页为 `null`。
-- 新增源时同步：provider、tool、`runtime.build_service`、`tools/__init__.register_all`、`tests/test_server.py` 的基础 13 工具断言（+ 有 key 时的工具面）、README 工具表、`docs/memory/`。
-- **key-gated 源只在 key 存在时注册 provider 和 tool**（Materials Project 先例）：没有 key 时工具面保持 13 个，不注册永远失败的占位工具。
+- 新增源时同步：provider、tool、`runtime.build_service`、`tools/__init__.register_all`、`tests/test_server.py` 的基础 8 工具断言（+ 有 key 时的工具面）、README 工具表、`docs/memory/`。
+- **key-gated 源只在 key 存在时注册 provider 和 tool**（Materials Project 先例）：没有 key 时工具面保持 8 个，不注册永远失败的占位工具。
 - 数据源池追踪：`docs/research/kdense-databases.json` + `scripts/kdense_sources.py`；季度 Action 有变化会开 issue，评估后 `--update` 刷新快照。
 
 ## 发布纪律
@@ -62,6 +62,8 @@ docker build -t scientific-data-mcp:dev .
 - 改 WHO GHO → `who-gho.md`
 - 改错误分类 / 漂移信号 → `upstream-drift-signal.md`
 - 改 K-Dense 快照 / 季度扫描 → `kdense-catalogue-tracking.md`
+- 改工具面 / 合并规则 → `tool-surface-v0.4.md`
+- 改 PyPI 发布 / 包名 → `publishing-hatch-vcs.md` + README「PyPI 发布」
 - 改 docstring / 工具描述 → `tool-description-discipline.md`
 - 改边界（PubMed 搜索、全文、RAG） → `boundary-with-siblings.md`
 - 改发布 / 版本 → `publishing-hatch-vcs.md`

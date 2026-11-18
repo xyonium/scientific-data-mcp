@@ -1,4 +1,4 @@
-"""Protein tools: UniProt entries/search/ID mapping and RCSB structures."""
+"""Protein tools: UniProt and RCSB PDB behind two merged entry points."""
 
 from __future__ import annotations
 
@@ -8,68 +8,137 @@ from mcp.server.fastmcp import FastMCP
 
 from ..errors import ProviderError, tool_error
 from ..runtime import Service
-from ._guard import guarded_tool
+from ._guard import guarded_tool, provider_error_payload
 
 ToolMap = dict[str, Callable]
+
+RECORD_KINDS = ("uniprot", "pdb")
+SEARCH_KINDS = ("uniprot", "pdb")
 
 
 def register(mcp: FastMCP, service: Service) -> ToolMap:
     uniprot = service.providers["uniprot"]
     rcsb = service.providers["rcsb"]
 
-    @guarded_tool(mcp, name="protein_entry", source="uniprot")
-    async def protein_entry(accession: str, include_sequence: bool = False) -> dict:
-        """Fetch one UniProtKB entry by accession.
+    @guarded_tool(mcp, name="protein_record", source="protein")
+    async def protein_record(
+        kind: str = "uniprot", identifier: str = "", include_sequence: bool = False
+    ) -> dict:
+        """Fetch one protein record from UniProt or RCSB PDB.
 
-        Returns the reviewed status, protein name, genes, organism, function
-        comment, keywords, sequence length/mass and every PDB cross-reference.
-        Missing annotations are omitted rather than guessed. Call again with
-        `include_sequence=True` for the full amino-acid sequence.
+        Pick `kind`:
+
+        - `uniprot` (default): `identifier` is a UniProt accession such as
+          "P05067"; returns name, genes, organism, function, keywords,
+          sequence length/mass and PDB cross-references. Set
+          `include_sequence=True` for the full sequence (long).
+        - `pdb`: `identifier` is a 4-character PDB id such as "4HHB";
+          returns title, method, resolution, deposit date and up to five
+          polymer entities. `include_sequence` is ignored.
+
+        Only upstream fields are returned; missing annotations stay missing.
 
         Args:
-            accession: UniProt accession, e.g. "P05067".
-            include_sequence: Include the full sequence string (long).
+            kind: "uniprot" or "pdb".
+            identifier: UniProt accession or PDB id.
+            include_sequence: UniProt only; include the full sequence.
         """
-        if not accession.strip():
-            return tool_error("accession must not be empty", source="uniprot")
+        kind = kind.strip().lower()
+        if kind not in RECORD_KINDS:
+            return tool_error(
+                f"invalid kind: {kind!r}",
+                hint=f"use one of: {', '.join(RECORD_KINDS)}",
+                source="protein",
+            )
+        identifier = identifier.strip()
+        if not identifier:
+            return tool_error("identifier must not be empty", source=kind)
         try:
-            record = await uniprot.entry(accession.strip(), include_sequence)
+            if kind == "uniprot":
+                record = await uniprot.entry(identifier, include_sequence)
+                source_url = f"https://www.uniprot.org/uniprotkb/{identifier}/entry"
+                source_name = "uniprot"
+            else:
+                record = await rcsb.entry(identifier)
+                source_url = f"https://www.rcsb.org/structure/{record['pdb_id']}"
+                source_name = "rcsb"
         except ProviderError as exc:
-            return tool_error(f"{exc.kind}: {exc}", source="uniprot")
-        return {
-            "source": "uniprot",
-            "source_url": f"https://www.uniprot.org/uniprotkb/{accession.strip()}/entry",
-            "record": record,
-        }
+            return provider_error_payload(exc, "uniprot" if kind == "uniprot" else "rcsb")
+        return {"source": source_name, "source_url": source_url, "record": record}
 
-    @guarded_tool(mcp, name="protein_search", source="uniprot")
-    async def protein_search(query: str, size: int = 10, cursor: str | None = None) -> dict:
-        """Search UniProtKB with a UniProt query string.
+    @guarded_tool(mcp, name="protein_search", source="protein")
+    async def protein_search(
+        kind: str = "uniprot",
+        query: str = "",
+        size: int = 10,
+        cursor: str | None = None,
+    ) -> dict:
+        """Search UniProtKB or RCSB PDB.
 
-        Use UniProt field syntax, e.g. `gene:TP53 AND organism_id:9606` or
-        `reviewed:true AND keyword:kinase`. Results are trimmed summaries;
-        pass the returned `next_cursor` to fetch the next page. An empty list
-        is the true upstream answer, not an error.
+        Pick `kind`:
+
+        - `uniprot` (default): `query` uses UniProt syntax, e.g.
+          `gene:TP53 AND organism_id:9606`. Item shape: accession, entry
+          name, protein name, genes, organism, taxid, reviewed, length.
+          `size` is 1-500; pass the returned `next_cursor` for the next page.
+        - `pdb`: `query` is free text (e.g. "hemoglobin"); item shape is
+          `{"pdb_id": "..."}` only. `size` is 1-100; `cursor` is the numeric
+          start offset as a string.
+
+        Both kinds return `count`, `items` and `next_cursor` (null on the
+        last page); `pdb` also returns `total`. Empty lists are true upstream
+        answers. Use `protein_record` to fetch a full record for an id.
 
         Args:
-            query: UniProt query string.
-            size: Results per page, 1-500 (default 10).
-            cursor: Opaque cursor from a previous call's `next_cursor`.
+            kind: "uniprot" or "pdb".
+            query: UniProt query string or PDB free text.
+            size: Page size (uniprot 1-500, pdb 1-100).
+            cursor: Opaque next-page token from a previous call.
         """
+        kind = kind.strip().lower()
+        if kind not in SEARCH_KINDS:
+            return tool_error(
+                f"invalid kind: {kind!r}",
+                hint=f"use one of: {', '.join(SEARCH_KINDS)}",
+                source="protein",
+            )
         if not query.strip():
-            return tool_error("query must not be empty", source="uniprot")
-        if not 1 <= size <= 500:
-            return tool_error(f"size must be 1-500, got {size}", source="uniprot")
+            return tool_error("query must not be empty", source=kind)
+        max_size = 500 if kind == "uniprot" else 100
+        if not 1 <= size <= max_size:
+            return tool_error(f"size must be 1-{max_size}, got {size}", source=kind)
         try:
-            page = await uniprot.search(query.strip(), size, cursor)
+            if kind == "uniprot":
+                page = await uniprot.search(query.strip(), size, cursor)
+                return {
+                    "source": "uniprot",
+                    "source_url": f"https://www.uniprot.org/uniprotkb?query={query}",
+                    "count": len(page["items"]),
+                    "items": page["items"],
+                    "next_cursor": page["next_cursor"],
+                }
+            start = 0
+            if cursor:
+                try:
+                    start = int(cursor)
+                except ValueError:
+                    return tool_error(
+                        f"pdb cursor must be a non-negative integer, got {cursor!r}",
+                        source="pdb",
+                    )
+                if start < 0:
+                    return tool_error("pdb cursor must be >= 0", source="pdb")
+            page = await rcsb.search(query.strip(), size, start)
         except ProviderError as exc:
-            return tool_error(f"{exc.kind}: {exc}", source="uniprot")
+            return provider_error_payload(exc, "uniprot" if kind == "uniprot" else "rcsb")
+        next_cursor = str(page["next_start"]) if page["next_start"] is not None else None
         return {
-            "source": "uniprot",
-            "source_url": f"https://www.uniprot.org/uniprotkb?query={query}",
-            "count": len(page["items"]),
-            "items": page["items"],
-            "next_cursor": page["next_cursor"],
+            "source": "rcsb",
+            "source_url": "https://www.rcsb.org/search",
+            "total": page["total"],
+            "count": len(page["identifiers"]),
+            "items": [{"pdb_id": pdb_id} for pdb_id in page["identifiers"]],
+            "next_cursor": next_cursor,
         }
 
     @guarded_tool(mcp, name="protein_map_ids", source="uniprot")
@@ -93,7 +162,7 @@ def register(mcp: FastMCP, service: Service) -> ToolMap:
         try:
             result = await uniprot.map_ids(from_db.strip(), to_db.strip(), ids.strip())
         except ProviderError as exc:
-            return tool_error(f"{exc.kind}: {exc}", source="uniprot")
+            return provider_error_payload(exc, "uniprot")
         return {
             "source": "uniprot",
             "source_url": "https://www.uniprot.org/id-mapping",
@@ -102,67 +171,8 @@ def register(mcp: FastMCP, service: Service) -> ToolMap:
             "mappings": result["mappings"],
         }
 
-    @guarded_tool(mcp, name="protein_structure", source="rcsb")
-    async def protein_structure(pdb_id: str) -> dict:
-        """Fetch one experimental structure from RCSB PDB.
-
-        Returns title, experimental method, resolution, deposit date and up to
-        five polymer entities (description, type, chain ids, length). Only
-        structures deposited in PDB exist here; predicted models are not
-        included. Unknown ids return a not_found error, not an empty record.
-
-        Args:
-            pdb_id: Four-character PDB id, e.g. "4HHB".
-        """
-        if not pdb_id.strip():
-            return tool_error("pdb_id must not be empty", source="rcsb")
-        try:
-            record = await rcsb.entry(pdb_id.strip())
-        except ProviderError as exc:
-            return tool_error(f"{exc.kind}: {exc}", source="rcsb")
-        return {
-            "source": "rcsb",
-            "source_url": f"https://www.rcsb.org/structure/{record['pdb_id']}",
-            "record": record,
-        }
-
-    @guarded_tool(mcp, name="protein_structure_search", source="rcsb")
-    async def protein_structure_search(query: str, rows: int = 10, start: int = 0) -> dict:
-        """Full-text search RCSB PDB entries.
-
-        The query is passed to the RCSB search service unchanged (e.g.
-        "hemoglobin", "kinase inhibitor"); results are PDB ids only, because
-        the search index does not return full records. Use `protein_structure`
-        on an id to fetch its record. `next_start` is null on the last page.
-
-        Args:
-            query: Free-text query.
-            rows: Page size, 1-100 (default 10).
-            start: Offset into the result set.
-        """
-        if not query.strip():
-            return tool_error("query must not be empty", source="rcsb")
-        if not 1 <= rows <= 100:
-            return tool_error(f"rows must be 1-100, got {rows}", source="rcsb")
-        if start < 0:
-            return tool_error(f"start must be >= 0, got {start}", source="rcsb")
-        try:
-            page = await rcsb.search(query.strip(), rows, start)
-        except ProviderError as exc:
-            return tool_error(f"{exc.kind}: {exc}", source="rcsb")
-        return {
-            "source": "rcsb",
-            "source_url": "https://www.rcsb.org/search",
-            "total": page["total"],
-            "count": len(page["identifiers"]),
-            "items": [{"pdb_id": pdb_id} for pdb_id in page["identifiers"]],
-            "next_start": page["next_start"],
-        }
-
     return {
-        "protein_entry": protein_entry,
+        "protein_record": protein_record,
         "protein_search": protein_search,
         "protein_map_ids": protein_map_ids,
-        "protein_structure": protein_structure,
-        "protein_structure_search": protein_structure_search,
     }

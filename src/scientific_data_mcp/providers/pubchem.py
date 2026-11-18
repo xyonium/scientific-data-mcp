@@ -89,13 +89,7 @@ class PubChemProvider(Provider):
         return _first_cid(payload, identifier)
 
     async def properties(self, cid: int, properties: list[str] | None = None) -> dict:
-        names = list(properties) if properties else list(DEFAULT_PROPERTIES)
-        unknown = [n for n in names if n not in PROPERTY_MAP]
-        if unknown:
-            raise ValueError(
-                f"unknown PubChem properties: {', '.join(unknown)}; "
-                f"allowed: {', '.join(PROPERTY_MAP)}"
-            )
+        names = _property_names(properties)
         payload = await self.http.get_json(
             f"{self.base_url}/compound/cid/{cid}/property/{','.join(names)}/JSON"
         )
@@ -115,9 +109,12 @@ class PubChemProvider(Provider):
         names = info[0].get("Synonym") if info else []
         return list(names or [])[: max(limit, 0)]
 
-    async def compound(self, identifier: str, id_type: str) -> dict:
+    async def compound(
+        self, identifier: str, id_type: str, properties: list[str] | None = None
+    ) -> dict:
+        _property_names(properties)  # fail fast before any network call
         cid = await self.resolve_cid(identifier, id_type)
-        props = await self.properties(cid)
+        props = await self.properties(cid, properties)
         names = await self.synonyms(cid)
         return {"cid": cid, **props, "synonyms": names}
 
@@ -139,6 +136,17 @@ class PubChemProvider(Provider):
             if "IdentifierList" in payload:
                 return _cids(payload)
         raise UpstreamError(f"similarity search for ListKey {key} did not finish in time")
+
+
+def _property_names(properties: list[str] | None) -> list[str]:
+    names = list(properties) if properties else list(DEFAULT_PROPERTIES)
+    unknown = [n for n in names if n not in PROPERTY_MAP]
+    if unknown:
+        raise ValueError(
+            f"unknown PubChem properties: {', '.join(unknown)}; "
+            f"allowed: {', '.join(PROPERTY_MAP)}"
+        )
+    return names
 
 
 def _cids(payload: dict) -> list[int]:

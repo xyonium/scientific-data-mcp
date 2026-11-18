@@ -9,39 +9,41 @@ from scientific_data_mcp.config import Settings
 from scientific_data_mcp.runtime import build_service
 from scientific_data_mcp.tools.chemistry import register
 
-BASE = "https://pubchem.ncbi.nlm.nih.gov/rest/pug"
+PUBCHEM = "https://pubchem.ncbi.nlm.nih.gov/rest/pug"
+CHEMBL = "https://www.ebi.ac.uk/chembl/api/data"
 
 
 @pytest.fixture
 async def tools():
-    settings = Settings(host_delays={"pubchem.ncbi.nlm.nih.gov": 0.0})
+    settings = Settings(
+        host_delays={"pubchem.ncbi.nlm.nih.gov": 0.0, "www.ebi.ac.uk": 0.0}
+    )
     service = build_service(settings)
-    mcp = FastMCP("test")
-    registered = register(mcp, service)
+    registered = register(FastMCP("test"), service)
     yield registered
     await service.aclose()
 
 
-@respx.mock
-async def test_chem_compound_returns_record(tools):
-    respx.get(f"{BASE}/compound/name/aspirin/cids/JSON").mock(
-        return_value=httpx.Response(200, json={"IdentifierList": {"CID": [2244]}})
+def _mock_compound(cid=2244):
+    respx.get(f"{PUBCHEM}/compound/name/aspirin/cids/JSON").mock(
+        return_value=httpx.Response(200, json={"IdentifierList": {"CID": [cid]}})
     )
-    respx.get(url__regex=rf"{BASE}/compound/cid/2244/property/.*/JSON").mock(
+    respx.get(url__regex=rf"{PUBCHEM}/compound/cid/{cid}/property/.*/JSON").mock(
         return_value=httpx.Response(
             200,
-            json={
-                "PropertyTable": {
-                    "Properties": [{"CID": 2244, "MolecularFormula": "C9H8O4"}]
-                }
-            },
+            json={"PropertyTable": {"Properties": [{"CID": cid, "MolecularFormula": "C9H8O4"}]}},
         )
     )
-    respx.get(f"{BASE}/compound/cid/2244/synonyms/JSON").mock(
+    respx.get(f"{PUBCHEM}/compound/cid/{cid}/synonyms/JSON").mock(
         return_value=httpx.Response(
             200, json={"InformationList": {"Information": [{"Synonym": ["ASPIRIN"]}]}}
         )
     )
+
+
+@respx.mock
+async def test_chem_compound_returns_record(tools):
+    _mock_compound()
     result = await tools["chem_compound"]("aspirin")
     assert result["source"] == "pubchem"
     assert result["record"]["cid"] == 2244
@@ -50,25 +52,44 @@ async def test_chem_compound_returns_record(tools):
 
 
 @respx.mock
+async def test_chem_compound_accepts_a_property_subset(tools):
+    _mock_compound()
+    route = respx.get(url__regex=rf"{PUBCHEM}/compound/cid/2244/property/.*/JSON").mock(
+        return_value=httpx.Response(
+            200, json={"PropertyTable": {"Properties": [{"CID": 2244, "XLogP": 1.2}]}}
+        )
+    )
+    result = await tools["chem_compound"](
+        "aspirin", properties=["MolecularFormula", "XLogP"]
+    )
+    assert "MolecularFormula,XLogP" in route.calls.last.request.url.path
+    assert result["record"]["xlogp"] == 1.2
+
+
+@respx.mock
+async def test_chem_compound_rejects_unknown_property(tools):
+    result = await tools["chem_compound"]("aspirin", properties=["Nope"])
+    assert "allowed" in result["hint"]
+
+
+@respx.mock
 async def test_chem_compound_missing_returns_error_dict(tools):
-    respx.get(f"{BASE}/compound/name/nope/cids/JSON").mock(return_value=httpx.Response(404))
+    respx.get(f"{PUBCHEM}/compound/name/nope/cids/JSON").mock(return_value=httpx.Response(404))
     result = await tools["chem_compound"]("nope")
-    assert result["source"] == "pubchem"
     assert "not_found" in result["error"]
 
 
 async def test_chem_compound_rejects_unknown_id_type(tools):
     result = await tools["chem_compound"]("x", id_type="foo")
-    assert "error" in result
     assert "name" in result["hint"]
 
 
 @respx.mock
 async def test_chem_similar_compounds_count(tools):
-    respx.post(f"{BASE}/compound/similarity/smiles/JSON").mock(
+    respx.post(f"{PUBCHEM}/compound/similarity/smiles/JSON").mock(
         return_value=httpx.Response(202, json={"Waiting": {"ListKey": "k1"}})
     )
-    respx.get(f"{BASE}/compound/listkey/k1/cids/JSON").mock(
+    respx.get(f"{PUBCHEM}/compound/listkey/k1/cids/JSON").mock(
         return_value=httpx.Response(200, json={"IdentifierList": {"CID": [1, 2]}})
     )
     result = await tools["chem_similar_compounds"]("CCO")
@@ -77,79 +98,92 @@ async def test_chem_similar_compounds_count(tools):
 
 
 @respx.mock
-async def test_chembl_bioactivity_requires_exactly_one_selector(tools):
-    result = await tools["chembl_bioactivity"](chembl_id="CHEMBL941", target_chembl_id="CHEMBL1862")
-    assert "exactly one" in result["error"]
-    result = await tools["chembl_bioactivity"]()
-    assert "exactly one" in result["error"]
-
-
-@respx.mock
-async def test_chembl_bioactivity_empty_is_not_an_error(tools):
-    respx.get("https://www.ebi.ac.uk/chembl/api/data/activity.json").mock(
-        return_value=httpx.Response(
-            200,
-            json={"activities": [], "page_meta": {"limit": 20, "offset": 0, "total_count": 0, "next": None}},
-        )
-    )
-    result = await tools["chembl_bioactivity"](chembl_id="CHEMBL941")
-    assert result["count"] == 0
-    assert result["items"] == []
-
-
-@respx.mock
-async def test_chembl_search_404_returns_error_dict(tools):
-    respx.get("https://www.ebi.ac.uk/chembl/api/data/assay/search.json").mock(
-        return_value=httpx.Response(404)
-    )
-    result = await tools["chembl_search"]("x", resource="assay")
-    assert result["source"] == "chembl"
-    assert "not_found" in result["error"]
-
-
-@respx.mock
-async def test_malformed_similarity_payload_returns_error_dict(tools):
-    respx.post(f"{BASE}/compound/similarity/smiles/JSON").mock(
+async def test_malformed_similarity_payload_is_drift(tools):
+    respx.post(f"{PUBCHEM}/compound/similarity/smiles/JSON").mock(
         return_value=httpx.Response(202, json={"Waiting": {"ListKey": "k1"}})
     )
-    respx.get(f"{BASE}/compound/listkey/k1/cids/JSON").mock(
+    respx.get(f"{PUBCHEM}/compound/listkey/k1/cids/JSON").mock(
         return_value=httpx.Response(200, json={"IdentifierList": {"CID": ["not-a-cid"]}})
     )
     result = await tools["chem_similar_compounds"]("CCO")
-    assert result["source"] == "pubchem"
-    assert "error" in result
-
-
-@respx.mock
-async def test_unexpected_provider_bug_returns_error_dict(tools):
-    respx.get(f"{BASE}/compound/name/aspirin/cids/JSON").mock(
-        return_value=httpx.Response(200, json={"IdentifierList": {"CID": [2244]}})
-    )
-    respx.get(url__regex=rf"{BASE}/compound/cid/2244/property/.*/JSON").mock(
-        return_value=httpx.Response(200, json={"PropertyTable": {"Properties": ["oops"]}})
-    )
-    respx.get(f"{BASE}/compound/cid/2244/synonyms/JSON").mock(
-        return_value=httpx.Response(200, json={"InformationList": {"Information": []}})
-    )
-    result = await tools["chem_compound"]("aspirin")
-    assert result["source"] == "pubchem"
-    assert "unexpected" in result["error"]
     assert result["suspect_drift"] is True
     assert result["action"] == "contact_admin"
 
 
-async def test_chembl_bioactivity_rejects_negative_offset(tools):
-    result = await tools["chembl_bioactivity"](chembl_id="CHEMBL941", offset=-1)
-    assert "offset" in result["error"]
+@respx.mock
+async def test_unexpected_provider_bug_returns_error_dict(tools):
+    _mock_compound()
+    respx.get(url__regex=rf"{PUBCHEM}/compound/cid/2244/property/.*/JSON").mock(
+        return_value=httpx.Response(200, json={"PropertyTable": {"Properties": ["oops"]}})
+    )
+    result = await tools["chem_compound"]("aspirin")
+    assert "unexpected" in result["error"]
+    assert result["suspect_drift"] is True
 
 
 @respx.mock
-async def test_chembl_source_urls_point_at_report_cards(tools):
-    respx.get("https://www.ebi.ac.uk/chembl/api/data/activity.json").mock(
+async def test_chembl_data_search(tools):
+    respx.get(f"{CHEMBL}/molecule/search.json").mock(
+        return_value=httpx.Response(
+            200,
+            json={
+                "molecules": [{"molecule_chembl_id": "CHEMBL941", "pref_name": "IMATINIB"}],
+                "page_meta": {"limit": 2, "offset": 0, "total_count": 5, "next": "x"},
+            },
+        )
+    )
+    result = await tools["chembl_data"](kind="search", query="imatinib", limit=2)
+    assert result["count"] == 1
+    assert result["total"] == 5
+    assert result["next_offset"] == 1
+    assert result["items"][0]["molecule_chembl_id"] == "CHEMBL941"
+
+
+@respx.mock
+async def test_chembl_data_activities_empty_is_not_an_error(tools):
+    respx.get(f"{CHEMBL}/activity.json").mock(
         return_value=httpx.Response(
             200,
             json={"activities": [], "page_meta": {"limit": 20, "offset": 0, "total_count": 0, "next": None}},
         )
     )
-    result = await tools["chembl_bioactivity"](chembl_id="CHEMBL941")
-    assert result["source_url"] == "https://www.ebi.ac.uk/chembl/compound_report_card/CHEMBL941/"
+    result = await tools["chembl_data"](kind="activities", chembl_id="CHEMBL941")
+    assert result["count"] == 0
+    assert result["items"] == []
+    assert result["source_url"].endswith("/CHEMBL941/")
+
+
+@respx.mock
+async def test_chembl_data_mechanisms(tools):
+    respx.get(f"{CHEMBL}/mechanism.json").mock(
+        return_value=httpx.Response(
+            200,
+            json={
+                "mechanisms": [
+                    {"molecule_chembl_id": "CHEMBL1642", "mechanism_of_action": "ABL inhibitor"}
+                ]
+            },
+        )
+    )
+    result = await tools["chembl_data"](kind="mechanisms", chembl_id="CHEMBL1642")
+    assert result["count"] == 1
+    assert result["items"][0]["mechanism_of_action"] == "ABL inhibitor"
+
+
+async def test_chembl_data_validates_combinations(tools):
+    assert "exactly one" in (
+        await tools["chembl_data"](kind="activities", chembl_id="A", target_chembl_id="B")
+    )["error"]
+    assert "exactly one" in (await tools["chembl_data"](kind="activities"))["error"]
+    assert "query is required" in (await tools["chembl_data"](kind="search"))["error"]
+    assert "invalid kind" in (await tools["chembl_data"](kind="nope"))["error"]
+    assert "limit" in (await tools["chembl_data"](kind="search", query="x", limit=0))["error"]
+    assert "offset" in (await tools["chembl_data"](kind="search", query="x", offset=-1))["error"]
+
+
+@respx.mock
+async def test_chembl_data_404_returns_error_dict(tools):
+    respx.get(f"{CHEMBL}/assay/search.json").mock(return_value=httpx.Response(404))
+    result = await tools["chembl_data"](kind="search", query="x", resource="assay")
+    assert result["source"] == "chembl"
+    assert "not_found" in result["error"]

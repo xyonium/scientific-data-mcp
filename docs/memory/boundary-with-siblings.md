@@ -7,7 +7,7 @@
 | 用户意图 | 去哪里 |
 |----------|--------|
 | 这个化合物的性质/靶点 | 本项目 `chem_compound` / `chembl_*` |
-| 这个蛋白的序列/结构 | 本项目 `protein_entry` / `protein_structure` |
+| 这个蛋白的序列/结构 | 本项目 `protein_record`（kind=uniprot/pdb） |
 | 给了 PMID/DOI 要结构化记录 | 本项目 `pubmed_record`（不下载全文） |
 | 关于 X 的论文 | paper-search |
 | 要全文 / 入 Knowledge RAG | paper-search |
