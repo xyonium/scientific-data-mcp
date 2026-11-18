@@ -31,11 +31,39 @@ class UpstreamError(ProviderError):
     retryable = True
 
 
-def tool_error(msg: object, hint: str | None = None, **extra: object) -> dict:
+class UpstreamDrift(ProviderError):
+    """The upstream response no longer matches this adapter's contract.
+
+    Not retryable: repeating the same request will not help. Tools surface it
+    with ``suspect_drift`` so the model tells the user to contact the
+    administrator instead of retrying blindly.
+    """
+
+    kind = "upstream_drift"
+    retryable = False
+    contact_admin = True
+
+
+DRIFT_HINT = (
+    "上游返回与适配器预期不一致（接口可能已漂移）。不要用相同参数重试；"
+    "请告知用户联系管理员更新对应 provider。"
+)
+
+
+def tool_error(
+    msg: object,
+    hint: str | None = None,
+    *,
+    suspect_drift: bool = False,
+    **extra: object,
+) -> dict:
     """Build the single error shape every tool returns."""
     out: dict = {"error": str(msg)}
     if hint:
         out["hint"] = hint
+    if suspect_drift:
+        out["suspect_drift"] = True
+        out["action"] = "contact_admin"
     out.update(extra)
     return out
 

@@ -51,6 +51,7 @@ async def test_get_sends_key_header_and_normalizes(provider):
     )
     record = await provider.get("mp-149")
     assert route.calls.last.request.headers["X-API-KEY"] == "k"
+    assert route.calls.last.request.url.params["material_ids"] == "mp-149"
     assert record["formula"] == "SiO2"
     assert record["crystal_system"] == "tetragonal"
     assert record["band_gap"] == 1.15

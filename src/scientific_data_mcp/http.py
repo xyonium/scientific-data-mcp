@@ -15,7 +15,7 @@ from urllib.parse import urlparse
 import httpx
 
 from .config import Settings
-from .errors import AuthError, NotFound, RateLimited, UpstreamError
+from .errors import AuthError, NotFound, RateLimited, UpstreamDrift, UpstreamError
 
 _MAX_RETRY_AFTER = 10.0
 
@@ -71,6 +71,7 @@ class PoliteClient:
         host = urlparse(url).netloc
         last: Exception | None = None
         attempts = self._max_retries + 1 if retry else 1
+        started = time.monotonic()
         for attempt in range(attempts):
             await self._pace(host)
             try:
@@ -87,13 +88,19 @@ class PoliteClient:
                 last = UpstreamError(f"network error from {host}: {exc}")
                 if not retry:
                     raise last from exc
-                await asyncio.sleep(0.5 * (2**attempt))
+                delay = 0.5 * (2**attempt)
+                if time.monotonic() - started + delay > self._settings.retry_budget:
+                    raise last from exc
+                await asyncio.sleep(delay)
                 continue
             if resp.status_code in (429, 503):
                 last = RateLimited(f"HTTP {resp.status_code} from {host}")
                 if not retry:
                     raise last
-                await asyncio.sleep(self._retry_after(resp, attempt))
+                delay = self._retry_after(resp, attempt)
+                if time.monotonic() - started + delay > self._settings.retry_budget:
+                    raise last
+                await asyncio.sleep(delay)
                 continue
             if resp.status_code in (500, 502, 504):
                 # Transient upstream failures: ChEMBL and UniProt both return
@@ -101,12 +108,20 @@ class PoliteClient:
                 last = UpstreamError(f"HTTP {resp.status_code} from {host}")
                 if not retry:
                     raise last
-                await asyncio.sleep(0.5 * (2**attempt))
+                delay = 0.5 * (2**attempt)
+                if time.monotonic() - started + delay > self._settings.retry_budget:
+                    raise last
+                await asyncio.sleep(delay)
                 continue
             if resp.status_code in (401, 403):
                 raise AuthError(f"HTTP {resp.status_code} from {host}")
             if resp.status_code == 404:
                 raise NotFound(f"HTTP 404 from {host}")
+            if resp.status_code in (400, 405, 406, 422):
+                # Our request no longer matches the documented contract.
+                raise UpstreamDrift(
+                    f"HTTP {resp.status_code} from {host}: request contract mismatch"
+                )
             if resp.status_code >= 400:
                 raise UpstreamError(f"HTTP {resp.status_code} from {host}")
             return resp
@@ -137,10 +152,14 @@ class PoliteClient:
         resp = await self.get_response(
             url, params=params, headers=headers, follow_redirects=follow_redirects
         )
+        if resp.status_code == 204:
+            return None
         try:
             return resp.json()
         except ValueError as exc:
-            raise UpstreamError(f"non-JSON response from {urlparse(url).netloc}: {exc}") from exc
+            raise UpstreamDrift(
+                f"non-JSON response from {urlparse(url).netloc}: {exc}"
+            ) from exc
 
     async def get_text(
         self,
@@ -173,10 +192,14 @@ class PoliteClient:
         resp = await self._request(
             "POST", url, json_body=json_body, headers=headers, retry=retry
         )
+        if resp.status_code == 204:
+            return None
         try:
             return resp.json()
         except ValueError as exc:
-            raise UpstreamError(f"non-JSON response from {urlparse(url).netloc}: {exc}") from exc
+            raise UpstreamDrift(
+                f"non-JSON response from {urlparse(url).netloc}: {exc}"
+            ) from exc
 
     async def post_form(
         self,

@@ -12,3 +12,5 @@
 - [Materials Project 的 key-gated 形态](materials-project-key-gate.md) — 无 key 不注册工具；MP 是 80 库里唯一需 key 的当前源
 - [K-Dense 数据源清单追踪](kdense-catalogue-tracking.md) — v1.8 仍 80 库；季度 Action + 快照 diff
 - [2026-11-18 K-Dense 归属审计](kdense-catalogue-tracking.md) — finance 只补 SEC EDGAR；paper 的 USPTO 暂不加
+- [WHO GHO 接入](who-gho.md) — 免 key OData；必须给指标代码，目录端点 504 不可用
+- [上游漂移信号](upstream-drift-signal.md) — suspect_drift/contact_admin 的分类与纪律

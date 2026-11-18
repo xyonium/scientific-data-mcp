@@ -3,6 +3,7 @@ from __future__ import annotations
 from scientific_data_mcp.server import build_server
 
 EXPECTED_TOOLS = {
+    "who_data",
     "chem_compound",
     "chem_compound_properties",
     "chem_similar_compounds",
@@ -21,7 +22,7 @@ EXPECTED_TOOLS = {
 MATERIALS_TOOLS = {"material_get", "material_search"}
 
 
-async def test_server_exposes_exactly_the_twelve_base_tools():
+async def test_server_exposes_exactly_the_base_tools():
     mcp = build_server()
     assert {tool.name for tool in await mcp.list_tools()} == EXPECTED_TOOLS
 

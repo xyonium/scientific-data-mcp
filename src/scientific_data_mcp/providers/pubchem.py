@@ -11,7 +11,7 @@ import asyncio
 from urllib.parse import quote
 
 from ..config import Settings
-from ..errors import NotFound, UpstreamError
+from ..errors import NotFound, UpstreamDrift, UpstreamError
 from ..http import PoliteClient
 from .base import Provider
 
@@ -99,7 +99,9 @@ class PubChemProvider(Provider):
         payload = await self.http.get_json(
             f"{self.base_url}/compound/cid/{cid}/property/{','.join(names)}/JSON"
         )
-        rows = payload.get("PropertyTable", {}).get("Properties") or []
+        if "PropertyTable" not in payload:
+            raise UpstreamDrift(f"PubChem property response has no PropertyTable: {_fault(payload)}")
+        rows = payload["PropertyTable"].get("Properties") or []
         if not rows:
             raise NotFound(f"no properties for CID {cid}")
         row = rows[0]
@@ -107,7 +109,9 @@ class PubChemProvider(Provider):
 
     async def synonyms(self, cid: int, limit: int = 20) -> list[str]:
         payload = await self.http.get_json(f"{self.base_url}/compound/cid/{cid}/synonyms/JSON")
-        info = payload.get("InformationList", {}).get("Information") or []
+        if "InformationList" not in payload:
+            raise UpstreamDrift(f"PubChem synonym response has no InformationList: {_fault(payload)}")
+        info = payload["InformationList"].get("Information") or []
         names = info[0].get("Synonym") if info else []
         return list(names or [])[: max(limit, 0)]
 
@@ -138,8 +142,18 @@ class PubChemProvider(Provider):
 
 
 def _cids(payload: dict) -> list[int]:
-    values = payload.get("IdentifierList", {}).get("CID") or []
-    return [int(v) for v in values]
+    if "IdentifierList" not in payload:
+        raise UpstreamDrift(f"PubChem response has no IdentifierList: {_fault(payload)}")
+    values = payload["IdentifierList"].get("CID") or []
+    try:
+        return [int(v) for v in values]
+    except (TypeError, ValueError) as exc:
+        raise UpstreamDrift(f"PubChem returned non-numeric CIDs: {values!r}") from exc
+
+
+def _fault(payload: dict) -> str:
+    fault = payload.get("Fault") or payload.get("Waiting")
+    return str(fault)[:200] if fault else "unexpected payload shape"
 
 
 def _first_cid(payload: dict, identifier: str) -> int:

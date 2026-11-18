@@ -10,7 +10,7 @@
 - PubChem 首次请求 ~4s，之后正常；UniProt 2.3s；RCSB 1.2s；E-utilities 2.9s。
 
 纪律：
-- 所有外部调用必须带**有界重试 + 退避**（`PoliteClient` 已做：网络错误指数退避，429/503 尊重 `Retry-After`，最多 3 次）。
+- 所有外部调用必须带**有界重试 + 退避 + 总预算**（`PoliteClient`：网络错误指数退避，429/503 尊重 `Retry-After`，最多 4 次；`retry_budget=45s`，超出预算立即返回，避免一次工具调用挂 2 分钟）。
 - 超时要有界，不要用无限等待；用户可见的失败是 `{"error": "unavailable: ..."}`，不是挂死。
 - 区分"偶发 SSL EOF/超时"（重试可解）和"必现 4xx/404"（代码/端点 bug，重试无用）。
 - 新增源时优先选同一 host 上更稳的端点（例：DOI→PubMed 用 esearch 而不是 idconv）。

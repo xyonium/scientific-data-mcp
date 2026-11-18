@@ -17,7 +17,7 @@
 
 ## 边界
 
-清单是"可以考虑的源"，不是"已接的源"。当前已接：PubChem/ChEMBL/UniProt/PDB/PubMed（免 key）+ Materials Project（需 key）。
+清单是"可以考虑的源"，不是"已接的源"。当前已接：PubChem/ChEMBL/UniProt/PDB/PubMed/WHO GHO（免 key）+ Materials Project（需 key）。WHO GHO 原计划放 M6，2026-11-18 提前落地。
 
 ## 2026-11-18 兄弟项目归属审计
 

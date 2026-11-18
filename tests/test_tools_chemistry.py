@@ -134,6 +134,8 @@ async def test_unexpected_provider_bug_returns_error_dict(tools):
     result = await tools["chem_compound"]("aspirin")
     assert result["source"] == "pubchem"
     assert "unexpected" in result["error"]
+    assert result["suspect_drift"] is True
+    assert result["action"] == "contact_admin"
 
 
 async def test_chembl_bioactivity_rejects_negative_offset(tools):

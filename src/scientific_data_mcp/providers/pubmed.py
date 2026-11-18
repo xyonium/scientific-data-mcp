@@ -14,7 +14,7 @@ from __future__ import annotations
 import xml.etree.ElementTree as ET
 
 from ..config import Settings
-from ..errors import NotFound, UpstreamError
+from ..errors import NotFound, UpstreamDrift
 from ..http import PoliteClient
 from .base import Provider, omit_none
 
@@ -68,7 +68,12 @@ def parse_article(xml: str, requested_id: str) -> dict:
     try:
         root = ET.fromstring(xml)
     except ET.ParseError as exc:
-        raise UpstreamError(f"unparseable PubMed XML: {exc}") from exc
+        raise UpstreamDrift(f"unparseable PubMed XML: {exc}") from exc
+    if root.tag == "eFetchResult":
+        # efetch reports an invalid/unknown id here with HTTP 200.
+        raise NotFound(f"no PubMed record for {requested_id!r}")
+    if root.tag != "PubmedArticleSet":
+        raise UpstreamDrift(f"unexpected PubMed XML root <{root.tag}>")
     article = root.find(".//PubmedArticle")
     if article is None:
         raise NotFound(f"no PubMed record for {requested_id!r}")

@@ -1,6 +1,6 @@
 # scientific-data-mcp
 
-科研**实体数据** MCP —— 化合物 / 生物活性 / 蛋白序列与结构 / 文献元数据的**免费官方 API 直连**。一个 server，12 个基础工具（配 Materials Project key 时 14 个），零额度。
+科研**实体数据** MCP —— 化合物 / 生物活性 / 蛋白序列与结构 / 文献元数据的**免费官方 API 直连**。一个 server，13 个基础工具（配 Materials Project key 时 15 个），零额度。
 
 > 与 [paper-search](https://github.com/xyonium/paper-search)（文献检索 + RAG）、[finance-mcp](https://github.com/xyonium/finance-mcp)（金融/宏观）互补，不做重复。
 
@@ -20,7 +20,7 @@ kimi datasource 把一批本来就免 key 的官方科研 API（PubChem / ChEMBL
 
 ## 源与工具
 
-四个源免 key；PubMed 可选 `NCBI_API_KEY` 提速（3→10 req/s）；**Materials Project 需要免费 key**，未配置时其 2 个工具不会注册。申请步骤见 [docs/CREDENTIALS.md](./docs/CREDENTIALS.md)。
+五个基础源免 key（PubChem / ChEMBL / UniProt / RCSB PDB / WHO GHO）；PubMed 可选 `NCBI_API_KEY` 提速（3→10 req/s）；**Materials Project 需要免费 key**，未配置时其 2 个工具不会注册。申请步骤见 [docs/CREDENTIALS.md](./docs/CREDENTIALS.md)。
 
 | 域 | 源 | 工具 |
 |----|----|------|
@@ -38,8 +38,11 @@ kimi datasource 把一批本来就免 key 的官方科研 API（PubChem / ChEMBL
 | 文献 | **PubMed**（E-utilities） | `pubmed_record` — pmid / doi → 标题、作者、期刊、年卷期页、摘要、DOI、PMCID |
 | 材料 | **Materials Project**（需免费 key） | `material_get` — 单个材料摘要（带隙、energy above hull、密度、对称性、稳定性） |
 | 材料 | Materials Project | `material_search` — 按 formula / chemsys / elements 检索 |
+| 健康 | **WHO GHO**（OData） | `who_data` — 按指标代码查国家/年份/性别的健康统计（如 `WHOSIS_000001` 出生预期寿命） |
 
 所有工具只返回上游真实字段：缺字段就是上游没有，不推断、不补全。失败返回 `{"error": ..., "source": ...}`，不会让一次调用炸掉整轮对话。
+
+如果错误里出现 `"suspect_drift": true` / `"action": "contact_admin"`，表示**上游返回结构与适配器不一致（接口可能漂移）**，不是限流或网络问题：不要用相同参数重试，请告知用户联系管理员更新对应 provider。`rate_limited` / `unavailable` / `auth` / `not_found` 不带这个标记。
 
 ## 安装
 

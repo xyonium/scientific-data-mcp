@@ -8,7 +8,7 @@ keeps the base 12-tool surface and never advertises a tool that cannot work.
 from __future__ import annotations
 
 from ..config import Settings
-from ..errors import NotFound
+from ..errors import NotFound, UpstreamDrift
 from ..http import PoliteClient
 from .base import Provider, omit_none
 
@@ -33,10 +33,12 @@ class MaterialsProjectProvider(Provider):
     async def get(self, material_id: str) -> dict:
         payload = await self.http.get_json(
             f"{self.base_url}/materials/summary/",
-            params={"material_id": material_id, "_fields": _FIELDS},
+            params={"material_ids": material_id, "_fields": _FIELDS},
             headers=self._headers(),
         )
-        rows = payload.get("data") or []
+        if "data" not in payload:
+            raise UpstreamDrift("Materials Project response has no 'data' list")
+        rows = payload["data"] or []
         if not rows:
             raise NotFound(f"no Materials Project entry for {material_id!r}")
         return _normalize(rows[0])
@@ -60,7 +62,9 @@ class MaterialsProjectProvider(Provider):
             params=params,
             headers=self._headers(),
         )
-        return [_normalize(row) for row in payload.get("data") or []]
+        if "data" not in payload:
+            raise UpstreamDrift("Materials Project search response has no 'data' list")
+        return [_normalize(row) for row in payload["data"] or []]
 
 
 def _normalize(row: dict) -> dict:

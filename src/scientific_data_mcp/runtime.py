@@ -14,6 +14,7 @@ from .providers.pubchem import PubChemProvider
 from .providers.pubmed import PubMedProvider
 from .providers.rcsb import RcsbProvider
 from .providers.uniprot import UniProtProvider
+from .providers.who import WhoProvider
 
 
 @dataclass
@@ -38,6 +39,7 @@ def build_service(settings: Settings | None = None) -> Service:
         "uniprot": UniProtProvider(http, settings),
         "rcsb": RcsbProvider(http, settings),
         "pubmed": PubMedProvider(http, settings),
+        "who": WhoProvider(http, settings),
     }
     if settings.materials_project_api_key:
         providers["materials_project"] = MaterialsProjectProvider(http, settings)

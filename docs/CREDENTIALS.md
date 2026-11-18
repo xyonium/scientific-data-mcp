@@ -70,6 +70,7 @@ python scripts/live_smoke.py   # pubmed_record 一项 PASS 即通
 | ChEMBL EBI REST | 免 key，"keep request rates moderate" | 0.5s 间隔 |
 | UniProt REST | 免 key | 0.2s 间隔 |
 | RCSB PDB Data/Search | 免 key | 0.2s / 0.5s |
+| WHO GHO OData | 免 key | 0.5s |
 
 限速表在 `src/scientific_data_mcp/config.py` 的 `HOST_DELAYS`。
 

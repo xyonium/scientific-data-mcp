@@ -7,7 +7,13 @@ import pytest
 import respx
 
 from scientific_data_mcp.config import Settings
-from scientific_data_mcp.errors import AuthError, NotFound, UpstreamError
+from scientific_data_mcp.errors import (
+    AuthError,
+    NotFound,
+    RateLimited,
+    UpstreamDrift,
+    UpstreamError,
+)
 from scientific_data_mcp.http import PoliteClient
 
 URL = "https://api.test/thing"
@@ -102,3 +108,38 @@ async def test_post_response_returns_raw_204():
     async with PoliteClient(Settings()) as client:
         resp = await client.post_response(URL, {"q": 1})
     assert resp.status_code == 204
+
+
+@respx.mock
+async def test_400_is_drift_not_retryable():
+    route = respx.get(URL).mock(return_value=httpx.Response(400))
+    async with PoliteClient(Settings(max_retries=3)) as client:
+        with pytest.raises(UpstreamDrift):
+            await client.get_json(URL)
+    assert route.call_count == 1
+
+
+@respx.mock
+async def test_html_200_is_drift():
+    respx.get(URL).mock(return_value=httpx.Response(200, text="<html>oops</html>"))
+    async with PoliteClient(Settings(max_retries=0)) as client:
+        with pytest.raises(UpstreamDrift):
+            await client.get_json(URL)
+
+
+@respx.mock
+async def test_204_json_is_none():
+    respx.get(URL).mock(return_value=httpx.Response(204))
+    async with PoliteClient(Settings()) as client:
+        assert await client.get_json(URL) is None
+
+
+@respx.mock
+async def test_retry_budget_stops_before_a_long_wait():
+    route = respx.get(URL).mock(
+        return_value=httpx.Response(503, headers={"Retry-After": "30"})
+    )
+    async with PoliteClient(Settings(max_retries=3, retry_budget=1.0)) as client:
+        with pytest.raises(RateLimited):
+            await client.get_json(URL)
+    assert route.call_count == 1

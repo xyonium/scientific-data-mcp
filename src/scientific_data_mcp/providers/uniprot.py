@@ -11,7 +11,7 @@ import time
 from urllib.parse import parse_qs, quote, urlparse
 
 from ..config import Settings
-from ..errors import UpstreamError
+from ..errors import UpstreamDrift, UpstreamError
 from ..http import PoliteClient
 from .base import Provider, omit_none
 
@@ -34,7 +34,7 @@ class UniProtProvider(Provider):
             f"{self.base_url}/uniprotkb/{quote(accession, safe='')}.json"
         )
         if not isinstance(payload, dict) or "primaryAccession" not in payload:
-            raise UpstreamError(f"unexpected UniProt entry payload for {accession}")
+            raise UpstreamDrift(f"unexpected UniProt entry payload for {accession}")
         return _normalize_entry(payload, include_sequence)
 
     async def search(self, query: str, size: int = 10, cursor: str | None = None) -> dict:
@@ -50,8 +50,10 @@ class UniProtProvider(Provider):
         try:
             payload = resp.json()
         except ValueError as exc:
-            raise UpstreamError(f"non-JSON UniProt search response: {exc}") from exc
-        items = [_normalize_summary(row) for row in payload.get("results") or []]
+            raise UpstreamDrift(f"non-JSON UniProt search response: {exc}") from exc
+        if "results" not in payload:
+            raise UpstreamDrift("UniProt search response has no 'results' list")
+        items = [_normalize_summary(row) for row in payload["results"] or []]
         return {
             "items": items,
             "next_cursor": _next_cursor(resp.headers.get("link", "")),
@@ -81,6 +83,8 @@ class UniProtProvider(Provider):
                 break
             if state in ("ERROR", "FAILED"):
                 raise UpstreamError(f"UniProt idmapping job {job_id} failed: {status}")
+            if state not in ("RUNNING", "NEW", "PENDING"):
+                raise UpstreamDrift(f"UniProt idmapping status has unknown jobStatus: {status}")
             if time.monotonic() >= deadline:
                 raise UpstreamError(f"UniProt idmapping job {job_id} timed out after {timeout:.0f}s")
             await asyncio.sleep(_POLL_INTERVAL)
@@ -93,8 +97,10 @@ class UniProtProvider(Provider):
             try:
                 payload = resp.json()
             except ValueError as exc:
-                raise UpstreamError(f"non-JSON UniProt results response: {exc}") from exc
-            for row in payload.get("results") or []:
+                raise UpstreamDrift(f"non-JSON UniProt results response: {exc}") from exc
+            if "results" not in payload:
+                raise UpstreamDrift("UniProt idmapping results response has no 'results' list")
+            for row in payload["results"] or []:
                 src = row.get("from")
                 dst = row.get("to")
                 if src and dst:

@@ -1,6 +1,6 @@
 # scientific-data-mcp — 维护指南
 
-科研**实体数据** MCP：化合物（PubChem）、生物活性（ChEMBL）、蛋白序列/功能（UniProt）、实验结构（RCSB PDB）、文献元数据（PubMed E-utilities），以及需免费 key 的材料数据（Materials Project）。一个 FastMCP server：12 个基础工具 + 配 MP key 时 2 个材料工具。
+科研**实体数据** MCP：化合物（PubChem）、生物活性（ChEMBL）、蛋白序列/功能（UniProt）、实验结构（RCSB PDB）、文献元数据（PubMed E-utilities），以及需免费 key 的材料数据（Materials Project）。一个 FastMCP server：13 个基础工具（含 WHO GHO）+ 配 MP key 时 2 个材料工具。
 
 本项目由 **DSH 维护**（2026-11-17 从 Claude Code 项目迁移）。`AGENTS.md` 是唯一常驻指令；`docs/memory/` 是本项目的工作记忆，动手前先读 `docs/memory/MEMORY.md`。
 
@@ -22,7 +22,7 @@ uv pip install -e '.[dev]' --python .venv/bin/python
 
 pytest -q                 # hermetic，0 egress
 ruff check .
-python scripts/live_smoke.py   # 真实打 5 个上游，人工跑，不进 CI
+python scripts/live_smoke.py   # 真实打 6 个上游（配 key 时含 MP），人工跑，不进 CI
 
 .venv/bin/scientific-data-mcp                 # stdio（mcpo 用这个）
 .venv/bin/scientific-data-mcp --http --port 8000
@@ -37,11 +37,12 @@ docker build -t scientific-data-mcp:dev .
 - 所有 HTTP 走 `http.PoliteClient`：per-host 限速（见 `config.HOST_DELAYS`）、429/503 与瞬时 5xx（500/502/504）重试、401/403→`AuthError`、404→`NotFound`。**创建服务端任务的 POST（PubChem 相似性、UniProt idmapping run）不自动重试**，只重试其后的轮询 GET。
 - 工具用 `guarded_tool(...)` 注册：最外层兜底任何 `Exception`，保证 never-raise；`CancelledError` 不捕。
 - **工具永不抛异常**：任何失败返回 `{"error": "...", "source": "..."}`；空结果是正常答案（`count: 0`），不是错误。
+- **漂移信号**：非连接/限流类失败（400/405/406/422、非 JSON 200、缺关键字段、解析异常）抛 `UpstreamDrift`，工具返回 `suspect_drift: true` + `action: contact_admin` + 提示联系管理员；限流/网络/5xx 不带该标记。
 - **反幻觉**：只返回上游真实字段；缺失字段省略，不推断、不补全；docstring 写明"不补全"。返回体不带时间戳（测试可复现）。
 - 返回值 `source_url` 指向官方记录页，便于人工复核。
 - 分页：列表返回 `next_cursor`/`next_offset`/`next_start`，最后一页为 `null`。
-- 新增源时同步：provider、tool、`runtime.build_service`、`tools/__init__.register_all`、`tests/test_server.py` 的基础 12 工具断言（+ 有 key 时的工具面）、README 工具表、`docs/memory/`。
-- **key-gated 源只在 key 存在时注册 provider 和 tool**（Materials Project 先例）：没有 key 时工具面保持 12 个，不注册永远失败的占位工具。
+- 新增源时同步：provider、tool、`runtime.build_service`、`tools/__init__.register_all`、`tests/test_server.py` 的基础 13 工具断言（+ 有 key 时的工具面）、README 工具表、`docs/memory/`。
+- **key-gated 源只在 key 存在时注册 provider 和 tool**（Materials Project 先例）：没有 key 时工具面保持 13 个，不注册永远失败的占位工具。
 - 数据源池追踪：`docs/research/kdense-databases.json` + `scripts/kdense_sources.py`；季度 Action 有变化会开 issue，评估后 `--update` 刷新快照。
 
 ## 发布纪律
@@ -58,6 +59,8 @@ docker build -t scientific-data-mcp:dev .
 - 改 HTTP / 重试 / 超时 → `flaky-upstream-apis.md`
 - 改 key / 环境变量 / 限速 / 申请步骤 → `secrets-and-quotas.md` + `docs/CREDENTIALS.md`
 - 改 Materials Project / key-gated 源 → `materials-project-key-gate.md`
+- 改 WHO GHO → `who-gho.md`
+- 改错误分类 / 漂移信号 → `upstream-drift-signal.md`
 - 改 K-Dense 快照 / 季度扫描 → `kdense-catalogue-tracking.md`
 - 改 docstring / 工具描述 → `tool-description-discipline.md`
 - 改边界（PubMed 搜索、全文、RAG） → `boundary-with-siblings.md`

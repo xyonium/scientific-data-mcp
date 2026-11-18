@@ -25,6 +25,7 @@ HOST_DELAYS: dict[str, float] = {
     "eutils.ncbi.nlm.nih.gov": 0.34,
     "www.ncbi.nlm.nih.gov": 0.34,
     "api.materialsproject.org": 1.0,
+    "ghoapi.azureedge.net": 0.5,
 }
 
 
@@ -34,7 +35,8 @@ class Settings:
     ncbi_email: str | None = None
     materials_project_api_key: str | None = None
     timeout: float = 30.0
-    max_retries: int = 3
+    max_retries: int = 4
+    retry_budget: float = 45.0
     user_agent: str = DEFAULT_USER_AGENT
     host_delays: dict[str, float] = field(default_factory=lambda: dict(HOST_DELAYS))
 

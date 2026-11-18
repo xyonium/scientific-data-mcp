@@ -9,7 +9,7 @@ from __future__ import annotations
 from urllib.parse import quote
 
 from ..config import Settings
-from ..errors import ProviderError, UpstreamError
+from ..errors import ProviderError, UpstreamDrift
 from ..http import PoliteClient
 from .base import Provider, omit_none
 
@@ -28,6 +28,8 @@ class RcsbProvider(Provider):
     async def entry(self, pdb_id: str) -> dict:
         pdb_id = pdb_id.upper()
         payload = await self.http.get_json(f"{self.base_url}/entry/{quote(pdb_id, safe='')}")
+        if "rcsb_entry_container_identifiers" not in payload and "struct" not in payload:
+            raise UpstreamDrift(f"RCSB entry {pdb_id} response has no entry identifiers or struct")
         identifiers = payload.get("rcsb_entry_container_identifiers") or {}
         entity_ids = list(identifiers.get("polymer_entity_ids") or [])
         entities = []
@@ -53,6 +55,8 @@ class RcsbProvider(Provider):
         payload = await self.http.get_json(
             f"{self.base_url}/polymer_entity/{quote(pdb_id.upper(), safe='')}/{quote(str(entity_id), safe='')}"
         )
+        if "rcsb_polymer_entity" not in payload:
+            raise UpstreamDrift(f"RCSB entity {pdb_id}/{entity_id} response has no rcsb_polymer_entity")
         return omit_none(
             {
                 "entity_id": str(entity_id),
@@ -84,7 +88,9 @@ class RcsbProvider(Provider):
         try:
             payload = resp.json()
         except ValueError as exc:
-            raise UpstreamError(f"non-JSON RCSB search response: {exc}") from exc
+            raise UpstreamDrift(f"non-JSON RCSB search response: {exc}") from exc
+        if "total_count" not in payload or "result_set" not in payload:
+            raise UpstreamDrift("RCSB search response has no total_count/result_set")
         total = payload.get("total_count", 0)
         identifiers = [row["identifier"] for row in payload.get("result_set") or []]
         next_start = start + rows if start + rows < total else None

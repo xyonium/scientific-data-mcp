@@ -121,7 +121,7 @@
 | BEA | 暂缓 | 需免费 key；FRED 派生已覆盖头部序列，细分区域/行业表优先级低 |
 | BLS | 暂缓 | 需免费 key；CPI/UNRATE/PAYEMS 已由 FRED 覆盖，JOLTS/OES 需求未验证 |
 | Eurostat | 暂缓 | JSON-stat 2.0 解析成本；与金融主线弱相关 |
-| WHO GHO | 不做 | 健康统计，放 scientific-data-mcp 的 M6 更合适 |
+| WHO GHO | 不做 | 健康统计；已由 scientific-data-mcp 的 `who_data` 覆盖（2026-11-18） |
 | US Census | 暂缓 | 需 key，匿名配额约束未评估；社科侧，非金融主线 |
 | Data Commons | 暂缓 | 需 key + 自有 schema，不是 REST 直读 |
 | OECD | 不做 | 不在 K-Dense 80 库内 |

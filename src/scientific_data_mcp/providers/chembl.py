@@ -10,7 +10,7 @@ from __future__ import annotations
 from urllib.parse import quote
 
 from ..config import Settings
-from ..errors import UpstreamError
+from ..errors import UpstreamDrift
 from ..http import PoliteClient
 from .base import Provider
 
@@ -28,7 +28,9 @@ class ChemBLProvider(Provider):
         super().__init__(http, settings)
 
     async def _page(self, payload: dict, key: str, offset: int, limit: int) -> dict:
-        items = payload.get(key) or []
+        if key not in payload:
+            raise UpstreamDrift(f"ChEMBL response has no {key!r} list")
+        items = payload[key] or []
         meta = payload.get("page_meta") or {}
         total = meta.get("total_count")
         next_offset = offset + len(items) if meta.get("next") else None
@@ -89,7 +91,10 @@ class ChemBLProvider(Provider):
     async def _get(self, resource: str, chembl_id: str) -> dict:
         payload = await self.http.get_json(f"{self.base_url}/{resource}/{quote(chembl_id, safe='')}.json")
         if not isinstance(payload, dict):
-            raise UpstreamError(f"unexpected ChEMBL {resource} payload")
+            raise UpstreamDrift(f"unexpected ChEMBL {resource} payload type: {type(payload).__name__}")
+        expected = f"{resource}_chembl_id"
+        if expected not in payload:
+            raise UpstreamDrift(f"ChEMBL {resource} response has no {expected}")
         return payload
 
 

@@ -8,7 +8,7 @@ from typing import Any
 
 from mcp.server.fastmcp import FastMCP
 
-from ..errors import ProviderError, tool_error
+from ..errors import DRIFT_HINT, ProviderError, UpstreamDrift, tool_error
 
 
 def guarded_tool(
@@ -27,13 +27,25 @@ def guarded_tool(
         async def wrapper(*args: Any, **kwargs: Any) -> dict:
             try:
                 return await fn(*args, **kwargs)
+            except UpstreamDrift as exc:
+                return tool_error(
+                    f"{exc.kind}: {exc}",
+                    hint=DRIFT_HINT,
+                    suspect_drift=True,
+                    source=source,
+                )
             except ProviderError as exc:
                 return tool_error(f"{exc.kind}: {exc}", source=source)
             except ValueError as exc:
                 return tool_error(str(exc), source=source)
             except Exception as exc:  # noqa: BLE001 - the whole point of the guard
+                # A shape/attribute/type error escaping the adapter usually
+                # means the upstream payload changed.
                 return tool_error(
-                    f"unexpected {type(exc).__name__}: {exc}", source=source
+                    f"unexpected {type(exc).__name__}: {exc}",
+                    hint=DRIFT_HINT,
+                    suspect_drift=True,
+                    source=source,
                 )
 
         mcp.tool(name=name)(wrapper)

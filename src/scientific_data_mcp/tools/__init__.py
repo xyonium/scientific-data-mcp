@@ -11,6 +11,7 @@ from .chemistry import register as register_chemistry
 from .literature import register as register_literature
 from .materials import register as register_materials
 from .protein import register as register_protein
+from .who import register as register_who
 
 ToolMap = dict[str, Callable]
 
@@ -21,4 +22,5 @@ def register_all(mcp: FastMCP, service: Service) -> ToolMap:
     tools.update(register_protein(mcp, service))
     tools.update(register_literature(mcp, service))
     tools.update(register_materials(mcp, service))
+    tools.update(register_who(mcp, service))
     return tools

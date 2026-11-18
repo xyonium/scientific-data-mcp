@@ -62,3 +62,20 @@ async def test_auth_error_is_reported(tools):
     respx.get(BASE).mock(return_value=httpx.Response(401))
     result = await tools["material_get"]("mp-149")
     assert "auth" in result["error"]
+
+
+@respx.mock
+async def test_400_marks_contact_admin(tools):
+    respx.get(BASE).mock(
+        return_value=httpx.Response(400, json={"detail": "unknown query parameter"})
+    )
+    result = await tools["material_get"]("mp-149")
+    assert result["suspect_drift"] is True
+    assert result["action"] == "contact_admin"
+
+
+@respx.mock
+async def test_500_is_transient_not_drift(tools):
+    respx.get(BASE).mock(return_value=httpx.Response(500))
+    result = await tools["material_get"]("mp-149")
+    assert "suspect_drift" not in result

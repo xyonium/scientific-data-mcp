@@ -38,6 +38,7 @@ CASES: list[tuple[str, dict, str]] = [
     ("protein_structure", {"pdb_id": "4HHB"}, "record"),
     ("protein_structure_search", {"query": "hemoglobin", "rows": 2}, "total"),
     ("pubmed_record", {"pmid": "23903748"}, "record"),
+    ("who_data", {"indicator": "WHOSIS_000001", "country": "CHN", "year": 2022, "limit": 2}, "count"),
 ]
 
 if os.environ.get("MATERIALS_PROJECT_API_KEY", "").strip():

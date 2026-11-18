@@ -18,6 +18,13 @@ Every tool returns upstream data only. A missing field means the upstream
 does not provide it; never infer it. On failure the tool returns
 {"error": ..., "source": ...} instead of raising, so one bad upstream call
 never aborts a turn.
+
+If an error carries "suspect_drift": true (and "action": "contact_admin"),
+the upstream response no longer matched this adapter — it is not a rate
+limit or a network failure. Do not retry the same call. Tell the user which
+source failed and ask them to contact the administrator so the provider can
+be updated. Errors without that flag (rate_limited, unavailable, auth,
+not_found) keep their usual meaning.
 """
 
 
