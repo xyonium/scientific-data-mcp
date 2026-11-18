@@ -12,7 +12,7 @@
 | `protein_search` + `protein_structure_search` | `protein_search(kind="uniprot"|"pdb", query, size, cursor?)` |
 | `material_get` + `material_search` | `material(by="id"|"formula"|"chemsys"|"elements", query, limit?)` |
 
-保留独立：`chem_similar_compounds`（SMILES→CID 列表）、`protein_map_ids`（mapping envelope）、`pubmed_record`（单记录）、`who_data`（观测列表）。
+保留独立：`chem_similar_compounds`（SMILES→CID 列表）、`protein_map_ids`（mapping envelope）、`pubmed_record`（单记录）、`who_data`（观测列表）、`material`（v0.4.0 合并后单工具）、`biogrid_interactions`（v0.5.0）。
 
 ## 设计约束
 

@@ -26,6 +26,7 @@ HOST_DELAYS: dict[str, float] = {
     "www.ncbi.nlm.nih.gov": 0.34,
     "api.materialsproject.org": 1.0,
     "ghoapi.azureedge.net": 0.5,
+    "webservice.thebiogrid.org": 1.0,
 }
 
 
@@ -34,6 +35,7 @@ class Settings:
     ncbi_api_key: str | None = None
     ncbi_email: str | None = None
     materials_project_api_key: str | None = None
+    biogrid_access_key: str | None = None
     timeout: float = 30.0
     max_retries: int = 4
     retry_budget: float = 45.0
@@ -54,4 +56,10 @@ class Settings:
         key = os.environ.get("NCBI_API_KEY", "").strip() or None
         email = os.environ.get("NCBI_EMAIL", "").strip() or None
         mp_key = os.environ.get("MATERIALS_PROJECT_API_KEY", "").strip() or None
-        return cls(ncbi_api_key=key, ncbi_email=email, materials_project_api_key=mp_key)
+        bg_key = os.environ.get("BIOGRID_ACCESS_KEY", "").strip() or None
+        return cls(
+            ncbi_api_key=key,
+            ncbi_email=email,
+            materials_project_api_key=mp_key,
+            biogrid_access_key=bg_key,
+        )

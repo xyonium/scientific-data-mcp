@@ -1,6 +1,6 @@
 # scientific-data-mcp — 维护指南
 
-科研**实体数据** MCP：化合物（PubChem）、生物活性（ChEMBL）、蛋白序列/功能（UniProt）、实验结构（RCSB PDB）、文献元数据（PubMed E-utilities），以及需免费 key 的材料数据（Materials Project）。一个 FastMCP server：8 个基础工具 + 配 MP key 时 1 个材料工具。同类输入输出的源合并为一个工具（`kind`/`by` 参数切换）。
+科研**实体数据** MCP：化合物（PubChem）、生物活性（ChEMBL）、蛋白序列/功能（UniProt）、实验结构（RCSB PDB）、文献元数据（PubMed E-utilities），以及需免费 key 的材料/互作数据（Materials Project、BioGRID）。一个 FastMCP server：8 个基础工具 + 2 个 key-gated 工具（MP / BioGRID，配 key 才注册）。同类输入输出的源合并为一个工具（`kind`/`by` 参数切换）。
 
 本项目由 **DSH 维护**（2026-11-17 从 Claude Code 项目迁移）。`AGENTS.md` 是唯一常驻指令；`docs/memory/` 是本项目的工作记忆，动手前先读 `docs/memory/MEMORY.md`。
 
@@ -22,7 +22,7 @@ uv pip install -e '.[dev]' --python .venv/bin/python
 
 pytest -q                 # hermetic，0 egress
 ruff check .
-python scripts/live_smoke.py   # 真实打 6 个上游（配 key 时含 MP），人工跑，不进 CI
+python scripts/live_smoke.py   # 真实打 7 个上游（配 key 时含 MP/BioGRID），人工跑，不进 CI
 
 .venv/bin/scientific-data-mcp                 # stdio（mcpo 用这个）
 .venv/bin/scientific-data-mcp --http --port 8000
@@ -66,6 +66,7 @@ docker build -t scientific-data-mcp:dev .
 - 改 PyPI 发布 / 包名 → `publishing-hatch-vcs.md` + README「PyPI 发布」
 - 改 docstring / 工具描述 → `tool-description-discipline.md`
 - 改边界（PubMed 搜索、全文、RAG） → `boundary-with-siblings.md`
+- 改 BioGRID → `biogrid.md`
 - 改发布 / 版本 → `publishing-hatch-vcs.md`
 - 迁移背景 / DSH 形态 → `dsh-migration.md`
 

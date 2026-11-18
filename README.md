@@ -1,6 +1,6 @@
 # scientific-data-mcp
 
-科研**实体数据** MCP —— 化合物 / 生物活性 / 蛋白序列与结构 / 文献元数据的**免费官方 API 直连**。一个 server，8 个基础工具（配 Materials Project key 时 9 个），零额度。同类输入输出的源合并为一个工具，用 `kind` / `by` 参数切换。
+科研**实体数据** MCP —— 化合物 / 生物活性 / 蛋白序列与结构 / 文献元数据的**免费官方 API 直连**。一个 server，8 个基础工具（配 Materials Project / BioGRID key 时最多 10 个），零额度。同类输入输出的源合并为一个工具，用 `kind` / `by` 参数切换。
 
 > 与 [paper-search](https://github.com/xyonium/paper-search)（文献检索 + RAG）、[finance-mcp](https://github.com/xyonium/finance-mcp)（金融/宏观）互补，不做重复。
 
@@ -20,7 +20,7 @@ kimi datasource 把一批本来就免 key 的官方科研 API（PubChem / ChEMBL
 
 ## 源与工具
 
-五个基础源免 key（PubChem / ChEMBL / UniProt / RCSB PDB / WHO GHO）；PubMed 可选 `NCBI_API_KEY` 提速（3→10 req/s）；**Materials Project 需要免费 key**，未配置时其 1 个工具不会注册。申请步骤见 [docs/CREDENTIALS.md](./docs/CREDENTIALS.md)。
+五个基础源免 key（PubChem / ChEMBL / UniProt / RCSB PDB / WHO GHO）；PubMed 可选 `NCBI_API_KEY` 提速（3→10 req/s）；**Materials Project 和 BioGRID 需要免费 key**，未配置时各自的工具不会注册。申请步骤见 [docs/CREDENTIALS.md](./docs/CREDENTIALS.md)。
 
 | 工具 | 源 | 说明 |
 |------|----|------|
@@ -33,6 +33,7 @@ kimi datasource 把一批本来就免 key 的官方科研 API（PubChem / ChEMBL
 | `pubmed_record` | PubMed | pmid / doi → 标题、作者、期刊、年卷期页、摘要、DOI、PMCID |
 | `who_data` | WHO GHO | 按指标代码查国家/年份/性别的健康统计（如 `WHOSIS_000001`） |
 | `material` | Materials Project（需免费 key） | `by="id"` 单条；`by="formula" / "chemsys" / "elements"` 检索；统一列表 envelope |
+| `biogrid_interactions` | BioGRID（需免费 key） | 按基因符号（`TP53` / `BRCA1|BRCA2`）+ 物种 taxId 查 curated 蛋白/基因互作；`next_offset` 仅在满页时给出 |
 
 所有工具只返回上游真实字段：缺字段就是上游没有，不推断、不补全。失败返回 `{"error": ..., "source": ...}`，不会让一次调用炸掉整轮对话。
 
@@ -122,6 +123,8 @@ python scripts/kdense_sources.py --update   # 刷新快照
 ```
 
 GitHub Action `kdense-sources` 每季度（1/4/7/10 月 1 日）自动扫描；上游新增或移除数据库时开 issue（已有 open issue 则追加评论）。
+
+80 个库逐个的“已实现 / M6 / 归兄弟项目 / 不做”决定见 [docs/research/kdense-coverage.md](./docs/research/kdense-coverage.md)。
 
 ## 开发
 

@@ -8,6 +8,7 @@ from dataclasses import dataclass, field
 from .config import Settings
 from .http import PoliteClient
 from .providers.base import Provider
+from .providers.biogrid import BioGridProvider
 from .providers.chembl import ChemBLProvider
 from .providers.materials_project import MaterialsProjectProvider
 from .providers.pubchem import PubChemProvider
@@ -43,4 +44,6 @@ def build_service(settings: Settings | None = None) -> Service:
     }
     if settings.materials_project_api_key:
         providers["materials_project"] = MaterialsProjectProvider(http, settings)
+    if settings.biogrid_access_key:
+        providers["biogrid"] = BioGridProvider(http, settings)
     return Service(settings=settings, http=http, providers=providers)

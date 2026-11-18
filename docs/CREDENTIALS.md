@@ -1,6 +1,6 @@
 # 配置与 API key 获取指南
 
-先说结论：**五个基础源全部免 key，什么都不配也能完整使用。** 两个可选 key：NCBI E-utilities（PubMed 3→10 req/s）和 Materials Project（材料域 2 个工具，未配 key 时不注册）。其余四个源（PubChem / ChEMBL / UniProt / RCSB PDB）官方**不签发 API key**。
+先说结论：**五个基础源全部免 key，什么都不配也能完整使用。** 三个可选 key：NCBI E-utilities（PubMed 3→10 req/s）、Materials Project（材料域 1 个工具）、BioGRID（互作域 1 个工具）；后两者未配 key 时不注册。其余四个源（PubChem / ChEMBL / UniProt / RCSB PDB）官方**不签发 API key**。
 
 > 配好后把值写进你的配置处：
 > - **mcpo**：`config.json` 的 `scientific-data.env` 块
@@ -45,6 +45,17 @@ python scripts/live_smoke.py   # pubmed_record 一项 PASS 即通
 
 验证：`MATERIALS_PROJECT_API_KEY=... python scripts/live_smoke.py` 会多跑两条材料用例（无 key 时自动跳过）。
 
+### 3. BioGRID access key（`BIOGRID_ACCESS_KEY`）
+
+影响 `biogrid_interactions`：没有 key 时不注册，配置后服务启动即多 1 个工具。
+
+1. 打开 [webservice.thebiogrid.org](https://webservice.thebiogrid.org/) 注册免费账号
+2. 登录后在 account 页生成 **access key**（32 位字母数字）
+3. 设 `BIOGRID_ACCESS_KEY=<key>`；请求以 query 参数 `accesskey` 传递
+4. 未公布正式限额；本项目固定 1 req/s，按需使用
+
+验证：`BIOGRID_ACCESS_KEY=... python scripts/live_smoke.py` 会多跑 `TP53` 互作用例。
+
 ---
 
 ## 第 1 级 · M6 扩展源（尚未接入，先给入口）
@@ -55,7 +66,6 @@ python scripts/live_smoke.py   # pubmed_record 一项 PASS 即通
 |--------------|----|----------|----------|
 | `OPENFDA_API_KEY` | openFDA | 可选 key 提高限额 | [open.fda.gov/apis/authentication](https://open.fda.gov/apis/authentication/) |
 | `NOAA_TOKEN` | NOAA CDO | 免费 token，5 req/s | [ncdc.noaa.gov/cdo-web/token](https://www.ncdc.noaa.gov/cdo-web/token) |
-| `BIOGRID_ACCESS_KEY` | BioGRID | 免费 access key | [webservice.thebiogrid.org](https://webservice.thebiogrid.org/) |
 | `NASA_API_KEY` | NASA Open APIs | 免费 key，1,000 req/hr（DEMO_KEY 30/hr） | [api.nasa.gov](https://api.nasa.gov/) |
 
 无 key 的 M6 候选（ClinicalTrials.gov v2、Ensembl、Reactome、AlphaFold DB、STRING、Open Targets 等）不需要申请，接入时直接免 key。

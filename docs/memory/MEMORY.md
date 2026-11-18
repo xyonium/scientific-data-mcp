@@ -15,3 +15,4 @@
 - [WHO GHO 接入](who-gho.md) — 免 key OData；必须给指标代码，目录端点 504 不可用
 - [上游漂移信号](upstream-drift-signal.md) — suspect_drift/contact_admin 的分类与纪律
 - [工具面收敛 v0.4](tool-surface-v0.4.md) — 同类 I/O 合并，kind/by 切换；旧→新映射
+- [BioGRID 接入](biogrid.md) — key-gated；dict 响应、满页才有 next_offset、401 是 auth

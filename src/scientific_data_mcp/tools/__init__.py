@@ -7,6 +7,7 @@ from collections.abc import Callable
 from mcp.server.fastmcp import FastMCP
 
 from ..runtime import Service
+from .biogrid import register as register_biogrid
 from .chemistry import register as register_chemistry
 from .literature import register as register_literature
 from .materials import register as register_materials
@@ -22,5 +23,6 @@ def register_all(mcp: FastMCP, service: Service) -> ToolMap:
     tools.update(register_protein(mcp, service))
     tools.update(register_literature(mcp, service))
     tools.update(register_materials(mcp, service))
+    tools.update(register_biogrid(mcp, service))
     tools.update(register_who(mcp, service))
     return tools

@@ -45,6 +45,9 @@ CASES: list[tuple[str, dict, str]] = [
     ("who_data", {"indicator": "WHOSIS_000001", "country": "CHN", "year": 2022, "limit": 2}, "count"),
 ]
 
+if os.environ.get("BIOGRID_ACCESS_KEY", "").strip():
+    CASES += [("biogrid_interactions", {"genes": "TP53", "limit": 2}, "count")]
+
 if os.environ.get("MATERIALS_PROJECT_API_KEY", "").strip():
     CASES += [
         ("material", {"by": "id", "query": "mp-149"}, "count"),
