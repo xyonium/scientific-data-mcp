@@ -13,6 +13,15 @@ from scientific_data_mcp.runtime import build_service
 BASE = "https://webservice.thebiogrid.org/interactions/"
 
 PAYLOAD = {
+    "16306": {
+        "BIOGRID_INTERACTION_ID": 16306,
+        "OFFICIAL_SYMBOL_A": "TP53",
+        "OFFICIAL_SYMBOL_B": "BRCA1",
+        "EXPERIMENTAL_SYSTEM": "Affinity Capture-Western",
+        "EXPERIMENTAL_SYSTEM_TYPE": "physical",
+        "ORGANISM_A": 9606,
+        "ORGANISM_B": 9606,
+    },
     "16305": {
         "BIOGRID_INTERACTION_ID": 16305,
         "ENTREZ_GENE_A": "7157",
@@ -26,15 +35,6 @@ PAYLOAD = {
         "ORGANISM_B": 9606,
         "THROUGHPUT": "Low Throughput",
         "SCORE": "-",
-    },
-    "16306": {
-        "BIOGRID_INTERACTION_ID": 16306,
-        "OFFICIAL_SYMBOL_A": "TP53",
-        "OFFICIAL_SYMBOL_B": "BRCA1",
-        "EXPERIMENTAL_SYSTEM": "Affinity Capture-Western",
-        "EXPERIMENTAL_SYSTEM_TYPE": "physical",
-        "ORGANISM_A": 9606,
-        "ORGANISM_B": 9606,
     },
 }
 
@@ -59,7 +59,11 @@ async def test_interactions_sends_key_and_normalizes(provider):
     page = await provider.interactions("TP53", organism=9606, limit=2, offset=0)
     params = route.calls.last.request.url.params
     assert params["accesskey"] == "k"
+    assert params["format"] == "json"
+    assert params["searchNames"] == "true"
     assert params["geneList"] == "TP53"
+    assert params["taxId"] == "9606"
+    assert params["start"] == "0"
     assert params["max"] == "2"
     assert [row["gene_b"] for row in page["items"]] == ["WWOX", "BRCA1"]
     assert page["items"][0]["interaction_id"] == 16305
@@ -95,3 +99,10 @@ async def test_non_object_payload_is_drift(provider):
     respx.get(BASE).mock(return_value=httpx.Response(200, json=[1, 2]))
     with pytest.raises(UpstreamDrift):
         await provider.interactions("TP53")
+
+
+@respx.mock
+async def test_multiple_genes_are_pipe_joined(provider):
+    route = respx.get(BASE).mock(return_value=httpx.Response(200, json={}))
+    await provider.interactions("BRCA1|BRCA2", limit=5)
+    assert route.calls.last.request.url.params["geneList"] == "BRCA1|BRCA2"

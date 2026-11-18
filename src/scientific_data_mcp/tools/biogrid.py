@@ -29,10 +29,11 @@ def register(mcp: FastMCP, service: Service) -> ToolMap:
         mouse, 559292 yeast). Returns physical and genetic interactions with
         the experimental system, system type, PubMed id and BioGRID id.
 
-        BioGRID has no documented total count in this response, so
-        `next_offset` is set only when a full page came back; treat it as
-        "there may be more", not an exact total. This tool is not registered
-        when no key is configured.
+        Returns only fields BioGRID actually provides; missing annotations stay
+        missing, nothing is inferred or completed. BioGRID has no documented
+        total count in this response, so `next_offset` is set only when a full
+        page came back; treat it as "there may be more", not an exact total.
+        This tool is not registered when no key is configured.
 
         Args:
             genes: Gene symbol(s), pipe-separated.

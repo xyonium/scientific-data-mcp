@@ -82,11 +82,12 @@ mcpo 配置示例（`config.json`）：
 "env": {
   "NCBI_API_KEY": "免费申请，PubMed 限速 3 → 10 req/s",
   "NCBI_EMAIL": "you@example.com",
-  "MATERIALS_PROJECT_API_KEY": "免费申请；不配则不注册材料工具"
+  "MATERIALS_PROJECT_API_KEY": "免费申请；不配则不注册材料工具",
+  "BIOGRID_ACCESS_KEY": "免费申请；不配则不注册互作工具"
 }
 ```
 
-申请步骤、各源是否有 key、以及 M6 扩展源（openFDA / NOAA / BioGRID / NASA）的入口见 **[docs/CREDENTIALS.md](./docs/CREDENTIALS.md)**。不配任何 key 时五个免 key 源全部可用，只是 PubMed 慢一些、材料工具隐藏。
+申请步骤、各源是否有 key、以及 M6 扩展源（openFDA / NOAA / NASA）的入口见 **[docs/CREDENTIALS.md](./docs/CREDENTIALS.md)**。不配任何 key 时 6 个基础源全部可用（PubMed 慢一些），MP/BioGRID 工具隐藏。
 
 ## Docker
 
@@ -131,7 +132,7 @@ GitHub Action `kdense-sources` 每季度（1/4/7/10 月 1 日）自动扫描；�
 ```bash
 pytest -q                 # hermetic（respx mock），0 egress
 ruff check .
-python scripts/live_smoke.py   # 真实打 5 个上游，人工跑
+python scripts/live_smoke.py   # 真实打 6 个基础上游（配 key 时 8 个），人工跑
 ```
 
 - 设计与决策：[`docs/superpowers/specs/`](./docs/superpowers/specs/)

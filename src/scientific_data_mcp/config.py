@@ -1,8 +1,9 @@
 """Runtime settings.
 
-Everything works without configuration: all five upstream sources are
-keyless. ``NCBI_API_KEY`` is optional and only lifts the E-utilities rate
-limit from 3 req/s to 10 req/s.
+The base six upstream sources work without configuration; ``NCBI_API_KEY``
+is optional and only lifts the E-utilities rate limit from 3 req/s to
+10 req/s. Materials Project and BioGRID are key-gated: their providers (and
+tools) are only created when their keys are present.
 """
 
 from __future__ import annotations

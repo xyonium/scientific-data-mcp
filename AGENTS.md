@@ -22,7 +22,7 @@ uv pip install -e '.[dev]' --python .venv/bin/python
 
 pytest -q                 # hermetic，0 egress
 ruff check .
-python scripts/live_smoke.py   # 真实打 7 个上游（配 key 时含 MP/BioGRID），人工跑，不进 CI
+python scripts/live_smoke.py   # 真实打 6 个基础上游（配 key 时 8 个），人工跑，不进 CI
 
 .venv/bin/scientific-data-mcp                 # stdio（mcpo 用这个）
 .venv/bin/scientific-data-mcp --http --port 8000
@@ -43,7 +43,7 @@ docker build -t scientific-data-mcp:dev .
 - 分页：列表返回 `next_cursor`/`next_offset`/`next_start`，最后一页为 `null`。
 - 新增源时同步：provider、tool、`runtime.build_service`、`tools/__init__.register_all`、`tests/test_server.py` 的基础 8 工具断言（+ 有 key 时的工具面）、README 工具表、`docs/memory/`。
 - **key-gated 源只在 key 存在时注册 provider 和 tool**（Materials Project 先例）：没有 key 时工具面保持 8 个，不注册永远失败的占位工具。
-- 数据源池追踪：`docs/research/kdense-databases.json` + `scripts/kdense_sources.py`；季度 Action 有变化会开 issue，评估后 `--update` 刷新快照。
+- 数据源池追踪：`docs/research/kdense-databases.json` + `scripts/kdense_sources.py`；季度 Action 有变化会开 issue，评估后 `--update` 刷新快照。逐源决定见 `docs/research/kdense-coverage.md`（80 行：已实现 / M6 / 兄弟项目 / 不做）。
 
 ## 发布纪律
 

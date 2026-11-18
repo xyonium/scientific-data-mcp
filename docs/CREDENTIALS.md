@@ -49,8 +49,8 @@ python scripts/live_smoke.py   # pubmed_record 一项 PASS 即通
 
 影响 `biogrid_interactions`：没有 key 时不注册，配置后服务启动即多 1 个工具。
 
-1. 打开 [webservice.thebiogrid.org](https://webservice.thebiogrid.org/) 注册免费账号
-2. 登录后在 account 页生成 **access key**（32 位字母数字）
+1. 打开 [webservice.thebiogrid.org](https://webservice.thebiogrid.org/)
+2. 在首页表单填写姓名、email、用途（project）→ **Generate access key**，即时签发 32 位 key（无需登录流程）
 3. 设 `BIOGRID_ACCESS_KEY=<key>`；请求以 query 参数 `accesskey` 传递
 4. 未公布正式限额；本项目固定 1 req/s，按需使用
 
