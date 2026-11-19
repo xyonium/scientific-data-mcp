@@ -93,3 +93,15 @@ async def test_tool_empty_and_validation(tools):
     assert "endpoint" in (await tools["openfda"]("x", endpoint="nope"))["error"]
     assert "limit" in (await tools["openfda"]("x", limit=0))["error"]
     assert "skip" in (await tools["openfda"]("x", skip=-1))["error"]
+
+
+@respx.mock
+async def test_api_key_is_sent_when_configured():
+    settings = Settings(openfda_api_key="key123", host_delays={"api.fda.gov": 0.0})
+    async with PoliteClient(settings) as client:
+        provider = OpenFdaProvider(client, settings)
+        route = respx.get(f"{BASE}/drug/label.json").mock(
+            return_value=httpx.Response(200, json={"results": [], "meta": {"results": {"total": 0}}})
+        )
+        await provider.search("drug/label", "x", 1, 0)
+        assert route.calls.last.request.url.params["api_key"] == "key123"

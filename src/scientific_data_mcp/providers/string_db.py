@@ -46,7 +46,7 @@ class StringDbProvider(Provider):
 
 
 def _normalize(row: dict) -> dict:
-    scores = {name: row.get(name) for name in _CHANNELS if row.get(name)}
+    scores = {name: row.get(name) for name in _CHANNELS if row.get(name) is not None}
     return omit_none(
         {
             "gene_a": row.get("preferredName_A"),

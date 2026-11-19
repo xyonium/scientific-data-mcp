@@ -49,7 +49,7 @@ async def test_partners_params_and_normalization(provider):
     assert rows[0]["gene_b"] == "SIRT1"
     assert rows[0]["score"] == 0.999
     assert rows[0]["scores"]["escore"] == 0.999
-    assert "nscore" not in rows[0]["scores"]
+    assert rows[0]["scores"]["nscore"] == 0
 
 
 @respx.mock

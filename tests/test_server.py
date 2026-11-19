@@ -59,3 +59,11 @@ async def test_server_adds_both_key_gated_tools():
     )
     names = {tool.name for tool in await build_server(service).list_tools()}
     assert names == EXPECTED_TOOLS | MATERIALS_TOOLS
+
+
+async def test_openfda_key_does_not_add_a_tool():
+    from scientific_data_mcp.config import Settings
+    from scientific_data_mcp.runtime import build_service
+
+    mcp = build_server(build_service(Settings(openfda_api_key="k")))
+    assert {tool.name for tool in await mcp.list_tools()} == EXPECTED_TOOLS
