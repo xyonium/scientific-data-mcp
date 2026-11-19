@@ -1,6 +1,6 @@
 # 配置与 API key 获取指南
 
-先说结论：**五个基础源全部免 key，什么都不配也能完整使用。** 三个可选 key：NCBI E-utilities（PubMed 3→10 req/s）、Materials Project（材料域 1 个工具）、BioGRID（互作域 1 个工具）；后两者未配 key 时不注册。其余四个源（PubChem / ChEMBL / UniProt / RCSB PDB）官方**不签发 API key**。
+先说结论：**九个基础源里八个完全免 key，什么都不配也能用。** 四个可选 key：NCBI E-utilities（PubMed 3→10 req/s）、Materials Project（材料工具）、BioGRID（互作 source）、openFDA（只提额度）；MP 未配时 `material` 不注册，BioGRID 未配时 `protein_interactions(source="biogrid")` 报明确错误。PubChem / ChEMBL / UniProt / RCSB PDB / WHO / STRING / ClinicalTrials.gov 官方**不签发 key**。
 
 > 配好后把值写进你的配置处：
 > - **mcpo**：`config.json` 的 `scientific-data.env` 块
@@ -47,7 +47,7 @@ python scripts/live_smoke.py   # pubmed_record 一项 PASS 即通
 
 ### 3. BioGRID access key（`BIOGRID_ACCESS_KEY`）
 
-影响 `biogrid_interactions`：没有 key 时不注册，配置后服务启动即多 1 个工具。
+影响 `protein_interactions(source="biogrid")`：没有 key 时 BioGRID provider 缺席，但工具仍注册（STRING 可用），biogrid source 返回明确错误；配置后该 source 可用，不增加工具数。
 
 1. 打开 [webservice.thebiogrid.org](https://webservice.thebiogrid.org/)
 2. 在首页表单填写姓名、email、用途（project）→ **Generate access key**，即时签发 32 位 key（无需登录流程）
@@ -55,6 +55,15 @@ python scripts/live_smoke.py   # pubmed_record 一项 PASS 即通
 4. 未公布正式限额；本项目固定 1 req/s，按需使用
 
 验证：`BIOGRID_ACCESS_KEY=... python scripts/live_smoke.py` 会多跑 `TP53` 互作用例。
+
+### 4. openFDA API key（`OPENFDA_API_KEY`，可选，只提额度）
+
+影响 `openfda` 的限额，不影响可用性：**不配也能查**，只是额度低。
+
+1. 打开 [open.fda.gov/apis/authentication](https://open.fda.gov/apis/authentication/) 填表申请（只需 email 等基本信息，免费）
+2. 收到 key 后设 `OPENFDA_API_KEY=<key>`；请求以 query 参数 `api_key` 传递
+3. 限额：无 key **240 req/min + 1,000 req/day per IP**；有 key **240 req/min + 120,000 req/day per key**
+4. 工具始终注册；key 只用于提额度，不会隐藏工具
 
 ---
 
@@ -64,11 +73,10 @@ python scripts/live_smoke.py   # pubmed_record 一项 PASS 即通
 
 | 变量（约定） | 源 | 免费额度 | 申请入口 |
 |--------------|----|----------|----------|
-| `OPENFDA_API_KEY` | openFDA | 可选 key 提高限额 | [open.fda.gov/apis/authentication](https://open.fda.gov/apis/authentication/) |
 | `NOAA_TOKEN` | NOAA CDO | 免费 token，5 req/s | [ncdc.noaa.gov/cdo-web/token](https://www.ncdc.noaa.gov/cdo-web/token) |
 | `NASA_API_KEY` | NASA Open APIs | 免费 key，1,000 req/hr（DEMO_KEY 30/hr） | [api.nasa.gov](https://api.nasa.gov/) |
 
-无 key 的 M6 候选（ClinicalTrials.gov v2、Ensembl、Reactome、AlphaFold DB、STRING、Open Targets 等）不需要申请，接入时直接免 key。
+无 key 的 M6 候选（Ensembl、Reactome、AlphaFold DB、Open Targets 等）不需要申请，接入时直接免 key。
 
 ---
 
@@ -81,6 +89,9 @@ python scripts/live_smoke.py   # pubmed_record 一项 PASS 即通
 | UniProt REST | 免 key | 0.2s 间隔 |
 | RCSB PDB Data/Search | 免 key | 0.2s / 0.5s |
 | WHO GHO OData | 免 key | 0.5s |
+| STRING | 免 key | 0.5s |
+| openFDA | 免 key（可选 key 提额度） | 0.5s |
+| ClinicalTrials.gov v2 | 免 key | 0.5s |
 
 限速表在 `src/scientific_data_mcp/config.py` 的 `HOST_DELAYS`。
 

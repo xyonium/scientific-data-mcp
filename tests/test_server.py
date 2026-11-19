@@ -11,11 +11,13 @@ EXPECTED_TOOLS = {
     "protein_map_ids",
     "pubmed_record",
     "who_data",
+    "protein_interactions",
+    "openfda",
+    "clinical_trials",
 }
 
 
 MATERIALS_TOOLS = {"material"}
-BIOGRID_TOOLS = {"biogrid_interactions"}
 
 
 async def test_server_exposes_exactly_the_base_tools():
@@ -40,12 +42,12 @@ async def test_guarded_tools_keep_their_input_schema():
     assert tools["chem_compound"].inputSchema["required"] == ["identifier"]
 
 
-async def test_server_adds_biogrid_when_its_key_is_configured():
+async def test_biogrid_key_does_not_add_a_tool():
     from scientific_data_mcp.config import Settings
     from scientific_data_mcp.runtime import build_service
 
     mcp = build_server(build_service(Settings(biogrid_access_key="k")))
-    assert {tool.name for tool in await mcp.list_tools()} == EXPECTED_TOOLS | BIOGRID_TOOLS
+    assert {tool.name for tool in await mcp.list_tools()} == EXPECTED_TOOLS
 
 
 async def test_server_adds_both_key_gated_tools():
@@ -56,4 +58,4 @@ async def test_server_adds_both_key_gated_tools():
         Settings(materials_project_api_key="m", biogrid_access_key="b")
     )
     names = {tool.name for tool in await build_server(service).list_tools()}
-    assert names == EXPECTED_TOOLS | MATERIALS_TOOLS | BIOGRID_TOOLS
+    assert names == EXPECTED_TOOLS | MATERIALS_TOOLS

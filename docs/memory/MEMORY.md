@@ -17,3 +17,4 @@
 - [工具面收敛 v0.4](tool-surface-v0.4.md) — 同类 I/O 合并，kind/by 切换；旧→新映射
 - [BioGRID 接入](biogrid.md) — key-gated；dict 响应、满页才有 next_offset、401 是 auth
 - [K-Dense 80 库逐源矩阵](../research/kdense-coverage.md) — 已实现 7 / M6 57 / finance 12 / paper 1 / 暂缓 1 / 付费 2
+- [STRING / openFDA / ClinicalTrials](string-openfda-clinicaltrials.md) — 三个免 key 源；openFDA 404 NOT_FOUND=空；BioGRID 并入 protein_interactions

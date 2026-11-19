@@ -1,9 +1,10 @@
 """Runtime settings.
 
-The base six upstream sources work without configuration; ``NCBI_API_KEY``
-is optional and only lifts the E-utilities rate limit from 3 req/s to
-10 req/s. Materials Project and BioGRID are key-gated: their providers (and
-tools) are only created when their keys are present.
+The nine base upstream sources work without configuration; ``NCBI_API_KEY``
+and ``OPENFDA_API_KEY`` are optional and only lift rate limits. Materials
+Project and BioGRID are key-gated: their providers are only created when
+their keys are present (the ``material`` tool appears only with MP; the
+shared ``protein_interactions`` tool stays available for STRING).
 """
 
 from __future__ import annotations
@@ -28,6 +29,9 @@ HOST_DELAYS: dict[str, float] = {
     "api.materialsproject.org": 1.0,
     "ghoapi.azureedge.net": 0.5,
     "webservice.thebiogrid.org": 1.0,
+    "string-db.org": 0.5,
+    "api.fda.gov": 0.5,
+    "clinicaltrials.gov": 0.5,
 }
 
 
@@ -37,6 +41,7 @@ class Settings:
     ncbi_email: str | None = None
     materials_project_api_key: str | None = None
     biogrid_access_key: str | None = None
+    openfda_api_key: str | None = None
     timeout: float = 30.0
     max_retries: int = 4
     retry_budget: float = 45.0
@@ -58,9 +63,11 @@ class Settings:
         email = os.environ.get("NCBI_EMAIL", "").strip() or None
         mp_key = os.environ.get("MATERIALS_PROJECT_API_KEY", "").strip() or None
         bg_key = os.environ.get("BIOGRID_ACCESS_KEY", "").strip() or None
+        fda_key = os.environ.get("OPENFDA_API_KEY", "").strip() or None
         return cls(
             ncbi_api_key=key,
             ncbi_email=email,
             materials_project_api_key=mp_key,
             biogrid_access_key=bg_key,
+            openfda_api_key=fda_key,
         )

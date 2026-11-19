@@ -43,10 +43,15 @@ CASES: list[tuple[str, dict, str]] = [
     ("protein_map_ids", {"from_db": "UniProtKB_AC-ID", "to_db": "PDB", "ids": "P04637"}, "count"),
     ("pubmed_record", {"pmid": "23903748"}, "record"),
     ("who_data", {"indicator": "WHOSIS_000001", "country": "CHN", "year": 2022, "limit": 2}, "count"),
+    ("protein_interactions", {"genes": "TP53", "source": "string", "limit": 2}, "count"),
+    ("openfda", {"query": 'openfda.brand_name:"advil"', "limit": 1}, "count"),
+    ("clinical_trials", {"query": "pembrolizumab", "limit": 1}, "count"),
 ]
 
 if os.environ.get("BIOGRID_ACCESS_KEY", "").strip():
-    CASES += [("biogrid_interactions", {"genes": "TP53", "limit": 2}, "count")]
+    CASES += [
+        ("protein_interactions", {"genes": "TP53", "source": "biogrid", "limit": 2}, "count")
+    ]
 
 if os.environ.get("MATERIALS_PROJECT_API_KEY", "").strip():
     CASES += [

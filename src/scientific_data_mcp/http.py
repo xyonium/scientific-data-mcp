@@ -67,6 +67,7 @@ class PoliteClient:
         headers: dict | None = None,
         follow_redirects: bool = True,
         retry: bool = True,
+        allow_status: tuple[int, ...] = (),
     ) -> httpx.Response:
         host = urlparse(url).netloc
         last: Exception | None = None
@@ -113,6 +114,8 @@ class PoliteClient:
                     raise last
                 await asyncio.sleep(delay)
                 continue
+            if resp.status_code in allow_status:
+                return resp
             if resp.status_code in (401, 403):
                 raise AuthError(f"HTTP {resp.status_code} from {host}")
             if resp.status_code == 404:
@@ -133,6 +136,7 @@ class PoliteClient:
         params: dict | None = None,
         headers: dict | None = None,
         follow_redirects: bool = True,
+        allow_status: tuple[int, ...] = (),
     ) -> httpx.Response:
         return await self._request(
             "GET",
@@ -140,6 +144,7 @@ class PoliteClient:
             params=params,
             headers=headers,
             follow_redirects=follow_redirects,
+            allow_status=allow_status,
         )
 
     async def get_json(

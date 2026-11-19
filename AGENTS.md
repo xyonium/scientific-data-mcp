@@ -1,6 +1,6 @@
 # scientific-data-mcp — 维护指南
 
-科研**实体数据** MCP：化合物（PubChem）、生物活性（ChEMBL）、蛋白序列/功能（UniProt）、实验结构（RCSB PDB）、文献元数据（PubMed E-utilities），以及需免费 key 的材料/互作数据（Materials Project、BioGRID）。一个 FastMCP server：8 个基础工具 + 2 个 key-gated 工具（MP / BioGRID，配 key 才注册）。同类输入输出的源合并为一个工具（`kind`/`by` 参数切换）。
+科研**实体数据** MCP：化合物（PubChem）、生物活性（ChEMBL）、蛋白序列/功能（UniProt）、实验结构（RCSB PDB）、文献元数据（PubMed E-utilities），以及材料/互作数据（Materials Project、BioGRID，需免费 key）、互作/药品/临床数据（STRING、openFDA、ClinicalTrials.gov，基础免 key）。一个 FastMCP server：11 个基础工具（配 MP key 时 12 个）；BioGRID key 解锁 `protein_interactions` 的 biogrid source，不增工具。同类输入输出的源合并为一个工具（`kind`/`by` 参数切换）。
 
 本项目由 **DSH 维护**（2026-11-17 从 Claude Code 项目迁移）。`AGENTS.md` 是唯一常驻指令；`docs/memory/` 是本项目的工作记忆，动手前先读 `docs/memory/MEMORY.md`。
 
@@ -22,7 +22,7 @@ uv pip install -e '.[dev]' --python .venv/bin/python
 
 pytest -q                 # hermetic，0 egress
 ruff check .
-python scripts/live_smoke.py   # 真实打 6 个基础上游（配 key 时 8 个），人工跑，不进 CI
+python scripts/live_smoke.py   # 真实打 9 个基础上游（配 key 时 11 个），人工跑，不进 CI
 
 .venv/bin/scientific-data-mcp                 # stdio（mcpo 用这个）
 .venv/bin/scientific-data-mcp --http --port 8000
@@ -41,8 +41,8 @@ docker build -t scientific-data-mcp:dev .
 - **反幻觉**：只返回上游真实字段；缺失字段省略，不推断、不补全；docstring 写明"不补全"。返回体不带时间戳（测试可复现）。
 - 返回值 `source_url` 指向官方记录页，便于人工复核。
 - 分页：列表返回 `next_cursor`/`next_offset`/`next_start`，最后一页为 `null`。
-- 新增源时同步：provider、tool、`runtime.build_service`、`tools/__init__.register_all`、`tests/test_server.py` 的基础 8 工具断言（+ 有 key 时的工具面）、README 工具表、`docs/memory/`。
-- **key-gated 源只在 key 存在时注册 provider 和 tool**（Materials Project 先例）：没有 key 时工具面保持 8 个，不注册永远失败的占位工具。
+- 新增源时同步：provider、tool、`runtime.build_service`、`tools/__init__.register_all`、`tests/test_server.py` 的基础 11 工具断言（+ 有 key 时的工具面）、README 工具表、`docs/memory/`。
+- **key-gated 源只在 key 存在时注册 provider**（Materials Project 先例）：MP 没有 key 时 `material` 不注册；BioGRID 没有 key 时 provider 缺席，但共享的 `protein_interactions` 仍注册（STRING 可用），`source="biogrid"` 返回明确错误。
 - 数据源池追踪：`docs/research/kdense-databases.json` + `scripts/kdense_sources.py`；季度 Action 有变化会开 issue，评估后 `--update` 刷新快照。逐源决定见 `docs/research/kdense-coverage.md`（80 行：已实现 / M6 / 兄弟项目 / 不做）。
 
 ## 发布纪律
@@ -66,7 +66,7 @@ docker build -t scientific-data-mcp:dev .
 - 改 PyPI 发布 / 包名 → `publishing-hatch-vcs.md` + README「PyPI 发布」
 - 改 docstring / 工具描述 → `tool-description-discipline.md`
 - 改边界（PubMed 搜索、全文、RAG） → `boundary-with-siblings.md`
-- 改 BioGRID → `biogrid.md`
+- 改 BioGRID / STRING / openFDA / ClinicalTrials → `string-openfda-clinicaltrials.md`
 - 改发布 / 版本 → `publishing-hatch-vcs.md`
 - 迁移背景 / DSH 形态 → `dsh-migration.md`
 

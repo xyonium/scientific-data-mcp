@@ -3,7 +3,7 @@
 > 2026-11-19，v0.5.0。第二个 key-gated 源（第一个是 Materials Project）。
 
 - 免费 access key（32 位）在 https://webservice.thebiogrid.org/ 注册后生成；环境变量 `BIOGRID_ACCESS_KEY`，以 query 参数 `accesskey` 传递。
-- 工具：`biogrid_interactions(genes, organism=9606, limit=100, offset=0)`；`genes` 用 `|` 分隔（`BRCA1|BRCA2`），`organism` 是 NCBI taxId（9606 human / 10090 mouse / 559292 yeast）。
+- v0.6.0 起并入 `protein_interactions(genes, source="biogrid", organism=9606, limit=100)`；`genes` 用 `|` 分隔（`BRCA1|BRCA2`），`organism` 是 NCBI taxId（9606 human / 10090 mouse / 559292 yeast）。无 key 时工具仍注册（STRING 可用），biogrid source 返回明确错误。
 - 响应是 **dict**（key = interaction id），不是 list；空结果是 `{}`，不是错误。字段：`OFFICIAL_SYMBOL_A/B`、`ENTREZ_GENE_A/B`、`ORGANISM_A/B`、`EXPERIMENTAL_SYSTEM`、`EXPERIMENTAL_SYSTEM_TYPE`、`PUBMED_ID`、`THROUGHPUT`、`SCORE`。
 - 没有文档化的 total count；`next_offset` 只在**满页**时给出，语义是“可能还有”，不是精确总数。
 - 无效 key 返回 **401 JSON** → `auth`（不是漂移）；非 JSON/非 dict 200 → `UpstreamDrift`。

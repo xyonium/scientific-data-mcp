@@ -10,10 +10,13 @@ from .http import PoliteClient
 from .providers.base import Provider
 from .providers.biogrid import BioGridProvider
 from .providers.chembl import ChemBLProvider
+from .providers.clinicaltrials import ClinicalTrialsProvider
 from .providers.materials_project import MaterialsProjectProvider
+from .providers.openfda import OpenFdaProvider
 from .providers.pubchem import PubChemProvider
 from .providers.pubmed import PubMedProvider
 from .providers.rcsb import RcsbProvider
+from .providers.string_db import StringDbProvider
 from .providers.uniprot import UniProtProvider
 from .providers.who import WhoProvider
 
@@ -41,6 +44,9 @@ def build_service(settings: Settings | None = None) -> Service:
         "rcsb": RcsbProvider(http, settings),
         "pubmed": PubMedProvider(http, settings),
         "who": WhoProvider(http, settings),
+        "string": StringDbProvider(http, settings),
+        "openfda": OpenFdaProvider(http, settings),
+        "clinicaltrials": ClinicalTrialsProvider(http, settings),
     }
     if settings.materials_project_api_key:
         providers["materials_project"] = MaterialsProjectProvider(http, settings)
