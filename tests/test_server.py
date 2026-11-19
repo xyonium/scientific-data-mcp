@@ -21,6 +21,8 @@ EXPECTED_TOOLS = {
     "protein_annotations",
     "phenotypes",
     "geo_datasets",
+    "kegg_compound",
+    "dailymed",
 }
 
 

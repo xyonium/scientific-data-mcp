@@ -12,7 +12,7 @@
 | `protein_search` + `protein_structure_search` | `protein_search(kind="uniprot"|"pdb", query, size, cursor?)` |
 | `material_get` + `material_search` | `material(by="id"|"formula"|"chemsys"|"elements", query, limit?)` |
 
-保留独立：`chem_similar_compounds`（SMILES→CID 列表）、`protein_map_ids`（mapping envelope）、`pubmed_record`（单记录）、`who_data`（观测列表）、`material`（v0.4.0 合并后单工具）。v0.6.0 把 BioGRID 与 STRING 合并为 `protein_interactions(source=...)`，并新增 `openfda`、`clinical_trials`；v0.7.0 再加 AlphaFold（并入 protein_record）、opentargets、pathways；v0.8.0 再加 gene_record/clinvar/protein_annotations；v0.9.0 再加 phenotypes/geo_datasets；基础工具 18 个（MP key 时 19 个）。
+保留独立：`chem_similar_compounds`（SMILES→CID 列表）、`protein_map_ids`（mapping envelope）、`pubmed_record`（单记录）、`who_data`（观测列表）、`material`（v0.4.0 合并后单工具）。v0.6.0 把 BioGRID 与 STRING 合并为 `protein_interactions(source=...)`，并新增 `openfda`、`clinical_trials`；v0.7.0 再加 AlphaFold（并入 protein_record）、opentargets、pathways；v0.8.0 再加 gene_record/clinvar/protein_annotations；v0.9.0 再加 phenotypes/geo_datasets；v0.10.0 再加 kegg_compound/dailymed；基础工具 20 个（MP key 时 21 个）。
 
 ## 设计约束
 

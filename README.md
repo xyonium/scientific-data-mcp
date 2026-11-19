@@ -2,7 +2,7 @@
 
 [![PyPI](https://img.shields.io/pypi/v/scientific-data-mcp.svg)](https://pypi.org/project/scientific-data-mcp/)
 
-科研**实体数据** MCP —— 化合物 / 生物活性 / 蛋白序列与结构 / 文献元数据的**免费官方 API 直连**。一个 server，18 个基础工具（配 Materials Project key 时 19 个；BioGRID key 解锁互作 source，不增工具），零额度。同类输入输出的源合并为一个工具，用 `kind` / `by` 参数切换。
+科研**实体数据** MCP —— 化合物 / 生物活性 / 蛋白序列与结构 / 文献元数据的**免费官方 API 直连**。一个 server，20 个基础工具（配 Materials Project key 时 21 个；BioGRID key 解锁互作 source，不增工具），零额度。同类输入输出的源合并为一个工具，用 `kind` / `by` 参数切换。
 
 > 与 [paper-search](https://github.com/xyonium/paper-search)（文献检索 + RAG）、[finance-mcp](https://github.com/xyonium/finance-mcp)（金融/宏观）互补，不做重复。
 
@@ -22,7 +22,7 @@ kimi datasource 把一批本来就免 key 的官方科研 API（PubChem / ChEMBL
 
 ## 源与工具
 
-十七个基础源完全免 key（PubChem / ChEMBL / UniProt / RCSB PDB / WHO / STRING / openFDA / ClinicalTrials.gov / AlphaFold DB / Open Targets / Reactome / NCBI Gene / ClinVar / InterPro / QuickGO / HPO / GEO），PubMed / NCBI Gene / ClinVar / GEO 可选 `NCBI_API_KEY` 提速（3→10 req/s）；**Materials Project 和 BioGRID 需要免费 key**：MP 未配时 `material` 不注册；BioGRID 未配时 `protein_interactions(source="biogrid")` 返回明确错误，STRING 仍可用。openFDA 可选 key 只提额度。申请步骤见 [docs/CREDENTIALS.md](./docs/CREDENTIALS.md)。
+十九个基础源完全免 key（PubChem / ChEMBL / UniProt / RCSB PDB / WHO / STRING / openFDA / ClinicalTrials.gov / AlphaFold DB / Open Targets / Reactome / NCBI Gene / ClinVar / InterPro / QuickGO / HPO / GEO / KEGG / DailyMed），PubMed / NCBI Gene / ClinVar / GEO 可选 `NCBI_API_KEY` 提速（3→10 req/s）；**Materials Project 和 BioGRID 需要免费 key**：MP 未配时 `material` 不注册；BioGRID 未配时 `protein_interactions(source="biogrid")` 返回明确错误，STRING 仍可用。openFDA 可选 key 只提额度。申请步骤见 [docs/CREDENTIALS.md](./docs/CREDENTIALS.md)。
 
 | 工具 | 源 | 说明 |
 |------|----|------|
@@ -45,6 +45,8 @@ kimi datasource 把一批本来就免 key 的官方科研 API（PubChem / ChEMBL
 | `protein_annotations` | InterPro / QuickGO | `source="interpro"` 取结构域/家族条目；`source="quickgo"` 取 GO 注释 |
 | `phenotypes` | HPO | 按表型短语或 `HP:...` id 检索 Human Phenotype Ontology 术语 |
 | `geo_datasets` | GEO (NCBI) | 按基因/疾病检索 GEO DataSets；返回 GSE、标题、摘要、物种、样本数、发布日期 |
+| `kegg_compound` | KEGG | 化合物名或 KEGG ID → 名称、分子式、精确/分子量、通路；学术免费，商用需 KEGG 许可 |
+| `dailymed` | DailyMed (NLM) | 药品名 → SPL setid、标题、发布日期、版本 |
 
 所有工具只返回上游真实字段：缺字段就是上游没有，不推断、不补全。失败返回 `{"error": ..., "source": ...}`，不会让一次调用炸掉整轮对话。
 
@@ -101,7 +103,7 @@ mcpo 配置示例（`config.json`）：
 }
 ```
 
-申请步骤、各源是否有 key、以及 M6 扩展源（NOAA / NASA）的入口见 **[docs/CREDENTIALS.md](./docs/CREDENTIALS.md)**。不配任何 key 时 18 个基础源全部可用（PubMed / Gene / ClinVar / GEO 慢一些），MP 工具隐藏、BioGRID source 不可用。
+申请步骤、各源是否有 key、以及 M6 扩展源（NOAA / NASA）的入口见 **[docs/CREDENTIALS.md](./docs/CREDENTIALS.md)**。不配任何 key 时 20 个基础源全部可用（PubMed / Gene / ClinVar / GEO 慢一些），MP 工具隐藏、BioGRID source 不可用。
 
 ## Docker
 
@@ -146,7 +148,7 @@ GitHub Action `kdense-sources` 每季度（1/4/7/10 月 1 日）自动扫描；�
 ```bash
 pytest -q                 # hermetic（respx mock），0 egress
 ruff check .
-python scripts/live_smoke.py   # 真实打 18 个基础上游（配 key 时 20 个），人工跑
+python scripts/live_smoke.py   # 真实打 20 个基础上游（配 key 时 22 个），人工跑
 ```
 
 - 设计与决策：[`docs/superpowers/specs/`](./docs/superpowers/specs/)

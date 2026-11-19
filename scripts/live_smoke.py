@@ -55,6 +55,8 @@ CASES: list[tuple[str, dict, str]] = [
     ("protein_annotations", {"identifier": "P04637", "source": "quickgo", "limit": 2}, "count"),
     ("phenotypes", {"query": "seizure", "limit": 2}, "count"),
     ("geo_datasets", {"query": "TP53", "limit": 2}, "count"),
+    ("kegg_compound", {"query": "aspirin", "limit": 1}, "count"),
+    ("dailymed", {"query": "aspirin", "limit": 2}, "count"),
 ]
 
 if os.environ.get("BIOGRID_ACCESS_KEY", "").strip():
