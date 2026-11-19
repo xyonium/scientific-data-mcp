@@ -8,8 +8,8 @@
 
 | 状态 | 数量 |
 |---|---|
-| ✅ 已实现 | 21 |
-| ⏳ M6 候选 | 43 |
+| ✅ 已实现 | 24 |
+| ⏳ M6 候选 | 40 |
 | ⏳ 暂缓 | 1 |
 | ➖ 归 finance-mcp | 12 |
 | ➖ 归 paper-search | 1 |
@@ -40,7 +40,7 @@
 | Biology & Genomics | ENCODE | ⏳ M6 候选 | 免 key | 免 key；M3 池，未接 |
 | Biology & Genomics | Ensembl | ⏳ M6 候选 | 免 key | 免 key；M3 池，未接 |
 | Biology & Genomics | GEO (NCBI) | ✅ 已实现 | 免 key | 已接入（v0.9.0） |
-| Biology & Genomics | GTEx | ⏳ M6 候选 | 免 key | 免 key；M3 池，未接 |
+| Biology & Genomics | GTEx | ✅ 已实现 | 免 key | 已接入（v0.11.0） |
 | Biology & Genomics | Gene Ontology | ⏳ M6 候选 | 免 key | 免 key；M3 池，未接 |
 | Biology & Genomics | Human Cell Atlas | ⏳ M6 候选 | 免 key | 免 key；M3 池，未接 |
 | Biology & Genomics | Human Protein Atlas | ⏳ M6 候选 | 免 key | 免 key；M3 池，未接 |
@@ -70,13 +70,13 @@
 | Disease & Clinical | ClinVar | ✅ 已实现 | 免 key | 已接入（v0.8.0） |
 | Disease & Clinical | ClinicalTrials.gov | ✅ 已实现 | 免 key | 已接入（v0.6.0） |
 | Disease & Clinical | DisGeNET | ⏳ M6 候选 | 学术/许可 key | 学术/许可 key；M4 池，未接 |
-| Disease & Clinical | GDC (TCGA) | ⏳ M6 候选 | 免 key | 免 key；M4 池，未接 |
+| Disease & Clinical | GDC (TCGA) | ✅ 已实现 | 免 key | 已接入（v0.11.0） |
 | Disease & Clinical | GWAS Catalog | ⏳ M6 候选 | 免 key | 免 key；M4 池，未接 |
 | Disease & Clinical | HPO | ✅ 已实现 | 免 key | 已接入（v0.9.0） |
 | Disease & Clinical | Monarch Initiative | ⏳ M6 候选 | 免 key | 免 key；M4 池，未接 |
 | Disease & Clinical | OMIM | ⏳ M6 候选 | 学术许可 key | 学术许可 key；M4 池，未接 |
 | Disease & Clinical | Open Targets | ✅ 已实现 | 免 key | 已接入（v0.7.0） |
-| Disease & Clinical | cBioPortal | ⏳ M6 候选 | 免 key | 免 key；M4 池，未接 |
+| Disease & Clinical | cBioPortal | ✅ 已实现 | 免 key | 已接入（v0.11.0） |
 | Materials Science | COD | ⏳ M6 候选 | 免 key | 免 key；M5 池，未接 |
 | Materials Science | Materials Project | ✅ 已实现 | 免费 key | 已接入（v0.6.0） |
 | Physics & Astronomy | NASA | ⏳ M6 候选 | 免费 key | 免费 key；M5 池，未接 |
@@ -109,4 +109,4 @@
 - “归 finance-mcp”/“归 paper-search” 的实际缺口见 2026-11-18 交接：finance 只缺 SEC EDGAR（+ World Bank 透传/Treasury 可选）；paper 暂不新增 USPTO。
 - “暂缓”不是永久排除；季度扫描或用户需求变化时可重新评估。
 - BRENDA 官方为 CC BY 4.0、需注册后走 SOAP，因此不是“付费”，归入暂缓（解析成本）。
-- Ensembl REST 仍 403/504；GTEx 换节点后可访问但留到表达/临床批次；ChEBI backend API 与 ZINC 均有访问障碍。
+- Ensembl REST 仍 403/504；ChEBI/ZINC 仍有访问障碍；MP 偶发 403（带 key 复测 200）。

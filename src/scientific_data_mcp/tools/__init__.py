@@ -9,10 +9,12 @@ from mcp.server.fastmcp import FastMCP
 from ..runtime import Service
 from .annotations import register as register_annotations
 from .biology import register as register_biology
+from .cancer import register as register_cancer
 from .chem_sources import register as register_chem_sources
 from .chemistry import register as register_chemistry
 from .clinical import register as register_clinical
 from .datasets import register as register_datasets
+from .expression import register as register_expression
 from .genomics import register as register_genomics
 from .interactions import register as register_interactions
 from .literature import register as register_literature
@@ -28,6 +30,8 @@ def register_all(mcp: FastMCP, service: Service) -> ToolMap:
     tools: ToolMap = {}
     tools.update(register_chemistry(mcp, service))
     tools.update(register_chem_sources(mcp, service))
+    tools.update(register_cancer(mcp, service))
+    tools.update(register_expression(mcp, service))
     tools.update(register_protein(mcp, service))
     tools.update(register_literature(mcp, service))
     tools.update(register_materials(mcp, service))

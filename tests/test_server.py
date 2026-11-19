@@ -23,6 +23,8 @@ EXPECTED_TOOLS = {
     "geo_datasets",
     "kegg_compound",
     "dailymed",
+    "cancer_studies",
+    "gene_expression",
 }
 
 

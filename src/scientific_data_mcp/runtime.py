@@ -10,12 +10,15 @@ from .http import PoliteClient
 from .providers.alphafold import AlphaFoldProvider
 from .providers.base import Provider
 from .providers.biogrid import BioGridProvider
+from .providers.cbioportal import CbioPortalProvider
 from .providers.chembl import ChemBLProvider
 from .providers.clinicaltrials import ClinicalTrialsProvider
 from .providers.clinvar import ClinVarProvider
 from .providers.dailymed import DailyMedProvider
+from .providers.gdc import GdcProvider
 from .providers.gene import GeneProvider
 from .providers.geo import GeoProvider
+from .providers.gtex import GtexProvider
 from .providers.hpo import HpoProvider
 from .providers.interpro import InterProProvider
 from .providers.kegg import KeggProvider
@@ -69,6 +72,9 @@ def build_service(settings: Settings | None = None) -> Service:
         "geo": GeoProvider(http, settings),
         "kegg": KeggProvider(http, settings),
         "dailymed": DailyMedProvider(http, settings),
+        "gdc": GdcProvider(http, settings),
+        "cbioportal": CbioPortalProvider(http, settings),
+        "gtex": GtexProvider(http, settings),
     }
     if settings.materials_project_api_key:
         providers["materials_project"] = MaterialsProjectProvider(http, settings)

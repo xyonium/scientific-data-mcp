@@ -57,6 +57,8 @@ CASES: list[tuple[str, dict, str]] = [
     ("geo_datasets", {"query": "TP53", "limit": 2}, "count"),
     ("kegg_compound", {"query": "aspirin", "limit": 1}, "count"),
     ("dailymed", {"query": "aspirin", "limit": 2}, "count"),
+    ("cancer_studies", {"query": "breast", "source": "gdc", "limit": 2}, "count"),
+    ("gene_expression", {"gene_id": "ENSG00000141510", "limit": 2}, "count"),
 ]
 
 if os.environ.get("BIOGRID_ACCESS_KEY", "").strip():

@@ -1,6 +1,6 @@
 """Runtime settings.
 
-The twenty base upstream sources work without configuration; ``NCBI_API_KEY``
+The twenty-three base upstream sources work without configuration; ``NCBI_API_KEY``
 and ``OPENFDA_API_KEY`` are optional and only lift rate limits. Materials
 Project and BioGRID are key-gated: their providers are only created when
 their keys are present (the ``material`` tool appears only with MP; the
@@ -38,6 +38,9 @@ HOST_DELAYS: dict[str, float] = {
     "ontology.jax.org": 0.5,
     "rest.kegg.jp": 0.5,
     "dailymed.nlm.nih.gov": 0.5,
+    "api.gdc.cancer.gov": 0.5,
+    "www.cbioportal.org": 0.5,
+    "gtexportal.org": 0.5,
 }
 
 
