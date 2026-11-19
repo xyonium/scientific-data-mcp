@@ -8,8 +8,8 @@
 
 | 状态 | 数量 |
 |---|---|
-| ✅ 已实现 | 13 |
-| ⏳ M6 候选 | 51 |
+| ✅ 已实现 | 17 |
+| ⏳ M6 候选 | 47 |
 | ⏳ 暂缓 | 1 |
 | ➖ 归 finance-mcp | 12 |
 | ➖ 归 paper-search | 1 |
@@ -44,18 +44,18 @@
 | Biology & Genomics | Gene Ontology | ⏳ M6 候选 | 免 key | 免 key；M3 池，未接 |
 | Biology & Genomics | Human Cell Atlas | ⏳ M6 候选 | 免 key | 免 key；M3 池，未接 |
 | Biology & Genomics | Human Protein Atlas | ⏳ M6 候选 | 免 key | 免 key；M3 池，未接 |
-| Biology & Genomics | InterPro | ⏳ M6 候选 | 免 key | 免 key；M3 池，未接 |
+| Biology & Genomics | InterPro | ✅ 已实现 | 免 key | 已接入（v0.8.0） |
 | Biology & Genomics | JASPAR | ⏳ M6 候选 | 免 key | 免 key；M3 池，未接 |
 | Biology & Genomics | LINCS L1000 | ⏳ M6 候选 | 免费学术 key | 免费学术 key；M3 池，未接 |
 | Biology & Genomics | Metabolomics Workbench | ⏳ M6 候选 | 免 key | 免 key；M3 池，未接 |
 | Biology & Genomics | MouseMine | ⏳ M6 候选 | 免 key | 免 key；M3 池，未接 |
 | Biology & Genomics | MyVariant.info | ⏳ M6 候选 | 免 key | 免 key；M3 池，未接 |
-| Biology & Genomics | NCBI Gene | ⏳ M6 候选 | 免 key | 免 key；M3 池，未接 |
+| Biology & Genomics | NCBI Gene | ✅ 已实现 | 免 key | 已接入（v0.8.0） |
 | Biology & Genomics | NCBI Protein | ⏳ M6 候选 | 免 key | 免 key；M3 池，未接 |
 | Biology & Genomics | NCBI Taxonomy | ⏳ M6 候选 | 免 key | 免 key；M3 池，未接 |
 | Biology & Genomics | PDB | ✅ 已实现 | 免 key | 已接入（v0.6.0） |
 | Biology & Genomics | PRIDE | ⏳ M6 候选 | 免 key | 免 key；M3 池，未接 |
-| Biology & Genomics | QuickGO | ⏳ M6 候选 | 免 key | 免 key；M3 池，未接 |
+| Biology & Genomics | QuickGO | ✅ 已实现 | 免 key | 已接入（v0.8.0） |
 | Biology & Genomics | Reactome | ✅ 已实现 | 免 key | 已接入（v0.7.0） |
 | Biology & Genomics | RegulomeDB | ⏳ M6 候选 | 免 key | 免 key；M3 池，未接 |
 | Biology & Genomics | RummaGEO | ⏳ M6 候选 | 免 key | 免 key；M3 池，未接 |
@@ -67,7 +67,7 @@
 | Biology & Genomics | gnomAD | ⏳ M6 候选 | 免 key | 免 key；M3 池，未接 |
 | Disease & Clinical | COSMIC | 💰 不做 | 许可受限 | 许可受限；替代 openFDA/GDC/cBioPortal（openFDA 已接入） |
 | Disease & Clinical | ClinPGx (PharmGKB) | ⏳ M6 候选 | 免 key | 免 key；M4 池，未接 |
-| Disease & Clinical | ClinVar | ⏳ M6 候选 | 免 key | 免 key；M4 池，未接 |
+| Disease & Clinical | ClinVar | ✅ 已实现 | 免 key | 已接入（v0.8.0） |
 | Disease & Clinical | ClinicalTrials.gov | ✅ 已实现 | 免 key | 已接入（v0.6.0） |
 | Disease & Clinical | DisGeNET | ⏳ M6 候选 | 学术/许可 key | 学术/许可 key；M4 池，未接 |
 | Disease & Clinical | GDC (TCGA) | ⏳ M6 候选 | 免 key | 免 key；M4 池，未接 |
@@ -109,3 +109,4 @@
 - “归 finance-mcp”/“归 paper-search” 的实际缺口见 2026-11-18 交接：finance 只缺 SEC EDGAR（+ World Bank 透传/Treasury 可选）；paper 暂不新增 USPTO。
 - “暂缓”不是永久排除；季度扫描或用户需求变化时可重新评估。
 - BRENDA 官方为 CC BY 4.0、需注册后走 SOAP，因此不是“付费”，归入暂缓（解析成本）。
+- Ensembl 当前从本机网络连接超时（2026-11-19 实测），暂未接入；换出口后可重试。

@@ -2,7 +2,7 @@
 
 > 迁移自 finance-mcp `finance-mcp-env-and-quotas`，按本项目的"全免 key"形态改写。
 
-- 本服务**零必需 key**。可选：`NCBI_API_KEY` + `NCBI_EMAIL`（PubMed 提速）、`MATERIALS_PROJECT_API_KEY`（材料工具）、`BIOGRID_ACCESS_KEY`（互作 source）、`OPENFDA_API_KEY`（可选，只提额度）。MP 未配不注册 `material`；BioGRID 未配时 `protein_interactions` 仍注册但 biogrid source 报错；openFDA 始终可用。NCBI 部分：免费申请，把 E-utilities 从 3 req/s 提到 10 req/s；不配静默降速，不报错。申请步骤与 M6 扩展源入口见 `docs/CREDENTIALS.md`。
+- 本服务**零必需 key**。可选：`NCBI_API_KEY` + `NCBI_EMAIL`（PubMed / Gene / ClinVar 提速）、`MATERIALS_PROJECT_API_KEY`（材料工具）、`BIOGRID_ACCESS_KEY`（互作 source）、`OPENFDA_API_KEY`（可选，只提额度）。MP 未配不注册 `material`；BioGRID 未配时 `protein_interactions` 仍注册但 biogrid source 报错；openFDA 始终可用。NCBI 部分：免费申请，把 E-utilities 从 3 req/s 提到 10 req/s；不配静默降速，不报错。申请步骤与 M6 扩展源入口见 `docs/CREDENTIALS.md`。
 - 应用**不加载 `.env`**（无 dotenv 依赖）。本地测试要先用 `set -a; . .env; set +a`；Docker/mcpo 由部署层注入 env。
 - key 只按需探测（`os.environ.get`），不读整个 `.env`，不把 key 写进日志/返回体；错误信息只带 host（`errors.scrub` 兜底）。
 - E-utilities 只支持把 `api_key` 放 query 参数，所以 `build_service()` 把 httpx 的 INFO 请求日志压到 WARNING，防止完整 URL（含 key）落日志。

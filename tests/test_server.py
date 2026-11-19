@@ -16,6 +16,9 @@ EXPECTED_TOOLS = {
     "clinical_trials",
     "opentargets",
     "pathways",
+    "gene_record",
+    "clinvar",
+    "protein_annotations",
 }
 
 

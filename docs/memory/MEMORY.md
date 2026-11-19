@@ -16,6 +16,7 @@
 - [上游漂移信号](upstream-drift-signal.md) — suspect_drift/contact_admin 的分类与纪律
 - [工具面收敛 v0.4](tool-surface-v0.4.md) — 同类 I/O 合并，kind/by 切换；旧→新映射
 - [BioGRID 接入](biogrid.md) — key-gated；dict 响应、满页才有 next_offset、401 是 auth
-- [K-Dense 80 库逐源矩阵](../research/kdense-coverage.md) — 已实现 13 / M6 51 / finance 12 / paper 1 / 暂缓 1 / 付费 2
+- [K-Dense 80 库逐源矩阵](../research/kdense-coverage.md) — 已实现 17 / M6 47 / finance 12 / paper 1 / 暂缓 1 / 付费 2
 - [STRING / openFDA / ClinicalTrials](string-openfda-clinicaltrials.md) — 三个免 key 源；openFDA 404 NOT_FOUND=空；BioGRID 并入 protein_interactions
 - [AlphaFold / Open Targets / Reactome](biology-sources.md) — 三个免 key 源；AlphaFold 并入 protein_record；Reactome 名称需剥 HTML
+- [NCBI Gene / ClinVar / InterPro / QuickGO](genomics-annotations.md) — Gene/ClinVar 复用 NCBI key；ClinVar 分类在 germline_classification

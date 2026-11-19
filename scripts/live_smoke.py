@@ -49,6 +49,10 @@ CASES: list[tuple[str, dict, str]] = [
     ("protein_record", {"kind": "alphafold", "identifier": "P04637"}, "record"),
     ("opentargets", {"query": "TP53", "entity": "target", "limit": 2}, "count"),
     ("pathways", {"query": "TP53", "limit": 2}, "count"),
+    ("gene_record", {"identifier": "TP53", "organism": 9606}, "record"),
+    ("clinvar", {"query": "BRCA1[gene] AND pathogenic[clinical_significance]", "limit": 2}, "count"),
+    ("protein_annotations", {"identifier": "P04637", "source": "interpro", "limit": 2}, "count"),
+    ("protein_annotations", {"identifier": "P04637", "source": "quickgo", "limit": 2}, "count"),
 ]
 
 if os.environ.get("BIOGRID_ACCESS_KEY", "").strip():

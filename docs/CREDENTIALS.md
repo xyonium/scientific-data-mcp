@@ -1,6 +1,6 @@
 # 配置与 API key 获取指南
 
-先说结论：**十二个基础源里十一个完全免 key，什么都不配也能用。** 四个可选 key：NCBI E-utilities（PubMed 3→10 req/s）、Materials Project（材料工具）、BioGRID（互作 source）、openFDA（只提额度）；MP 未配时 `material` 不注册，BioGRID 未配时 `protein_interactions(source="biogrid")` 报明确错误。PubChem / ChEMBL / UniProt / RCSB PDB / WHO / STRING / ClinicalTrials.gov / AlphaFold DB / Open Targets / Reactome 官方**不签发 key**。
+先说结论：**十六个基础源里十五个完全免 key，什么都不配也能用。** 四个可选 key：NCBI E-utilities（PubMed 3→10 req/s）、Materials Project（材料工具）、BioGRID（互作 source）、openFDA（只提额度）；MP 未配时 `material` 不注册，BioGRID 未配时 `protein_interactions(source="biogrid")` 报明确错误。PubChem / ChEMBL / UniProt / RCSB PDB / WHO / STRING / ClinicalTrials.gov / AlphaFold DB / Open Targets / Reactome / InterPro / QuickGO 官方**不签发 key**；NCBI Gene / ClinVar 与 PubMed 共用 NCBI key。
 
 > 配好后把值写进你的配置处：
 > - **mcpo**：`config.json` 的 `scientific-data.env` 块
@@ -13,7 +13,7 @@
 
 ### 1. NCBI E-utilities key（`NCBI_API_KEY`）+ 联系邮箱（`NCBI_EMAIL`）
 
-影响 `pubmed_record` 的吞吐：无 key 3 req/s，有 key 10 req/s；单次调用两者都能成功，key 不是必需。
+影响所有 NCBI E-utilities 源（`pubmed_record` / `gene_record` / `clinvar`）的吞吐：无 key 3 req/s，有 key 10 req/s；单次调用两者都能成功，key 不是必需。
 
 1. 打开 [NCBI 账号页](https://account.ncbi.nlm.nih.gov/) 注册或登录（Google/ORCID/机构账号均可）
 2. 登录后进 [Account Settings](https://www.ncbi.nlm.nih.gov/account/settings/)
@@ -76,7 +76,7 @@ python scripts/live_smoke.py   # pubmed_record 一项 PASS 即通
 | `NOAA_TOKEN` | NOAA CDO | 免费 token，5 req/s | [ncdc.noaa.gov/cdo-web/token](https://www.ncdc.noaa.gov/cdo-web/token) |
 | `NASA_API_KEY` | NASA Open APIs | 免费 key，1,000 req/hr（DEMO_KEY 30/hr） | [api.nasa.gov](https://api.nasa.gov/) |
 
-无 key 的 M6 候选（Ensembl、GEO、GTEx、InterPro 等）不需要申请，接入时直接免 key。
+无 key 的 M6 候选（Ensembl、GEO、GTEx、HPO 等）不需要申请，接入时直接免 key。
 
 ---
 
@@ -95,6 +95,10 @@ python scripts/live_smoke.py   # pubmed_record 一项 PASS 即通
 | AlphaFold DB | 免 key | 0.5s |
 | Open Targets | 免 key（GraphQL） | 0.5s |
 | Reactome | 免 key | 0.5s |
+| NCBI Gene | 免 key（可选 NCBI key 提速） | 0.34s / 0.1s |
+| ClinVar | 免 key（可选 NCBI key 提速） | 0.34s / 0.1s |
+| InterPro | 免 key | 0.5s |
+| QuickGO | 免 key | 0.5s |
 
 限速表在 `src/scientific_data_mcp/config.py` 的 `HOST_DELAYS`。
 
