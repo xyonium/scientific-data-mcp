@@ -7,15 +7,18 @@ from dataclasses import dataclass, field
 
 from .config import Settings
 from .http import PoliteClient
+from .providers.alphafold import AlphaFoldProvider
 from .providers.base import Provider
 from .providers.biogrid import BioGridProvider
 from .providers.chembl import ChemBLProvider
 from .providers.clinicaltrials import ClinicalTrialsProvider
 from .providers.materials_project import MaterialsProjectProvider
 from .providers.openfda import OpenFdaProvider
+from .providers.opentargets import OpenTargetsProvider
 from .providers.pubchem import PubChemProvider
 from .providers.pubmed import PubMedProvider
 from .providers.rcsb import RcsbProvider
+from .providers.reactome import ReactomeProvider
 from .providers.string_db import StringDbProvider
 from .providers.uniprot import UniProtProvider
 from .providers.who import WhoProvider
@@ -47,6 +50,9 @@ def build_service(settings: Settings | None = None) -> Service:
         "string": StringDbProvider(http, settings),
         "openfda": OpenFdaProvider(http, settings),
         "clinicaltrials": ClinicalTrialsProvider(http, settings),
+        "alphafold": AlphaFoldProvider(http, settings),
+        "opentargets": OpenTargetsProvider(http, settings),
+        "reactome": ReactomeProvider(http, settings),
     }
     if settings.materials_project_api_key:
         providers["materials_project"] = MaterialsProjectProvider(http, settings)

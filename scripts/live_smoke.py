@@ -46,6 +46,9 @@ CASES: list[tuple[str, dict, str]] = [
     ("protein_interactions", {"genes": "TP53", "source": "string", "limit": 2}, "count"),
     ("openfda", {"query": 'openfda.brand_name:"advil"', "limit": 1}, "count"),
     ("clinical_trials", {"query": "pembrolizumab", "limit": 1}, "count"),
+    ("protein_record", {"kind": "alphafold", "identifier": "P04637"}, "record"),
+    ("opentargets", {"query": "TP53", "entity": "target", "limit": 2}, "count"),
+    ("pathways", {"query": "TP53", "limit": 2}, "count"),
 ]
 
 if os.environ.get("BIOGRID_ACCESS_KEY", "").strip():

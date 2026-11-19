@@ -8,8 +8,8 @@
 
 | 状态 | 数量 |
 |---|---|
-| ✅ 已实现 | 10 |
-| ⏳ M6 候选 | 54 |
+| ✅ 已实现 | 13 |
+| ⏳ M6 候选 | 51 |
 | ⏳ 暂缓 | 1 |
 | ➖ 归 finance-mcp | 12 |
 | ➖ 归 paper-search | 1 |
@@ -24,17 +24,17 @@
 |---|---|---|---|---|
 | Chemistry & Drugs | BindingDB | ⏳ M6 候选 | 免 key | 免 key；M2 池，未接 |
 | Chemistry & Drugs | ChEBI | ⏳ M6 候选 | 免 key | 免 key；M2 池，未接 |
-| Chemistry & Drugs | ChEMBL | ✅ 已实现 | 免 key | 已接入（v0.6.0） |
+| Chemistry & Drugs | ChEMBL | ✅ 已实现 | 免 key | 已接入（v0.7.0） |
 | Chemistry & Drugs | DailyMed | ⏳ M6 候选 | 免 key | 免 key；M2 池，未接 |
 | Chemistry & Drugs | DrugBank | 💰 不做 | 付费 | 付费；免费替代 PubChem/ChEMBL/openFDA（openFDA 已接入） |
-| Chemistry & Drugs | FDA (OpenFDA) | ✅ 已实现 | 免费 key（可选） | 已接入（v0.6.0） |
+| Chemistry & Drugs | FDA (OpenFDA) | ✅ 已实现 | 免费 key（可选） | 已接入（v0.7.0） |
 | Chemistry & Drugs | KEGG | ⏳ M6 候选 | 免 key | 免 key；M2 池，未接 |
-| Chemistry & Drugs | PubChem | ✅ 已实现 | 免 key | 已接入（v0.6.0） |
+| Chemistry & Drugs | PubChem | ✅ 已实现 | 免 key | 已接入（v0.7.0） |
 | Chemistry & Drugs | ZINC | ⏳ M6 候选 | 免 key | 免 key；M2 池，未接 |
 | Biology & Genomics | Addgene | ⏳ M6 候选 | 机构批准 key | 机构批准 key；M3 池，未接 |
-| Biology & Genomics | AlphaFold DB | ⏳ M6 候选 | 免 key | 免 key；M3 池，未接 |
+| Biology & Genomics | AlphaFold DB | ✅ 已实现 | 免 key | 已接入（v0.7.0） |
 | Biology & Genomics | BRENDA | ⏳ 暂缓 | 免费注册（SOAP） | 免费但需注册 + SOAP，解析成本高，暂缓 |
-| Biology & Genomics | BioGRID | ✅ 已实现 | 免费 key | 已接入（v0.6.0） |
+| Biology & Genomics | BioGRID | ✅ 已实现 | 免费 key | 已接入（v0.7.0） |
 | Biology & Genomics | EMDB | ⏳ M6 候选 | 免 key | 免 key；M3 池，未接 |
 | Biology & Genomics | ENA | ⏳ M6 候选 | 免 key | 免 key；M3 池，未接 |
 | Biology & Genomics | ENCODE | ⏳ M6 候选 | 免 key | 免 key；M3 池，未接 |
@@ -53,32 +53,32 @@
 | Biology & Genomics | NCBI Gene | ⏳ M6 候选 | 免 key | 免 key；M3 池，未接 |
 | Biology & Genomics | NCBI Protein | ⏳ M6 候选 | 免 key | 免 key；M3 池，未接 |
 | Biology & Genomics | NCBI Taxonomy | ⏳ M6 候选 | 免 key | 免 key；M3 池，未接 |
-| Biology & Genomics | PDB | ✅ 已实现 | 免 key | 已接入（v0.6.0） |
+| Biology & Genomics | PDB | ✅ 已实现 | 免 key | 已接入（v0.7.0） |
 | Biology & Genomics | PRIDE | ⏳ M6 候选 | 免 key | 免 key；M3 池，未接 |
 | Biology & Genomics | QuickGO | ⏳ M6 候选 | 免 key | 免 key；M3 池，未接 |
-| Biology & Genomics | Reactome | ⏳ M6 候选 | 免 key | 免 key；M3 池，未接 |
+| Biology & Genomics | Reactome | ✅ 已实现 | 免 key | 已接入（v0.7.0） |
 | Biology & Genomics | RegulomeDB | ⏳ M6 候选 | 免 key | 免 key；M3 池，未接 |
 | Biology & Genomics | RummaGEO | ⏳ M6 候选 | 免 key | 免 key；M3 池，未接 |
 | Biology & Genomics | SRA | ⏳ M6 候选 | 免 key | 免 key；M3 池，未接 |
-| Biology & Genomics | STRING | ✅ 已实现 | 免 key | 已接入（v0.6.0） |
+| Biology & Genomics | STRING | ✅ 已实现 | 免 key | 已接入（v0.7.0） |
 | Biology & Genomics | UCSC Genome Browser | ⏳ M6 候选 | 免 key | 免 key；M3 池，未接 |
-| Biology & Genomics | UniProt | ✅ 已实现 | 免 key | 已接入（v0.6.0） |
+| Biology & Genomics | UniProt | ✅ 已实现 | 免 key | 已接入（v0.7.0） |
 | Biology & Genomics | dbSNP | ⏳ M6 候选 | 免 key | 免 key；M3 池，未接 |
 | Biology & Genomics | gnomAD | ⏳ M6 候选 | 免 key | 免 key；M3 池，未接 |
 | Disease & Clinical | COSMIC | 💰 不做 | 许可受限 | 许可受限；替代 openFDA/GDC/cBioPortal（openFDA 已接入） |
 | Disease & Clinical | ClinPGx (PharmGKB) | ⏳ M6 候选 | 免 key | 免 key；M4 池，未接 |
 | Disease & Clinical | ClinVar | ⏳ M6 候选 | 免 key | 免 key；M4 池，未接 |
-| Disease & Clinical | ClinicalTrials.gov | ✅ 已实现 | 免 key | 已接入（v0.6.0） |
+| Disease & Clinical | ClinicalTrials.gov | ✅ 已实现 | 免 key | 已接入（v0.7.0） |
 | Disease & Clinical | DisGeNET | ⏳ M6 候选 | 学术/许可 key | 学术/许可 key；M4 池，未接 |
 | Disease & Clinical | GDC (TCGA) | ⏳ M6 候选 | 免 key | 免 key；M4 池，未接 |
 | Disease & Clinical | GWAS Catalog | ⏳ M6 候选 | 免 key | 免 key；M4 池，未接 |
 | Disease & Clinical | HPO | ⏳ M6 候选 | 免 key | 免 key；M4 池，未接 |
 | Disease & Clinical | Monarch Initiative | ⏳ M6 候选 | 免 key | 免 key；M4 池，未接 |
 | Disease & Clinical | OMIM | ⏳ M6 候选 | 学术许可 key | 学术许可 key；M4 池，未接 |
-| Disease & Clinical | Open Targets | ⏳ M6 候选 | 免 key | 免 key；M4 池，未接 |
+| Disease & Clinical | Open Targets | ✅ 已实现 | 免 key | 已接入（v0.7.0） |
 | Disease & Clinical | cBioPortal | ⏳ M6 候选 | 免 key | 免 key；M4 池，未接 |
 | Materials Science | COD | ⏳ M6 候选 | 免 key | 免 key；M5 池，未接 |
-| Materials Science | Materials Project | ✅ 已实现 | 免费 key | 已接入（v0.6.0） |
+| Materials Science | Materials Project | ✅ 已实现 | 免费 key | 已接入（v0.7.0） |
 | Physics & Astronomy | NASA | ⏳ M6 候选 | 免费 key | 免费 key；M5 池，未接 |
 | Physics & Astronomy | NASA Exoplanet Archive | ⏳ M6 候选 | 免 key | 免 key；M5 池，未接 |
 | Physics & Astronomy | NIST | ⏳ M6 候选 | 免 key | 免 key；M5 池，未接 |
@@ -101,7 +101,7 @@
 | Economics & Finance | World Bank | ➖ 归 finance-mcp | 免 key | 已交接：见 docs/handoff/2026-11-18-kdense-finance-gaps.md |
 | Social Sciences & Demographics | Eurostat | ➖ 归 finance-mcp | 免 key | 已交接：见 docs/handoff/2026-11-18-kdense-finance-gaps.md |
 | Social Sciences & Demographics | US Census (optional below anonymous quota) | ➖ 归 finance-mcp | 免费 key（可选） | 已交接：见 docs/handoff/2026-11-18-kdense-finance-gaps.md |
-| Social Sciences & Demographics | WHO GHO | ✅ 已实现 | 免 key | 已接入（v0.6.0） |
+| Social Sciences & Demographics | WHO GHO | ✅ 已实现 | 免 key | 已接入（v0.7.0） |
 
 ## 说明
 

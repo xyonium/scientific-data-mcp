@@ -14,6 +14,8 @@ EXPECTED_TOOLS = {
     "protein_interactions",
     "openfda",
     "clinical_trials",
+    "opentargets",
+    "pathways",
 }
 
 
