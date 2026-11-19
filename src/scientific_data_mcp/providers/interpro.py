@@ -22,6 +22,8 @@ class InterProProvider(Provider):
             f"{self.base_url}/entry/all/protein/uniprot/{accession}/",
             params={"page_size": limit},
         )
+        if payload is None:  # InterPro returns 204 for an unknown/no-entry protein
+            return {"items": [], "total": 0}
         if not isinstance(payload, dict) or "results" not in payload:
             raise UpstreamDrift("InterPro response has no results list")
         items = [

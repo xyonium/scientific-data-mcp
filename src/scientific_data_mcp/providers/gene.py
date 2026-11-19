@@ -54,7 +54,7 @@ class GeneProvider(Provider):
         if not isinstance(result, dict):
             raise UpstreamDrift("NCBI Gene esummary response has no result")
         item = result.get(str(gene_id))
-        if not isinstance(item, dict):
+        if not isinstance(item, dict) or item.get("error"):
             raise NotFound(f"no NCBI Gene record for id {gene_id}")
         organism_info = item.get("organism") or {}
         return omit_none(

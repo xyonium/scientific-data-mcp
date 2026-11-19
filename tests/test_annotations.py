@@ -113,3 +113,30 @@ async def test_tool_both_sources_and_validation(tools):
         await tools["protein_annotations"]("P04637", source="x")
     )["error"]
     assert "1-50" in (await tools["protein_annotations"]("P04637", limit=0))["error"]
+
+
+@respx.mock
+async def test_interpro_204_is_empty(providers):
+    interpro, _ = providers
+    respx.get(f"{INTERPRO}/entry/all/protein/uniprot/UNKNOWN/").mock(
+        return_value=httpx.Response(204)
+    )
+    assert await interpro.entries("UNKNOWN") == {"items": [], "total": 0}
+
+
+@respx.mock
+async def test_request_params(providers):
+    interpro, quickgo = providers
+    ip_route = respx.get(f"{INTERPRO}/entry/all/protein/uniprot/P04637/").mock(
+        return_value=httpx.Response(200, json=IP_PAYLOAD)
+    )
+    await interpro.entries("P04637", 5)
+    assert ip_route.calls.last.request.url.params["page_size"] == "5"
+
+    go_route = respx.get(f"{QUICKGO}/annotation/search").mock(
+        return_value=httpx.Response(200, json=GO_PAYLOAD)
+    )
+    await quickgo.annotations("P04637", 5)
+    params = go_route.calls.last.request.url.params
+    assert params["geneProductId"] == "UniProtKB:P04637"
+    assert params["limit"] == "5"

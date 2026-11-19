@@ -92,3 +92,17 @@ async def test_tool_envelope_and_validation(tools):
     assert result["total"] == 2
     assert "query" in (await tools["clinvar"](" "))["error"]
     assert "1-50" in (await tools["clinvar"]("x", limit=0))["error"]
+
+
+@respx.mock
+async def test_request_params(provider):
+    route = respx.get(f"{BASE}/esearch.fcgi").mock(
+        return_value=httpx.Response(200, json=SEARCH)
+    )
+    respx.get(f"{BASE}/esummary.fcgi").mock(
+        return_value=httpx.Response(200, json=SUMMARY)
+    )
+    await provider.search("BRCA1[gene]", 3)
+    params = route.calls.last.request.url.params
+    assert params["db"] == "clinvar"
+    assert params["retmax"] == "3"
