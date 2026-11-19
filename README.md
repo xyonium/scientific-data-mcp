@@ -1,5 +1,7 @@
 # scientific-data-mcp
 
+[![PyPI](https://img.shields.io/pypi/v/scientific-data-mcp.svg)](https://pypi.org/project/scientific-data-mcp/)
+
 科研**实体数据** MCP —— 化合物 / 生物活性 / 蛋白序列与结构 / 文献元数据的**免费官方 API 直连**。一个 server，11 个基础工具（配 Materials Project key 时 12 个；BioGRID key 解锁互作 source，不增工具），零额度。同类输入输出的源合并为一个工具，用 `kind` / `by` 参数切换。
 
 > 与 [paper-search](https://github.com/xyonium/paper-search)（文献检索 + RAG）、[finance-mcp](https://github.com/xyonium/finance-mcp)（金融/宏观）互补，不做重复。
@@ -44,10 +46,12 @@ kimi datasource 把一批本来就免 key 的官方科研 API（PubChem / ChEMBL
 ## 安装
 
 ```bash
+pip install scientific-data-mcp
+# 或
+uvx scientific-data-mcp
+# 开发安装
 uv venv --python 3.12 .venv
-uv pip install -e . --python .venv/bin/python
-# 或直接从仓库装（PyPI 尚未发布）
-uvx --from git+https://github.com/xyonium/scientific-data-mcp scientific-data-mcp
+uv pip install -e '.[dev]' --python .venv/bin/python
 ```
 
 ## 运行
@@ -101,7 +105,7 @@ docker run --rm -p 8000:8000 scientific-data-mcp:dev --http --host 0.0.0.0
 
 ## PyPI 发布
 
-包名 **`scientific-data-mcp`**（2026-11-18 查询仍未被占用）。PyPI 不需要预先建项目：**首次上传即创建**。
+包名 **`scientific-data-mcp`**，已发布到 [PyPI](https://pypi.org/project/scientific-data-mcp/)。首次发布通过 trusted publishing 完成；之后 push `v*` tag 自动发布。
 
 一次性配置（推荐 trusted publishing，免 API token）：
 
