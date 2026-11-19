@@ -22,10 +22,12 @@ class DailyMedProvider(Provider):
             f"{self.base_url}/spls.json",
             params={"drug_name": query, "pagesize": limit, "page": 1},
         )
-        if not isinstance(payload, dict) or "data" not in payload:
+        if not isinstance(payload, dict) or not isinstance(payload.get("data"), list):
             raise UpstreamDrift("DailyMed response has no data list")
-        items = [_normalize(row) for row in payload["data"] or []]
+        items = [_normalize(row) for row in payload["data"]]
         total = (payload.get("metadata") or {}).get("total_elements")
+        if total is None:
+            raise UpstreamDrift("DailyMed response has no total_elements")
         return {"items": items, "total": total}
 
 

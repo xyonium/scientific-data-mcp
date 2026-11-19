@@ -80,3 +80,30 @@ async def test_tool_envelope_and_validation(tools):
     assert result["total"] == 1058
     assert "query" in (await tools["dailymed"](" "))["error"]
     assert "1-20" in (await tools["dailymed"]("x", limit=0))["error"]
+
+
+@respx.mock
+async def test_limit_upper_bound(tools):
+    respx.get(f"{BASE}/spls.json").mock(
+        return_value=httpx.Response(200, json={"data": [], "metadata": {"total_elements": 0}})
+    )
+    assert (await tools["dailymed"]("aspirin", limit=20))["count"] == 0
+    assert "1-20" in (await tools["dailymed"]("aspirin", limit=21))["error"]
+
+
+@respx.mock
+async def test_null_data_is_drift(provider):
+    respx.get(f"{BASE}/spls.json").mock(
+        return_value=httpx.Response(200, json={"data": None, "metadata": {}})
+    )
+    with pytest.raises(UpstreamDrift):
+        await provider.search("x")
+
+
+@respx.mock
+async def test_missing_total_is_drift(provider):
+    respx.get(f"{BASE}/spls.json").mock(
+        return_value=httpx.Response(200, json={"data": [], "metadata": {}})
+    )
+    with pytest.raises(UpstreamDrift):
+        await provider.search("x")

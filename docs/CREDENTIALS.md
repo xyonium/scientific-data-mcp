@@ -1,6 +1,6 @@
 # 配置与 API key 获取指南
 
-先说结论：**二十个基础源里十九个完全免 key，什么都不配也能用。** 四个可选 key：NCBI E-utilities（PubMed 3→10 req/s）、Materials Project（材料工具）、BioGRID（互作 source）、openFDA（只提额度）；MP 未配时 `material` 不注册，BioGRID 未配时 `protein_interactions(source="biogrid")` 报明确错误。PubChem / ChEMBL / UniProt / RCSB PDB / WHO / STRING / ClinicalTrials.gov / AlphaFold DB / Open Targets / Reactome / InterPro / QuickGO / HPO / DailyMed 官方**不签发 key**；KEGG 学术免费、商用需许可。NCBI Gene / ClinVar 与 PubMed 共用 NCBI key。
+先说结论：**二十个基础源里十九个完全免 key，什么都不配也能用。** 四个可选 key：NCBI E-utilities（PubMed 3→10 req/s）、Materials Project（材料工具）、BioGRID（互作 source）、openFDA（只提额度）；MP 未配时 `material` 不注册，BioGRID 未配时 `protein_interactions(source="biogrid")` 报明确错误。PubChem / ChEMBL / UniProt / RCSB PDB / WHO / STRING / ClinicalTrials.gov / AlphaFold DB / Open Targets / Reactome / InterPro / QuickGO / HPO / DailyMed 官方**不签发 key**；KEGG 学术免费、商用需许可。NCBI Gene / ClinVar / GEO 与 PubMed 共用 NCBI key。
 
 > 配好后把值写进你的配置处：
 > - **mcpo**：`config.json` 的 `scientific-data.env` 块

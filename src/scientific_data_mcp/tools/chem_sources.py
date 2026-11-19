@@ -41,9 +41,14 @@ def register(mcp: FastMCP, service: Service) -> ToolMap:
             items = await kegg.compound(query.strip(), limit)
         except ProviderError as exc:
             return provider_error_payload(exc, "kegg")
+        source_url = (
+            f"https://www.kegg.jp/entry/{query.strip()}"
+            if query.strip().upper().startswith("C") and query.strip()[1:].isdigit()
+            else f"https://www.kegg.jp/kegg-bin/search?query={quote(query.strip())}"
+        )
         return {
             "source": "kegg",
-            "source_url": f"https://www.kegg.jp/entry/{quote(query.strip())}",
+            "source_url": source_url,
             "count": len(items),
             "items": items,
         }

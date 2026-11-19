@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+from urllib.parse import quote
 
 from ..config import Settings
 from ..errors import NotFound, UpstreamDrift
@@ -37,27 +38,43 @@ class KeggProvider(Provider):
         return results
 
     async def _find(self, query: str, limit: int) -> list[str]:
-        text = await self.http.get_text(f"{self.base_url}/find/compound/{query}")
+        text = await self.http.get_text(
+            f"{self.base_url}/find/compound/{quote(query, safe='')}"
+        )
+        if not text.strip():
+            return []
         entries = []
         for line in text.splitlines():
-            if "\t" not in line:
+            if not line.strip():
                 continue
+            if "\t" not in line:
+                raise UpstreamDrift(f"unexpected KEGG find line: {line[:80]!r}")
             entry = line.split("\t", 1)[0].strip()
-            if _COMPOUND_ID.match(entry):
-                entries.append(entry)
+            if not _COMPOUND_ID.match(entry):
+                raise UpstreamDrift(f"unexpected KEGG compound id: {entry!r}")
+            entries.append(entry)
             if len(entries) >= limit:
                 break
         return entries
 
 
 def _parse_compound(text: str) -> dict:
+    blocks = [block for block in text.split("///") if block.strip()]
+    if len(blocks) != 1:
+        raise UpstreamDrift(
+            f"KEGG compound response has {len(blocks)} records, expected 1"
+        )
+    text = blocks[0]
     fields: dict[str, list[str]] = {}
+    pathways_raw: list[str] = []
     current: str | None = None
     for line in text.splitlines():
         if not line.strip():
             continue
         if line.startswith(" "):
-            if current:
+            if current == "PATHWAY":
+                pathways_raw.append(line.strip())
+            elif current:
                 fields[current][-1] += " " + line.strip()
             continue
         key = line[:12].strip()
@@ -66,6 +83,8 @@ def _parse_compound(text: str) -> dict:
             continue
         current = key
         fields.setdefault(key, []).append(value)
+        if key == "PATHWAY":
+            pathways_raw.append(value)
     if "ENTRY" not in fields:
         raise UpstreamDrift("KEGG compound response has no ENTRY")
     entry = fields["ENTRY"][0].split()[0]
@@ -73,7 +92,7 @@ def _parse_compound(text: str) -> dict:
     for value in fields.get("NAME", []):
         names.extend(part.strip() for part in value.split(";") if part.strip())
     pathways = []
-    for value in fields.get("PATHWAY", []):
+    for value in pathways_raw:
         match = _PATHWAY.match(value)
         if match:
             pathways.append({"id": match.group(1), "name": match.group(2)})
