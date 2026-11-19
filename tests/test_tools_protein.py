@@ -122,3 +122,21 @@ async def test_protein_map_ids_validates_inputs(tools):
     assert "ids" in (
         await tools["protein_map_ids"]("UniProtKB_AC-ID", "PDB", "  ")
     )["error"]
+
+
+@respx.mock
+async def test_protein_record_alphafold_errors_keep_source(tools):
+    respx.get("https://alphafold.ebi.ac.uk/api/prediction/XXXXXX").mock(
+        return_value=httpx.Response(400, json={"error": "Invalid identifier format"})
+    )
+    result = await tools["protein_record"]("XXXXXX", kind="alphafold")
+    assert result["source"] == "alphafold"
+    assert "identifier" in result["error"]
+    assert "suspect_drift" not in result
+
+    respx.get("https://alphafold.ebi.ac.uk/api/prediction/P04637").mock(
+        return_value=httpx.Response(404)
+    )
+    result = await tools["protein_record"]("P04637", kind="alphafold")
+    assert result["source"] == "alphafold"
+    assert "not_found" in result["error"]

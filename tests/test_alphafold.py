@@ -70,3 +70,22 @@ async def test_non_list_payload_is_drift(provider):
     )
     with pytest.raises(UpstreamDrift):
         await provider.prediction("P04637")
+
+
+@respx.mock
+async def test_non_identifier_400_is_drift(provider):
+    respx.get(f"{BASE}/prediction/P04637").mock(
+        return_value=httpx.Response(400, json={"error": "temporary backend failure"})
+    )
+    with pytest.raises(UpstreamDrift):
+        await provider.prediction("P04637")
+
+
+@respx.mock
+async def test_prediction_caps_at_twenty(provider):
+    rows = [dict(ROW, entryId=f"AF-P04637-F{i}") for i in range(25)]
+    respx.get(f"{BASE}/prediction/P04637").mock(
+        return_value=httpx.Response(200, json=rows)
+    )
+    result = await provider.prediction("P04637")
+    assert len(result["predictions"]) == 20

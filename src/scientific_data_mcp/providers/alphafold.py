@@ -27,10 +27,12 @@ class AlphaFoldProvider(Provider):
                 detail = (resp.json() or {}).get("error", "")
             except ValueError:
                 detail = ""
-            raise ValueError(
-                f"invalid AlphaFold identifier: {accession}"
-                + (f" ({detail})" if detail else "")
-            )
+            if "identifier" in detail.lower() or "format" in detail.lower():
+                raise ValueError(
+                    f"invalid AlphaFold identifier: {accession}"
+                    + (f" ({detail})" if detail else "")
+                )
+            raise UpstreamDrift(f"AlphaFold HTTP 400: {detail or 'no detail'}")
         try:
             payload = resp.json()
         except ValueError as exc:

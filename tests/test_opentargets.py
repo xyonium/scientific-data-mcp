@@ -125,3 +125,20 @@ async def test_tool_no_hit(tools):
     result = await tools["opentargets"]("nope")
     assert result["count"] == 0
     assert result["hit"] is None
+
+
+@respx.mock
+async def test_missing_disease_is_not_found(provider):
+    respx.post(BASE).mock(return_value=httpx.Response(200, json={"data": {"disease": None}}))
+    with pytest.raises(NotFound):
+        await provider.disease("MONDO:0", 1)
+
+
+@respx.mock
+async def test_tool_graphql_error_is_drift(tools):
+    respx.post(BASE).mock(
+        return_value=httpx.Response(200, json={"errors": [{"message": "bad field"}]})
+    )
+    result = await tools["opentargets"]("TP53")
+    assert result["source"] == "opentargets"
+    assert result["suspect_drift"] is True

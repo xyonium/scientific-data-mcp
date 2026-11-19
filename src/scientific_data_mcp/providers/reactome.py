@@ -24,7 +24,7 @@ class ReactomeProvider(Provider):
     async def pathways(
         self, query: str, species: str | None = "Homo sapiens", limit: int = 10
     ) -> dict:
-        params: dict = {"query": query, "types": "Pathway", "cluster": "true"}
+        params: dict = {"query": query, "types": "Pathway", "cluster": "true", "rows": limit}
         if species:
             params["species"] = species
         payload = await self.http.get_json(f"{self.base_url}/search/query", params=params)

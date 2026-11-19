@@ -21,7 +21,7 @@
 ## Reactome
 
 - 工具 `pathways(query, species="Homo sapiens", limit=10)`；`species=""` 查所有物种。
-- Endpoint：`https://reactome.org/ContentService/search/query`，参数 `query`、`species`、`types=Pathway`、`cluster=true`。
+- Endpoint：`https://reactome.org/ContentService/search/query`，参数 `query`、`species`、`types=Pathway`、`cluster=true`、`rows=limit`（不传 `rows` 上游默认只回 10 条）。
 - 响应是分组 `results[].entries[]`；只保留 `type=="Pathway"`，按 `stId` 去重；`name` 里的 `<span class="highlighting">` 必须剥掉并 HTML unescape。
 - 缺 `results` → drift；空列表正常。`total` 用 `numberOfMatches`。
 

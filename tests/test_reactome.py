@@ -66,10 +66,11 @@ async def tools():
 
 @respx.mock
 async def test_pathways_clean_dedupe_and_limit(provider):
-    respx.get(f"{BASE}/search/query").mock(
+    route = respx.get(f"{BASE}/search/query").mock(
         return_value=httpx.Response(200, json=PAYLOAD)
     )
     page = await provider.pathways("TP53", "Homo sapiens", 1)
+    assert route.calls.last.request.url.params["rows"] == "1"
     assert page["total"] == 2
     assert page["items"] == [
         {
