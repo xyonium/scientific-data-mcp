@@ -8,8 +8,8 @@
 
 | 状态 | 数量 |
 |---|---|
-| ✅ 已实现 | 17 |
-| ⏳ M6 候选 | 47 |
+| ✅ 已实现 | 19 |
+| ⏳ M6 候选 | 45 |
 | ⏳ 暂缓 | 1 |
 | ➖ 归 finance-mcp | 12 |
 | ➖ 归 paper-search | 1 |
@@ -39,7 +39,7 @@
 | Biology & Genomics | ENA | ⏳ M6 候选 | 免 key | 免 key；M3 池，未接 |
 | Biology & Genomics | ENCODE | ⏳ M6 候选 | 免 key | 免 key；M3 池，未接 |
 | Biology & Genomics | Ensembl | ⏳ M6 候选 | 免 key | 免 key；M3 池，未接 |
-| Biology & Genomics | GEO (NCBI) | ⏳ M6 候选 | 免 key | 免 key；M3 池，未接 |
+| Biology & Genomics | GEO (NCBI) | ✅ 已实现 | 免 key | 已接入（v0.9.0） |
 | Biology & Genomics | GTEx | ⏳ M6 候选 | 免 key | 免 key；M3 池，未接 |
 | Biology & Genomics | Gene Ontology | ⏳ M6 候选 | 免 key | 免 key；M3 池，未接 |
 | Biology & Genomics | Human Cell Atlas | ⏳ M6 候选 | 免 key | 免 key；M3 池，未接 |
@@ -72,7 +72,7 @@
 | Disease & Clinical | DisGeNET | ⏳ M6 候选 | 学术/许可 key | 学术/许可 key；M4 池，未接 |
 | Disease & Clinical | GDC (TCGA) | ⏳ M6 候选 | 免 key | 免 key；M4 池，未接 |
 | Disease & Clinical | GWAS Catalog | ⏳ M6 候选 | 免 key | 免 key；M4 池，未接 |
-| Disease & Clinical | HPO | ⏳ M6 候选 | 免 key | 免 key；M4 池，未接 |
+| Disease & Clinical | HPO | ✅ 已实现 | 免 key | 已接入（v0.9.0） |
 | Disease & Clinical | Monarch Initiative | ⏳ M6 候选 | 免 key | 免 key；M4 池，未接 |
 | Disease & Clinical | OMIM | ⏳ M6 候选 | 学术许可 key | 学术许可 key；M4 池，未接 |
 | Disease & Clinical | Open Targets | ✅ 已实现 | 免 key | 已接入（v0.7.0） |
@@ -109,4 +109,4 @@
 - “归 finance-mcp”/“归 paper-search” 的实际缺口见 2026-11-18 交接：finance 只缺 SEC EDGAR（+ World Bank 透传/Treasury 可选）；paper 暂不新增 USPTO。
 - “暂缓”不是永久排除；季度扫描或用户需求变化时可重新评估。
 - BRENDA 官方为 CC BY 4.0、需注册后走 SOAP，因此不是“付费”，归入暂缓（解析成本）。
-- Ensembl REST（`https://rest.ensembl.org`）URL 正确，但 2026-11-19 从本机/dockerno1 TCP 443 可连、TLS 握手无响应；`www.ensembl.org` 正常，公共代理返回 522。暂未接入，等 REST 恢复或走可用出口。
+- Ensembl REST（`https://rest.ensembl.org`）仍不稳定：ping 偶发 200，lookup 常 403/504；GTEx 从当前网络 SSL EOF。两者暂未接入。

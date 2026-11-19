@@ -14,6 +14,8 @@ from .providers.chembl import ChemBLProvider
 from .providers.clinicaltrials import ClinicalTrialsProvider
 from .providers.clinvar import ClinVarProvider
 from .providers.gene import GeneProvider
+from .providers.geo import GeoProvider
+from .providers.hpo import HpoProvider
 from .providers.interpro import InterProProvider
 from .providers.materials_project import MaterialsProjectProvider
 from .providers.openfda import OpenFdaProvider
@@ -61,6 +63,8 @@ def build_service(settings: Settings | None = None) -> Service:
         "clinvar": ClinVarProvider(http, settings),
         "interpro": InterProProvider(http, settings),
         "quickgo": QuickGoProvider(http, settings),
+        "hpo": HpoProvider(http, settings),
+        "geo": GeoProvider(http, settings),
     }
     if settings.materials_project_api_key:
         providers["materials_project"] = MaterialsProjectProvider(http, settings)

@@ -53,6 +53,8 @@ CASES: list[tuple[str, dict, str]] = [
     ("clinvar", {"query": "BRCA1[gene] AND pathogenic[clinical_significance]", "limit": 2}, "count"),
     ("protein_annotations", {"identifier": "P04637", "source": "interpro", "limit": 2}, "count"),
     ("protein_annotations", {"identifier": "P04637", "source": "quickgo", "limit": 2}, "count"),
+    ("phenotypes", {"query": "seizure", "limit": 2}, "count"),
+    ("geo_datasets", {"query": "TP53", "limit": 2}, "count"),
 ]
 
 if os.environ.get("BIOGRID_ACCESS_KEY", "").strip():

@@ -19,6 +19,8 @@ EXPECTED_TOOLS = {
     "gene_record",
     "clinvar",
     "protein_annotations",
+    "phenotypes",
+    "geo_datasets",
 }
 
 
