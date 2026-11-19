@@ -83,3 +83,51 @@ async def test_tool_envelope_and_validation(tools):
     assert result["total"] == 20989
     assert "query" in (await tools["geo_datasets"](" "))["error"]
     assert "1-50" in (await tools["geo_datasets"]("x", limit=0))["error"]
+
+
+@respx.mock
+async def test_empty_tool_envelope(tools):
+    respx.get(f"{BASE}/esearch.fcgi").mock(
+        return_value=httpx.Response(200, json={"esearchresult": {"count": "0", "idlist": []}})
+    )
+    result = await tools["geo_datasets"]("nope")
+    assert result["count"] == 0
+    assert result["total"] == 0
+
+
+@respx.mock
+async def test_missing_esummary_result_is_drift(provider):
+    respx.get(f"{BASE}/esearch.fcgi").mock(return_value=httpx.Response(200, json=SEARCH))
+    respx.get(f"{BASE}/esummary.fcgi").mock(return_value=httpx.Response(200, json={}))
+    with pytest.raises(UpstreamDrift):
+        await provider.search("TP53")
+
+
+@respx.mock
+async def test_ncbi_key_and_email_on_both_calls():
+    settings = Settings(
+        ncbi_api_key="key",
+        ncbi_email="me@example.com",
+        host_delays={"eutils.ncbi.nlm.nih.gov": 0.0},
+    )
+    async with PoliteClient(settings) as client:
+        provider = GeoProvider(client, settings)
+        search_route = respx.get(f"{BASE}/esearch.fcgi").mock(
+            return_value=httpx.Response(200, json=SEARCH)
+        )
+        summary_route = respx.get(f"{BASE}/esummary.fcgi").mock(
+            return_value=httpx.Response(200, json=SUMMARY)
+        )
+        await provider.search("TP53", 1)
+        assert search_route.calls.last.request.url.params["api_key"] == "key"
+        assert search_route.calls.last.request.url.params["email"] == "me@example.com"
+        assert summary_route.calls.last.request.url.params["api_key"] == "key"
+
+
+@respx.mock
+async def test_limit_upper_bound(tools):
+    respx.get(f"{BASE}/esearch.fcgi").mock(
+        return_value=httpx.Response(200, json={"esearchresult": {"count": "0", "idlist": []}})
+    )
+    assert (await tools["geo_datasets"]("TP53", limit=50))["count"] == 0
+    assert "1-50" in (await tools["geo_datasets"]("TP53", limit=51))["error"]

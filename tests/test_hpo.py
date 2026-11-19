@@ -82,3 +82,18 @@ async def test_tool_search_and_exact_id(tools):
     assert exact["source_url"].endswith("HP:0001250")
     assert "query" in (await tools["phenotypes"](" "))["error"]
     assert "1-50" in (await tools["phenotypes"]("x", limit=0))["error"]
+
+
+@respx.mock
+async def test_empty_search_and_tool_404(tools):
+    respx.get(f"{BASE}/search").mock(
+        return_value=httpx.Response(200, json={"terms": []})
+    )
+    result = await tools["phenotypes"]("nope")
+    assert result["count"] == 0
+    assert result["items"] == []
+
+    respx.get(f"{BASE}/terms/HP:9999999").mock(return_value=httpx.Response(404))
+    missing = await tools["phenotypes"]("HP:9999999")
+    assert missing["source"] == "hpo"
+    assert "not_found" in missing["error"]

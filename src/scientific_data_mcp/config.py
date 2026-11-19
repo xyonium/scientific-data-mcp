@@ -35,6 +35,7 @@ HOST_DELAYS: dict[str, float] = {
     "alphafold.ebi.ac.uk": 0.5,
     "api.platform.opentargets.org": 0.5,
     "reactome.org": 0.5,
+    "ontology.jax.org": 0.5,
 }
 
 

@@ -25,7 +25,10 @@ def register(mcp: FastMCP, service: Service) -> ToolMap:
         "breast cancer[All Fields]". Returns dataset accessions (GSE...),
         titles, summaries, dataset type, organism, sample count, release
         date and PubMed ids. Empty results are `count: 0`, not an error.
-        The NCBI key (if configured) lifts the E-utilities rate limit.
+        Only upstream fields are returned; missing fields are omitted,
+        nothing is inferred or completed. Failures return an error dict
+        (`error`, `source`) instead of raising. The NCBI key (if configured)
+        lifts the E-utilities rate limit.
 
         Args:
             query: GEO search expression.
@@ -41,7 +44,7 @@ def register(mcp: FastMCP, service: Service) -> ToolMap:
             return provider_error_payload(exc, "geo")
         return {
             "source": "geo",
-            "source_url": f"https://www.ncbi.nlm.nih.gov/gds/?term={quote(query)}",
+            "source_url": f"https://www.ncbi.nlm.nih.gov/gds/?term={quote(query.strip())}",
             "count": len(page["items"]),
             "total": page["total"],
             "items": page["items"],

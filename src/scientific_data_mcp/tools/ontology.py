@@ -26,7 +26,9 @@ def register(mcp: FastMCP, service: Service) -> ToolMap:
         (e.g. "HP:0001250"). Returns term ids, names, definitions, synonyms
         and descendant counts. An exact id returns that single term; a text
         query returns up to `limit` matches. Empty text results are a true
-        upstream answer; only upstream fields are returned.
+        upstream answer. Only upstream fields are returned; missing fields
+        are omitted, nothing is inferred or completed. Failures return an
+        error dict (`error`, `source`) instead of raising.
 
         Args:
             query: Phenotype phrase or HP id.
