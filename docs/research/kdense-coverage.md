@@ -109,4 +109,4 @@
 - “归 finance-mcp”/“归 paper-search” 的实际缺口见 2026-11-18 交接：finance 只缺 SEC EDGAR（+ World Bank 透传/Treasury 可选）；paper 暂不新增 USPTO。
 - “暂缓”不是永久排除；季度扫描或用户需求变化时可重新评估。
 - BRENDA 官方为 CC BY 4.0、需注册后走 SOAP，因此不是“付费”，归入暂缓（解析成本）。
-- Ensembl 当前从本机网络连接超时（2026-11-19 实测），暂未接入；换出口后可重试。
+- Ensembl REST（`https://rest.ensembl.org`）URL 正确，但 2026-11-19 从本机/dockerno1 TCP 443 可连、TLS 握手无响应；`www.ensembl.org` 正常，公共代理返回 522。暂未接入，等 REST 恢复或走可用出口。
