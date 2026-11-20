@@ -105,7 +105,7 @@ mcpo 配置示例（`config.json`）：
 }
 ```
 
-申请步骤、各源是否有 key、以及 M6 扩展源（NOAA / NASA）的入口见 **[docs/CREDENTIALS.md](./docs/CREDENTIALS.md)**。不配任何 key 时 23 个基础源全部可用（PubMed / Gene / ClinVar / GEO 慢一些），MP 工具隐藏、BioGRID source 不可用。
+申请步骤、各源是否有 key、以及 M6 扩展源（NOAA / NASA）的入口见 **[docs/CREDENTIALS.md](./docs/CREDENTIALS.md)**。不配任何 key 时 23 个基础源全部可用（22 个免 key；PubMed / Gene / ClinVar / GEO 无 key 时慢一些），MP 工具隐藏、BioGRID source 不可用。
 
 ## Docker
 

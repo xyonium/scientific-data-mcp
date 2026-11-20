@@ -11,6 +11,7 @@ from ..runtime import Service
 from ._guard import guarded_tool, provider_error_payload
 
 ToolMap = dict[str, Callable]
+DATASETS = ("gtex_v8", "gtex_snrnaseq_pilot", "gtex_v10")
 
 
 def register(mcp: FastMCP, service: Service) -> ToolMap:
@@ -23,8 +24,8 @@ def register(mcp: FastMCP, service: Service) -> ToolMap:
         """Fetch GTEx median gene expression across tissues.
 
         `gene_id` is an Ensembl gene id ("ENSG00000141510"); a versioned id
-        is accepted. `dataset` defaults to "gtex_v8" (GTEx v10 may be
-        available upstream). Returns tissue site, ontology id, median
+        is accepted. `dataset` is one of "gtex_v8" (default),
+        "gtex_snrnaseq_pilot" or "gtex_v10". Returns tissue site, ontology id, median
         expression and unit (TPM), plus gene symbol/gencode id. Empty tissue
         lists are true upstream answers; only upstream fields are returned,
         missing fields are omitted, nothing is inferred or completed.
@@ -37,23 +38,31 @@ def register(mcp: FastMCP, service: Service) -> ToolMap:
         """
         if not gene_id.strip():
             return tool_error("gene_id must not be empty", source="gtex")
-        if not dataset.strip():
-            return tool_error("dataset must not be empty", source="gtex")
+        dataset = dataset.strip()
+        if dataset not in DATASETS:
+            return tool_error(
+                f"invalid dataset: {dataset!r}",
+                hint=f"use one of: {', '.join(DATASETS)}",
+                source="gtex",
+            )
         if not 1 <= limit <= 100:
             return tool_error(f"limit must be 1-100, got {limit}", source="gtex")
         try:
-            page = await gtex.expression(gene_id.strip(), dataset.strip(), limit)
+            page = await gtex.expression(gene_id.strip(), dataset, limit)
         except ProviderError as exc:
             return provider_error_payload(exc, "gtex")
-        return {
+        result = {
             "source": "gtex",
             "source_url": f"https://gtexportal.org/home/gene/{gene_id.strip()}",
-            "gene_symbol": page["gene_symbol"],
             "gencode_id": page["gencode_id"],
-            "dataset": dataset.strip(),
+            "dataset": dataset,
             "count": len(page["items"]),
-            "total": page["total"],
             "items": page["items"],
         }
+        if page["gene_symbol"] is not None:
+            result["gene_symbol"] = page["gene_symbol"]
+        if page["total"] is not None:
+            result["total"] = page["total"]
+        return result
 
     return {"gene_expression": gene_expression}

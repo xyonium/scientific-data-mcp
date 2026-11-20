@@ -19,7 +19,7 @@ class GdcProvider(Provider):
 
     async def projects(self, query: str, limit: int = 10) -> dict:
         payload = await self.http.get_json(
-            f"{self.base_url}/projects", params={"size": 500, "format": "json"}
+            f"{self.base_url}/projects", params={"size": 2000, "format": "json"}
         )
         if not isinstance(payload, dict) or "data" not in payload:
             raise UpstreamDrift("GDC response has no data object")

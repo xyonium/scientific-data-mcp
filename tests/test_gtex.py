@@ -97,3 +97,9 @@ async def test_tool_envelope_and_validation(tools):
     assert result["count"] == 1
     assert "gene_id" in (await tools["gene_expression"](" "))["error"]
     assert "1-100" in (await tools["gene_expression"]("ENSG", limit=0))["error"]
+
+
+async def test_invalid_dataset_rejected(tools):
+    result = await tools["gene_expression"]("ENSG00000141510", dataset="gtex_v9")
+    assert "invalid dataset" in result["error"]
+    assert "gtex_v8" in result["hint"]

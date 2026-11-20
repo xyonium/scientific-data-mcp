@@ -1,7 +1,8 @@
 """Runtime settings.
 
-The twenty-three base upstream sources work without configuration; ``NCBI_API_KEY``
-and ``OPENFDA_API_KEY`` are optional and only lift rate limits. Materials
+The twenty-two keyless base sources work without configuration; PubMed
+works without a key at a lower rate. ``NCBI_API_KEY`` and
+``OPENFDA_API_KEY`` are optional and only lift rate limits. Materials
 Project and BioGRID are key-gated: their providers are only created when
 their keys are present (the ``material`` tool appears only with MP; the
 shared ``protein_interactions`` tool stays available for STRING).
