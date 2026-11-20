@@ -12,7 +12,7 @@ from ._guard import guarded_tool, provider_error_payload
 
 ToolMap = dict[str, Callable]
 
-RECORD_KINDS = ("uniprot", "pdb", "alphafold", "ensembl")
+RECORD_KINDS = ("uniprot", "pdb", "alphafold")
 SEARCH_KINDS = ("uniprot", "pdb")
 
 
@@ -20,14 +20,10 @@ def register(mcp: FastMCP, service: Service) -> ToolMap:
     uniprot = service.providers["uniprot"]
     rcsb = service.providers["rcsb"]
     alphafold = service.providers["alphafold"]
-    ensembl = service.providers["ensembl"]
 
     @guarded_tool(mcp, name="protein_record", source="protein")
     async def protein_record(
-        identifier: str,
-        kind: str = "uniprot",
-        include_sequence: bool = False,
-        organism: int = 9606,
+        identifier: str, kind: str = "uniprot", include_sequence: bool = False
     ) -> dict:
         """Fetch one protein record from UniProt, RCSB PDB or AlphaFold DB.
 
@@ -44,19 +40,13 @@ def register(mcp: FastMCP, service: Service) -> ToolMap:
           predicted models (entry id, version, residue range, pLDDT, PDB/CIF
           and PAE image URLs). No prediction returns an empty list.
           `include_sequence` is ignored.
-        - `ensembl`: `identifier` is a gene symbol or Ensembl gene id;
-          `organism` is an NCBI taxid mapped to an Ensembl species. Returns
-          symbol, description, biotype, chromosome, coordinates, assembly
-          and canonical transcript. One request per call, no retries.
-
         Only upstream fields are returned; missing annotations stay missing.
 
         Args:
-            identifier: UniProt accession, PDB id, UniProt accession for
-                AlphaFold, or gene symbol/Ensembl id for Ensembl.
-            kind: "uniprot", "pdb", "alphafold" or "ensembl".
+            identifier: UniProt accession, PDB id, or UniProt accession for
+                AlphaFold.
+            kind: "uniprot", "pdb" or "alphafold".
             include_sequence: UniProt only; include the full sequence.
-            organism: NCBI taxid for `kind="ensembl"` (default 9606 human).
         """
         kind = kind.strip().lower()
         if kind not in RECORD_KINDS:
@@ -77,32 +67,14 @@ def register(mcp: FastMCP, service: Service) -> ToolMap:
                 record = await rcsb.entry(identifier)
                 source_url = f"https://www.rcsb.org/structure/{record['pdb_id']}"
                 source_name = "rcsb"
-            elif kind == "alphafold":
+            else:
                 record = await alphafold.prediction(identifier)
                 source_url = f"https://alphafold.ebi.ac.uk/entry/{identifier}"
                 source_name = "alphafold"
-            else:
-                species = _ensembl_species(organism)
-                if species is None:
-                    return tool_error(
-                        f"unsupported organism for Ensembl: {organism}",
-                        hint=f"use one of: {', '.join(str(k) for k in _ENSEMBL_SPECIES)}",
-                        source="ensembl",
-                    )
-                record = await ensembl.gene(identifier, species)
-                source_url = (
-                    f"https://www.ensembl.org/{species.capitalize()}/Gene/Summary"
-                    f"?g={record['gene_id']}"
-                )
-                source_name = "ensembl"
         except ProviderError as exc:
-            source = {
-                "uniprot": "uniprot",
-                "pdb": "rcsb",
-                "alphafold": "alphafold",
-                "ensembl": "ensembl",
-            }[kind]
-            return provider_error_payload(exc, source)
+            return provider_error_payload(
+                exc, "uniprot" if kind == "uniprot" else ("rcsb" if kind == "pdb" else "alphafold")
+            )
         except ValueError as exc:
             return tool_error(str(exc), source="alphafold")
         return {"source": source_name, "source_url": source_url, "record": record}
@@ -218,23 +190,3 @@ def register(mcp: FastMCP, service: Service) -> ToolMap:
         "protein_map_ids": protein_map_ids,
     }
 
-
-_ENSEMBL_SPECIES = {
-    9606: "homo_sapiens",
-    10090: "mus_musculus",
-    10116: "rattus_norvegicus",
-    559292: "saccharomyces_cerevisiae",
-    7227: "drosophila_melanogaster",
-    6239: "caenorhabditis_elegans",
-    7955: "danio_rerio",
-    3702: "arabidopsis_thaliana",
-    9031: "gallus_gallus",
-    9615: "canis_lupus_familiaris",
-    9823: "sus_scrofa",
-    9913: "bos_taurus",
-    9544: "macaca_mulatta",
-}
-
-
-def _ensembl_species(organism: int) -> str | None:
-    return _ENSEMBL_SPECIES.get(organism)

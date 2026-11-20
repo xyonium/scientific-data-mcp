@@ -29,7 +29,7 @@ kimi datasource 把一批本来就免 key 的官方科研 API（PubChem / ChEMBL
 | `chem_compound` | PubChem | 化合物记录：`identifier` + `id_type`（name/cid/smiles/inchikey）；可选 `properties` 指定 PubChem 属性集（省略为默认全集） |
 | `chem_similar_compounds` | PubChem | 结构相似性（POST + ListKey 轮询），返回 CID 列表 |
 | `chembl_data` | ChEMBL | `kind="search"`（query/resource）、`"activities"`（chembl_id 或 target_chembl_id）、`"mechanisms"`（chembl_id）；统一列表 envelope |
-| `protein_record` | UniProt / RCSB / AlphaFold / Ensembl | `kind="uniprot"` 取条目（可选全序列）；`kind="pdb"` 取结构条目 + 实体摘要；`kind="alphafold"` 取预测模型；`kind="ensembl"` 取基因记录（symbol/Ensembl ID，按 organism taxid 映射物种） |
+| `protein_record` | UniProt / RCSB / AlphaFold | `kind="uniprot"` 取条目（可选全序列）；`kind="pdb"` 取结构条目 + 实体摘要；`kind="alphafold"` 取预测模型 |
 | `protein_search` | UniProt / RCSB | `kind="uniprot"` 用 UniProt 查询语法；`kind="pdb"` 全文检索；统一 `next_cursor` |
 | `protein_map_ids` | UniProt | 官方 ID Mapping（submit → poll） |
 | `pubmed_record` | PubMed | pmid / doi → 标题、作者、期刊、年卷期页、摘要、DOI、PMCID |
@@ -40,7 +40,7 @@ kimi datasource 把一批本来就免 key 的官方科研 API（PubChem / ChEMBL
 | `clinical_trials` | ClinicalTrials.gov v2 | 自由文本检索 + `status` 过滤；返回 NCT id/标题/状态/分期/干预/入组/赞助方 + `next_cursor` |
 | `opentargets` | Open Targets | `entity="target"` 查靶点→疾病关联；`entity="disease"` 查疾病→靶点关联；score 0-1 |
 | `pathways` | Reactome | 按基因/通路名检索通路；默认人类，可传空字符串查所有物种 |
-| `gene_record` | NCBI Gene | 基因符号或 NCBI Gene ID → 符号、描述、染色体、位置、别名、摘要、物种 |
+| `gene_record` | NCBI Gene / Ensembl | `kind="ncbi"`：符号或 Gene ID；`kind="ensembl"`：符号或 Ensembl ID + organism taxid；单记录 |
 | `clinvar` | ClinVar | 按基因/变异/临床意义检索；返回 VCV、分类、review status、条件、基因、蛋白改变 |
 | `protein_annotations` | InterPro / QuickGO | `source="interpro"` 取结构域/家族条目；`source="quickgo"` 取 GO 注释 |
 | `phenotypes` | HPO | 按表型短语或 `HP:...` id 检索 Human Phenotype Ontology 术语 |

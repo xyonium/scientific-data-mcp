@@ -33,14 +33,14 @@ SUMMARY = {
 
 @pytest.fixture
 async def provider():
-    settings = Settings(host_delays={"eutils.ncbi.nlm.nih.gov": 0.0})
+    settings = Settings(host_delays={"eutils.ncbi.nlm.nih.gov": 0.0, "rest.ensembl.org": 0.0})
     async with PoliteClient(settings) as client:
         yield GeneProvider(client, settings)
 
 
 @pytest.fixture
 async def tools():
-    settings = Settings(host_delays={"eutils.ncbi.nlm.nih.gov": 0.0})
+    settings = Settings(host_delays={"eutils.ncbi.nlm.nih.gov": 0.0, "rest.ensembl.org": 0.0})
     service = build_service(settings)
     registered = register(FastMCP("test"), service)
     yield registered
@@ -125,3 +125,34 @@ async def test_request_carries_ncbi_key_and_email():
         assert params["api_key"] == "key"
         assert params["email"] == "me@example.com"
         assert "TP53[gene]" in params["term"]
+
+
+@respx.mock
+async def test_gene_record_ensembl(tools):
+    respx.get("https://rest.ensembl.org/lookup/symbol/homo_sapiens/TP53").mock(
+        return_value=httpx.Response(
+            200,
+            json={
+                "id": "ENSG00000141510",
+                "display_name": "TP53",
+                "description": "tumor protein p53",
+                "biotype": "protein_coding",
+                "species": "homo_sapiens",
+                "seq_region_name": "17",
+                "start": 7661779,
+                "end": 7687546,
+                "strand": -1,
+                "assembly_name": "GRCh38",
+            },
+        )
+    )
+    result = await tools["gene_record"]("TP53", kind="ensembl")
+    assert result["source"] == "ensembl"
+    assert result["record"]["gene_id"] == "ENSG00000141510"
+    assert result["source_url"].startswith("https://www.ensembl.org/Homo_sapiens/Gene/Summary")
+
+
+async def test_gene_record_ensembl_unsupported_organism(tools):
+    result = await tools["gene_record"]("TP53", kind="ensembl", organism=999999)
+    assert result["source"] == "ensembl"
+    assert "unsupported organism" in result["error"]
