@@ -21,11 +21,10 @@ EXPECTED_TOOLS = {
     "protein_annotations",
     "phenotypes",
     "geo_datasets",
-    "kegg_compound",
     "dailymed",
     "cancer_studies",
     "gene_expression",
-    "chebi_compound",
+    "compound_lookup",
     "bindingdb_ligands",
 }
 

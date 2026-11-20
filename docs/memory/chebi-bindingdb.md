@@ -4,7 +4,7 @@
 
 ## ChEBI
 
-- 工具：`chebi_compound(query, limit=5)`；名称或 `CHEBI:15365`（也接受 `CHEBI_15365`）。
+- 工具：`compound_lookup(source="chebi", query, limit=5)`；名称或 `CHEBI:15365`（也接受 `CHEBI_15365`）。
 - 入口用 **EBI OLS4**（ChEBI 2.0 旧 REST 从本网络 301/404/超时）：
   - 搜索 `https://www.ebi.ac.uk/ols4/api/search?q=...&ontology=chebi&rows=...`
   - 精确 `https://www.ebi.ac.uk/ols4/api/ontologies/chebi/terms?iri=http://purl.obolibrary.org/obo/CHEBI_15365`

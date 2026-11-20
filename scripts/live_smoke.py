@@ -55,12 +55,12 @@ CASES: list[tuple[str, dict, str]] = [
     ("protein_annotations", {"identifier": "P04637", "source": "quickgo", "limit": 2}, "count"),
     ("phenotypes", {"query": "seizure", "limit": 2}, "count"),
     ("geo_datasets", {"query": "TP53", "limit": 2}, "count"),
-    ("kegg_compound", {"query": "aspirin", "limit": 1}, "count"),
+    ("compound_lookup", {"source": "kegg", "query": "aspirin", "limit": 1}, "count"),
     ("dailymed", {"query": "aspirin", "limit": 2}, "count"),
     ("cancer_studies", {"query": "breast", "source": "gdc", "limit": 2}, "count"),
     ("cancer_studies", {"query": "breast", "source": "cbioportal", "limit": 2}, "count"),
     ("gene_expression", {"gene_id": "ENSG00000141510", "limit": 2}, "count"),
-    ("chebi_compound", {"query": "aspirin", "limit": 2}, "count"),
+    ("compound_lookup", {"source": "chebi", "query": "aspirin", "limit": 2}, "count"),
     ("bindingdb_ligands", {"uniprot": "P35355", "cutoff_nm": 1000, "limit": 2}, "count"),
 ]
 

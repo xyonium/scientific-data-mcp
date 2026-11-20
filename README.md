@@ -2,7 +2,7 @@
 
 [![PyPI](https://img.shields.io/pypi/v/scientific-data-mcp.svg)](https://pypi.org/project/scientific-data-mcp/)
 
-科研**实体数据** MCP —— 化合物 / 生物活性 / 蛋白序列与结构 / 文献元数据的**免费官方 API 直连**。一个 server，24 个基础工具（配 Materials Project key 时 25 个；BioGRID key 解锁互作 source，不增工具），零额度。同类输入输出的源合并为一个工具，用 `kind` / `by` 参数切换。
+科研**实体数据** MCP —— 化合物 / 生物活性 / 蛋白序列与结构 / 文献元数据的**免费官方 API 直连**。一个 server，23 个基础工具（配 Materials Project key 时 24 个；BioGRID key 解锁互作 source，不增工具），零额度。同类输入输出的源合并为一个工具，用 `kind` / `by` 参数切换。
 
 > 与 [paper-search](https://github.com/xyonium/paper-search)（文献检索 + RAG）、[finance-mcp](https://github.com/xyonium/finance-mcp)（金融/宏观）互补，不做重复。
 
@@ -45,9 +45,8 @@ kimi datasource 把一批本来就免 key 的官方科研 API（PubChem / ChEMBL
 | `protein_annotations` | InterPro / QuickGO | `source="interpro"` 取结构域/家族条目；`source="quickgo"` 取 GO 注释 |
 | `phenotypes` | HPO | 按表型短语或 `HP:...` id 检索 Human Phenotype Ontology 术语 |
 | `geo_datasets` | GEO (NCBI) | 按基因/疾病检索 GEO DataSets；返回 GSE、标题、摘要、物种、样本数、发布日期 |
-| `kegg_compound` | KEGG | 化合物名或 KEGG ID → 名称、分子式、精确/分子量、通路；学术免费，商用需 KEGG 许可 |
 | `dailymed` | DailyMed (NLM) | 药品名 → SPL setid、标题、发布日期、版本 |
-| `chebi_compound` | ChEBI (OLS4) | 化合物名或 `CHEBI:...` → 名称、定义、同义词 |
+| `compound_lookup` | ChEBI / KEGG | `source="chebi"`：名称或 `CHEBI:...`；`source="kegg"`：名称或 `C...`；统一列表 envelope；KEGG 学术免费/商用需许可 |
 | `bindingdb_ligands` | BindingDB | UniProt 靶点 + nM cutoff → ligand SMILES / 亲和力；免 key，~1 req/s |
 | `cancer_studies` | GDC / cBioPortal | `source="gdc"` 查 NCI GDC 项目；`source="cbioportal"` 查 cBioPortal 研究；统一列表 |
 | `gene_expression` | GTEx | Ensembl gene id → 各组织 median 表达（TPM） |

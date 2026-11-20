@@ -4,7 +4,7 @@
 
 ## KEGG
 
-- 工具：`kegg_compound(query, limit=3)`；名称或 `C\d{5}`。
+- 工具：`compound_lookup(source="kegg", query, limit)`；名称或 `C\d{5}`。
 - API：`https://rest.kegg.jp/find/compound/{name}` → `C01405\tAspirin; ...`；`/get/cpd:{id}` 返回 flat text。
 - 解析：`ENTRY`/`NAME`（`;` 分隔）/`FORMULA`/`EXACT_MASS`/`MOL_WEIGHT`/`PATHWAY`（`map04976  Bile secretion`）。
 - 名称查询最多取 `limit` 个 ID，再逐个 `get`；限速 0.5s。

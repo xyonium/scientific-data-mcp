@@ -21,41 +21,6 @@ def register(mcp: FastMCP, service: Service) -> ToolMap:
     chebi = service.providers["chebi"]
     bindingdb = service.providers["bindingdb"]
 
-    @guarded_tool(mcp, name="kegg_compound", source="kegg")
-    async def kegg_compound(query: str, limit: int = 3) -> dict:
-        """Look up KEGG compounds by name or KEGG compound id.
-
-        `query` is a compound name ("aspirin") or a KEGG id ("C01405").
-        Returns entry ids, names, formula, exact/molecular weight and KEGG
-        pathways. KEGG REST is free for academic use; commercial use
-        requires a KEGG license. Only upstream fields are returned; missing
-        fields are omitted, nothing is inferred or completed. Failures
-        return an error dict (`error`, `source`).
-
-        Args:
-            query: Compound name or KEGG compound id.
-            limit: Maximum compounds for a name search, 1-10 (default 3).
-        """
-        if not query.strip():
-            return tool_error("query must not be empty", source="kegg")
-        if not 1 <= limit <= 10:
-            return tool_error(f"limit must be 1-10, got {limit}", source="kegg")
-        try:
-            items = await kegg.compound(query.strip(), limit)
-        except ProviderError as exc:
-            return provider_error_payload(exc, "kegg")
-        source_url = (
-            f"https://www.kegg.jp/entry/{query.strip()}"
-            if query.strip().upper().startswith("C") and query.strip()[1:].isdigit()
-            else f"https://www.kegg.jp/kegg-bin/search?query={quote(query.strip())}"
-        )
-        return {
-            "source": "kegg",
-            "source_url": source_url,
-            "count": len(items),
-            "items": items,
-        }
-
     @guarded_tool(mcp, name="dailymed", source="dailymed")
     async def dailymed_tool(query: str, limit: int = 5) -> dict:
         """Search DailyMed drug labels by drug name.
@@ -88,43 +53,6 @@ def register(mcp: FastMCP, service: Service) -> ToolMap:
             "count": len(page["items"]),
             "total": page["total"],
             "items": page["items"],
-        }
-
-    @guarded_tool(mcp, name="chebi_compound", source="chebi")
-    async def chebi_compound(query: str, limit: int = 5) -> dict:
-        """Look up ChEBI chemical entities by name or ChEBI id.
-
-        `query` is a name ("aspirin") or id ("CHEBI:15365"); returns ChEBI
-        ids, names and definitions (an exact id also returns synonyms).
-        ChEBI is an EBI ontology, so names are curated classes, not vendor
-        products. Only upstream fields
-        are returned; missing fields are omitted, nothing is inferred or
-        completed. Failures return an error dict (`error`, `source`).
-
-        Args:
-            query: Compound name or ChEBI id.
-            limit: Matches to return, 1-20 (default 5).
-        """
-        if not query.strip():
-            return tool_error("query must not be empty", source="chebi")
-        if not 1 <= limit <= 20:
-            return tool_error(f"limit must be 1-20, got {limit}", source="chebi")
-        try:
-            if re.match(r"^CHEBI[:_]\d+$", query.strip(), re.IGNORECASE):
-                items = [await chebi.term(query.strip())]
-                source_url = f"https://www.ebi.ac.uk/chebi/searchId.do?chebiId={items[0]['chebi_id']}"
-            else:
-                items = await chebi.search(query.strip(), limit)
-                source_url = "https://www.ebi.ac.uk/chebi/"
-        except ValueError as exc:
-            return tool_error(str(exc), source="chebi")
-        except ProviderError as exc:
-            return provider_error_payload(exc, "chebi")
-        return {
-            "source": "chebi",
-            "source_url": source_url,
-            "count": len(items),
-            "items": items,
         }
 
     @guarded_tool(mcp, name="bindingdb_ligands", source="bindingdb")
@@ -163,9 +91,74 @@ def register(mcp: FastMCP, service: Service) -> ToolMap:
             "items": page["items"],
         }
 
+    @guarded_tool(mcp, name="compound_lookup", source="compound")
+    async def compound_lookup(
+        query: str, source: str = "chebi", limit: int = 5
+    ) -> dict:
+        """Look up compounds in ChEBI or KEGG.
+
+        Pick `source`:
+
+        - `chebi` (default): EBI ChEBI ontology; item shape is
+          `chebi_id/name/description/synonyms/type`. A name is searched; an
+          exact `CHEBI:15365` returns that term with synonyms.
+        - `kegg`: KEGG compound; item shape is
+          `entry/names/formula/exact_mass/mol_weight/pathways`. KEGG REST is
+          free for academic use; commercial use requires a KEGG license.
+
+        `query` is a compound name or source id (KEGG `C01405`). Only
+        upstream fields are returned; missing fields are omitted, nothing is
+        inferred or completed. Failures return an error dict (`error`,
+        `source`).
+
+        Args:
+            query: Compound name or ChEBI/KEGG id.
+            source: "chebi" or "kegg".
+            limit: Matches/records to return, 1-10 (default 5).
+        """
+        source = source.strip().lower()
+        if source not in ("chebi", "kegg"):
+            return tool_error(
+                f"invalid source: {source!r}",
+                hint="use one of: chebi, kegg",
+                source="compound",
+            )
+        if not query.strip():
+            return tool_error("query must not be empty", source=source)
+        if not 1 <= limit <= 10:
+            return tool_error(f"limit must be 1-10, got {limit}", source=source)
+        query = query.strip()
+        try:
+            if source == "chebi":
+                if re.match(r"^CHEBI[:_]\d+$", query, re.IGNORECASE):
+                    items = [await chebi.term(query)]
+                    source_url = (
+                        "https://www.ebi.ac.uk/chebi/searchId.do?"
+                        f"chebiId={items[0]['chebi_id']}"
+                    )
+                else:
+                    items = await chebi.search(query, limit)
+                    source_url = "https://www.ebi.ac.uk/chebi/"
+            else:
+                items = await kegg.compound(query, limit)
+                source_url = (
+                    f"https://www.kegg.jp/entry/{query}"
+                    if query.upper().startswith("C") and query[1:].isdigit()
+                    else f"https://www.kegg.jp/kegg-bin/search?query={quote(query)}"
+                )
+        except ValueError as exc:
+            return tool_error(str(exc), source=source)
+        except ProviderError as exc:
+            return provider_error_payload(exc, source)
+        return {
+            "source": source,
+            "source_url": source_url,
+            "count": len(items),
+            "items": items,
+        }
+
     return {
-        "kegg_compound": kegg_compound,
         "dailymed": dailymed_tool,
-        "chebi_compound": chebi_compound,
         "bindingdb_ligands": bindingdb_ligands,
+        "compound_lookup": compound_lookup,
     }
