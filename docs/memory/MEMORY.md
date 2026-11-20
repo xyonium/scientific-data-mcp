@@ -24,4 +24,4 @@
 - [KEGG / DailyMed](kegg-dailymed.md) — KEGG 学术许可；DailyMed 标签元数据；ChEBI/ZINC 暂缓
 - [GDC / cBioPortal / GTEx](cancer-gtex.md) — 癌症研究目录 + GTEx 表达；MP 瞬时 403 非 key 失效
 - [Ensembl REST 暂停探测](ensembl-rest-access.md) — 疑似突发/403 重试导致节点被 WAF 封；不探测、不重试、不换 IP
-- [Ensembl 接入](ensembl.md) — 严格 1 请求/次、5s、无重试；并入 protein_record(kind=ensembl)
+- [Ensembl 接入](ensembl.md) — 严格 1 请求/次、5s、无重试；并入 gene_record(kind=ensembl)

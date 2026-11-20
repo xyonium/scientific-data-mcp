@@ -13,7 +13,7 @@
 ## 访问纪律（重要）
 
 - **1 请求/次调用**，host delay **5s**，`retry=False`，`follow_redirects=False`（3xx 不跟，直接 UpstreamError）。
-- 403 立即 `UpstreamError`；429 由共享层转 `RateLimited`；两者都**不重试、不换路径/UA/IP**。
+- 403/429 都由 provider 转 `UpstreamError`（`allow_status` 先于共享层 429 处理），**不重试、不换路径/UA/IP**。
 - 不跑 ping/健康检查；不加入 `live_smoke.py`/CI/定时任务；只在实际工具调用时请求。
 - 手动 live 验证只发一次请求，成功即停；失败冷却 ≥24h。
 - 背景：此前短时突发+403 重试疑似触发 WAF，多个节点被封；详见 `ensembl-rest-access.md`。

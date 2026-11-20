@@ -94,6 +94,8 @@ class PoliteClient:
                     raise last from exc
                 await asyncio.sleep(delay)
                 continue
+            if resp.status_code in allow_status:
+                return resp
             if resp.status_code in (429, 503):
                 last = RateLimited(f"HTTP {resp.status_code} from {host}")
                 if not retry:
@@ -114,8 +116,6 @@ class PoliteClient:
                     raise last
                 await asyncio.sleep(delay)
                 continue
-            if resp.status_code in allow_status:
-                return resp
             if resp.status_code in (401, 403):
                 raise AuthError(f"HTTP {resp.status_code} from {host}")
             if resp.status_code == 404:

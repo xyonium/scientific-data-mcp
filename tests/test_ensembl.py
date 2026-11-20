@@ -5,7 +5,7 @@ import pytest
 import respx
 
 from scientific_data_mcp.config import Settings
-from scientific_data_mcp.errors import NotFound, RateLimited, UpstreamDrift, UpstreamError
+from scientific_data_mcp.errors import NotFound, UpstreamDrift, UpstreamError
 from scientific_data_mcp.http import PoliteClient
 from scientific_data_mcp.providers.ensembl import EnsemblProvider
 
@@ -93,14 +93,32 @@ async def test_redirect_is_not_followed(provider):
 
 
 @respx.mock
-async def test_429_is_rate_limited_and_not_retried(provider):
+async def test_429_is_unavailable_and_not_retried(provider):
     route = respx.get(f"{BASE}/lookup/symbol/homo_sapiens/TP53").mock(
         return_value=httpx.Response(429)
     )
-    with pytest.raises(RateLimited):
+    with pytest.raises(UpstreamError):
         await provider.gene("TP53", "homo_sapiens")
     assert route.call_count == 1
 
 
 def test_host_delay_is_five_seconds():
     assert Settings().host_delays["rest.ensembl.org"] == 5.0
+
+
+@respx.mock
+async def test_worm_stable_id_uses_lookup_id(provider):
+    route = respx.get(f"{BASE}/lookup/id/WBGene00006789").mock(
+        return_value=httpx.Response(200, json=GENE)
+    )
+    await provider.gene("WBGene00006789", "caenorhabditis_elegans")
+    assert route.calls.last.request.url.params["species"] == "caenorhabditis_elegans"
+
+
+@respx.mock
+async def test_null_id_is_drift(provider):
+    respx.get(f"{BASE}/lookup/symbol/homo_sapiens/TP53").mock(
+        return_value=httpx.Response(200, json={"id": None})
+    )
+    with pytest.raises(UpstreamDrift):
+        await provider.gene("TP53", "homo_sapiens")

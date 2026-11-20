@@ -15,7 +15,7 @@ from ..http import PoliteClient
 from .base import Provider, omit_none
 
 _BASE = "https://rest.ensembl.org"
-_GENE_ID = re.compile(r"^ENS[A-Z]*G\d+$")
+_GENE_ID = re.compile(r"^(?:ENS[A-Z]*G\d+|WBGene\d+|FBgn\d+|Y[A-P][LR]\d+[WXC]?)$")
 
 
 class EnsemblProvider(Provider):
@@ -38,21 +38,21 @@ class EnsemblProvider(Provider):
             headers={"Accept": "application/json"},
             follow_redirects=False,
             retry=False,
-            allow_status=(403,),
+            allow_status=(403, 429),
         )
         if 300 <= resp.status_code < 400:
             raise UpstreamError(
                 f"HTTP {resp.status_code} redirect from rest.ensembl.org; not following"
             )
-        if resp.status_code == 403:
+        if resp.status_code in (403, 429):
             raise UpstreamError(
-                "HTTP 403 from rest.ensembl.org (edge/WAF); not retrying"
+                f"HTTP {resp.status_code} from rest.ensembl.org (edge/WAF); not retrying"
             )
         try:
             payload = resp.json()
         except ValueError as exc:
             raise UpstreamDrift(f"non-JSON Ensembl response: {exc}") from exc
-        if not isinstance(payload, dict) or "id" not in payload:
+        if not isinstance(payload, dict) or not payload.get("id"):
             raise UpstreamDrift("Ensembl gene response has no id")
         return _normalize(payload)
 
