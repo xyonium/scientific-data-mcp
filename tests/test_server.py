@@ -26,6 +26,8 @@ EXPECTED_TOOLS = {
     "gene_expression",
     "compound_lookup",
     "bindingdb_ligands",
+    "gwas_associations",
+    "monarch_associations",
 }
 
 

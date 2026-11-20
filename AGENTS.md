@@ -1,6 +1,6 @@
 # scientific-data-mcp — 维护指南
 
-科研**实体数据** MCP：化合物（PubChem）、生物活性（ChEMBL）、蛋白序列/功能（UniProt）、实验结构（RCSB PDB）、文献元数据（PubMed E-utilities），以及材料/互作数据（Materials Project、BioGRID，需免费 key）、互作/药品/临床/通路/疾病关联/基因/变异/注释/表型/数据集/化合物/结合数据/癌症研究/表达（STRING、openFDA、ClinicalTrials.gov、AlphaFold DB、Open Targets、Reactome、NCBI Gene、ClinVar、InterPro、QuickGO、HPO、GEO、KEGG、DailyMed、GDC、cBioPortal、GTEx、Ensembl、ChEBI、BindingDB，基础免 key）。一个 FastMCP server：23 个基础工具（配 MP key 时 24 个）；BioGRID key 解锁 `protein_interactions` 的 biogrid source，不增工具。同类输入输出的源合并为一个工具（`kind`/`by` 参数切换）。
+科研**实体数据** MCP：化合物（PubChem）、生物活性（ChEMBL）、蛋白序列/功能（UniProt）、实验结构（RCSB PDB）、文献元数据（PubMed E-utilities），以及材料/互作数据（Materials Project、BioGRID，需免费 key）、互作/药品/临床/通路/疾病关联/SNP-性状/基因-疾病/基因/变异/注释/表型/数据集/化合物/结合数据/癌症研究/表达（STRING、openFDA、ClinicalTrials.gov、AlphaFold DB、Open Targets、Reactome、NCBI Gene、ClinVar、InterPro、QuickGO、HPO、GEO、KEGG、DailyMed、GDC、cBioPortal、GTEx、Ensembl、ChEBI、BindingDB、GWAS Catalog、Monarch，基础免 key）。一个 FastMCP server：25 个基础工具（配 MP key 时 26 个）；BioGRID key 解锁 `protein_interactions` 的 biogrid source，不增工具。同类输入输出的源合并为一个工具（`kind`/`by` 参数切换）。
 
 本项目由 **DSH 维护**（2026-11-17 从 Claude Code 项目迁移）。`AGENTS.md` 是唯一常驻指令；`docs/memory/` 是本项目的工作记忆，动手前先读 `docs/memory/MEMORY.md`。
 
@@ -22,7 +22,7 @@ uv pip install -e '.[dev]' --python .venv/bin/python
 
 pytest -q                 # hermetic，0 egress
 ruff check .
-python scripts/live_smoke.py   # 真实打 25 个基础上游（Ensembl 不在 smoke；配 key 时 27 个），人工跑，不进 CI
+python scripts/live_smoke.py   # 真实打 27 个基础上游（Ensembl 不在 smoke；配 key 时 29 个），人工跑，不进 CI
 
 .venv/bin/scientific-data-mcp                 # stdio（mcpo 用这个）
 .venv/bin/scientific-data-mcp --http --port 8000
@@ -41,7 +41,7 @@ docker build -t scientific-data-mcp:dev .
 - **反幻觉**：只返回上游真实字段；缺失字段省略，不推断、不补全；docstring 写明"不补全"。返回体不带时间戳（测试可复现）。
 - 返回值 `source_url` 指向官方记录页，便于人工复核。
 - 分页：列表返回 `next_cursor`/`next_offset`/`next_start`，最后一页为 `null`。
-- 新增源时同步：provider、tool、`runtime.build_service`、`tools/__init__.register_all`、`tests/test_server.py` 的基础 23 工具断言（+ 有 key 时的工具面）、README 工具表、`docs/memory/`。
+- 新增源时同步：provider、tool、`runtime.build_service`、`tools/__init__.register_all`、`tests/test_server.py` 的基础 25 工具断言（+ 有 key 时的工具面）、README 工具表、`docs/memory/`。
 - **key-gated 源只在 key 存在时注册 provider**（Materials Project 先例）：MP 没有 key 时 `material` 不注册；BioGRID 没有 key 时 provider 缺席，但共享的 `protein_interactions` 仍注册（STRING 可用），`source="biogrid"` 返回明确错误。
 - 数据源池追踪：`docs/research/kdense-databases.json` + `scripts/kdense_sources.py`；季度 Action 有变化会开 issue，评估后 `--update` 刷新快照。逐源决定见 `docs/research/kdense-coverage.md`（80 行：已实现 / M6 / 兄弟项目 / 不做）。
 
@@ -74,6 +74,7 @@ docker build -t scientific-data-mcp:dev .
 - 改 GDC / cBioPortal / GTEx → `cancer-gtex.md`
 - 改 Ensembl → `ensembl.md`（先读 `ensembl-rest-access.md`）
 - 改 ChEBI / BindingDB → `chebi-bindingdb.md`
+- 改 GWAS / Monarch → `gwas-monarch.md`
 - 改发布 / 版本 → `publishing-hatch-vcs.md`
 - 迁移背景 / DSH 形态 → `dsh-migration.md`
 

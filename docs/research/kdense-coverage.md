@@ -8,8 +8,8 @@
 
 | 状态 | 数量 |
 |---|---|
-| ✅ 已实现 | 27 |
-| ⏳ M6 候选 | 37 |
+| ✅ 已实现 | 29 |
+| ⏳ M6 候选 | 35 |
 | ⏳ 暂缓 | 1 |
 | ➖ 归 finance-mcp | 12 |
 | ➖ 归 paper-search | 1 |
@@ -71,9 +71,9 @@
 | Disease & Clinical | ClinicalTrials.gov | ✅ 已实现 | 免 key | 已接入（v0.6.0） |
 | Disease & Clinical | DisGeNET | ⏳ M6 候选 | 学术/许可 key | 学术/许可 key；M4 池，未接 |
 | Disease & Clinical | GDC (TCGA) | ✅ 已实现 | 免 key | 已接入（v0.11.0） |
-| Disease & Clinical | GWAS Catalog | ⏳ M6 候选 | 免 key | 免 key；M4 池，未接 |
+| Disease & Clinical | GWAS Catalog | ✅ 已实现 | 免 key | 已接入（v0.15.0） |
 | Disease & Clinical | HPO | ✅ 已实现 | 免 key | 已接入（v0.9.0） |
-| Disease & Clinical | Monarch Initiative | ⏳ M6 候选 | 免 key | 免 key；M4 池，未接 |
+| Disease & Clinical | Monarch Initiative | ✅ 已实现 | 免 key | 已接入（v0.15.0） |
 | Disease & Clinical | OMIM | ⏳ M6 候选 | 学术许可 key | 学术许可 key；M4 池，未接 |
 | Disease & Clinical | Open Targets | ✅ 已实现 | 免 key | 已接入（v0.7.0） |
 | Disease & Clinical | cBioPortal | ✅ 已实现 | 免 key | 已接入（v0.11.0） |
@@ -109,4 +109,4 @@
 - “归 finance-mcp”/“归 paper-search” 的实际缺口见 2026-11-18 交接：finance 只缺 SEC EDGAR（+ World Bank 透传/Treasury 可选）；paper 暂不新增 USPTO。
 - “暂缓”不是永久排除；季度扫描或用户需求变化时可重新评估。
 - BRENDA 官方为 CC BY 4.0、需注册后走 SOAP，因此不是“付费”，归入暂缓（解析成本）。
-- Ensembl 通过用户配置的 3 节点自动路由恢复；严格 1 请求/次、5s、无重试、不主动探测。ChEBI 走 OLS4，BindingDB 免 key。
+- Ensembl 通过用户配置的 3 节点自动路由恢复；严格 1 请求/次、5s、无重试、不主动探测。GWAS 旧 API 已 410，走 v2；Monarch 基因-疾病用 Causal 类别。

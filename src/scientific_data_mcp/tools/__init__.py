@@ -13,6 +13,7 @@ from .cancer import register as register_cancer
 from .chem_sources import register as register_chem_sources
 from .chemistry import register as register_chemistry
 from .clinical import register as register_clinical
+from .clinical_assoc import register as register_clinical_assoc
 from .datasets import register as register_datasets
 from .expression import register as register_expression
 from .genomics import register as register_genomics
@@ -37,6 +38,7 @@ def register_all(mcp: FastMCP, service: Service) -> ToolMap:
     tools.update(register_materials(mcp, service))
     tools.update(register_interactions(mcp, service))
     tools.update(register_clinical(mcp, service))
+    tools.update(register_clinical_assoc(mcp, service))
     tools.update(register_biology(mcp, service))
     tools.update(register_genomics(mcp, service))
     tools.update(register_annotations(mcp, service))
