@@ -1,6 +1,6 @@
 # scientific-data-mcp — 维护指南
 
-科研**实体数据** MCP：化合物（PubChem）、生物活性（ChEMBL）、蛋白序列/功能（UniProt）、实验结构（RCSB PDB）、文献元数据（PubMed E-utilities），以及材料/互作数据（Materials Project、BioGRID，需免费 key）、互作/药品/临床/通路/疾病关联/基因/变异/注释/表型/数据集/化合物/癌症研究/表达（STRING、openFDA、ClinicalTrials.gov、AlphaFold DB、Open Targets、Reactome、NCBI Gene、ClinVar、InterPro、QuickGO、HPO、GEO、KEGG、DailyMed、GDC、cBioPortal、GTEx，基础免 key）。一个 FastMCP server：22 个基础工具（配 MP key 时 23 个）；BioGRID key 解锁 `protein_interactions` 的 biogrid source，不增工具。同类输入输出的源合并为一个工具（`kind`/`by` 参数切换）。
+科研**实体数据** MCP：化合物（PubChem）、生物活性（ChEMBL）、蛋白序列/功能（UniProt）、实验结构（RCSB PDB）、文献元数据（PubMed E-utilities），以及材料/互作数据（Materials Project、BioGRID，需免费 key）、互作/药品/临床/通路/疾病关联/基因/变异/注释/表型/数据集/化合物/癌症研究/表达（STRING、openFDA、ClinicalTrials.gov、AlphaFold DB、Open Targets、Reactome、NCBI Gene、ClinVar、InterPro、QuickGO、HPO、GEO、KEGG、DailyMed、GDC、cBioPortal、GTEx、Ensembl，基础免 key）。一个 FastMCP server：22 个基础工具（配 MP key 时 23 个）；BioGRID key 解锁 `protein_interactions` 的 biogrid source，不增工具。同类输入输出的源合并为一个工具（`kind`/`by` 参数切换）。
 
 本项目由 **DSH 维护**（2026-11-17 从 Claude Code 项目迁移）。`AGENTS.md` 是唯一常驻指令；`docs/memory/` 是本项目的工作记忆，动手前先读 `docs/memory/MEMORY.md`。
 
@@ -22,7 +22,7 @@ uv pip install -e '.[dev]' --python .venv/bin/python
 
 pytest -q                 # hermetic，0 egress
 ruff check .
-python scripts/live_smoke.py   # 真实打 23 个基础上游（配 key 时 25 个），人工跑，不进 CI
+python scripts/live_smoke.py   # 真实打 23 个基础上游（Ensembl 不在 smoke；配 key 时 25 个），人工跑，不进 CI
 
 .venv/bin/scientific-data-mcp                 # stdio（mcpo 用这个）
 .venv/bin/scientific-data-mcp --http --port 8000
@@ -72,6 +72,7 @@ docker build -t scientific-data-mcp:dev .
 - 改 HPO / GEO → `hpo-geo.md`
 - 改 KEGG / DailyMed → `kegg-dailymed.md`
 - 改 GDC / cBioPortal / GTEx → `cancer-gtex.md`
+- 改 Ensembl → `ensembl.md`（先读 `ensembl-rest-access.md`）
 - 改发布 / 版本 → `publishing-hatch-vcs.md`
 - 迁移背景 / DSH 形态 → `dsh-migration.md`
 
@@ -79,4 +80,4 @@ docker build -t scientific-data-mcp:dev .
 
 - 仓库根有 `.codegraph/` 时，先用 MCP `codegraph_explore`（或 shell `codegraph query "<符号>"`）再 grep/read。注意 codegraph 0.9.9 没有 `explore` 子命令。
 - 取网页/搜索走 firecrawl（`firecrawl_scrape` / `firecrawl_search`），不用原生 WebFetch。
-- **不要探测 `rest.ensembl.org`**（ping/lookup/健康检查都不行）；该源暂停，规则见 `docs/memory/ensembl-rest-access.md`。403/429 立即停止，不重试、不换 IP。
+- **不要探测 `rest.ensembl.org`**（ping/lookup/健康检查都不行）；只在真实工具调用时请求，1 请求/次、5s、`retry=False`。403/429 立即停止，不重试、不换 IP；规则见 `docs/memory/ensembl-rest-access.md`。

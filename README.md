@@ -22,14 +22,14 @@ kimi datasource 把一批本来就免 key 的官方科研 API（PubChem / ChEMBL
 
 ## 源与工具
 
-二十二个基础源完全免 key（PubChem / ChEMBL / UniProt / RCSB PDB / WHO / STRING / openFDA / ClinicalTrials.gov / AlphaFold DB / Open Targets / Reactome / NCBI Gene / ClinVar / InterPro / QuickGO / HPO / GEO / KEGG / DailyMed / GDC / cBioPortal / GTEx），PubMed / NCBI Gene / ClinVar / GEO 可选 `NCBI_API_KEY` 提速（3→10 req/s）；**Materials Project 和 BioGRID 需要免费 key**：MP 未配时 `material` 不注册；BioGRID 未配时 `protein_interactions(source="biogrid")` 返回明确错误，STRING 仍可用。openFDA 可选 key 只提额度。申请步骤见 [docs/CREDENTIALS.md](./docs/CREDENTIALS.md)。
+二十三个基础源完全免 key（PubChem / ChEMBL / UniProt / RCSB PDB / WHO / STRING / openFDA / ClinicalTrials.gov / AlphaFold DB / Open Targets / Reactome / NCBI Gene / ClinVar / InterPro / QuickGO / HPO / GEO / KEGG / DailyMed / GDC / cBioPortal / GTEx / Ensembl），PubMed / NCBI Gene / ClinVar / GEO 可选 `NCBI_API_KEY` 提速（3→10 req/s）；**Materials Project 和 BioGRID 需要免费 key**：MP 未配时 `material` 不注册；BioGRID 未配时 `protein_interactions(source="biogrid")` 返回明确错误，STRING 仍可用。openFDA 可选 key 只提额度。申请步骤见 [docs/CREDENTIALS.md](./docs/CREDENTIALS.md)。
 
 | 工具 | 源 | 说明 |
 |------|----|------|
 | `chem_compound` | PubChem | 化合物记录：`identifier` + `id_type`（name/cid/smiles/inchikey）；可选 `properties` 指定 PubChem 属性集（省略为默认全集） |
 | `chem_similar_compounds` | PubChem | 结构相似性（POST + ListKey 轮询），返回 CID 列表 |
 | `chembl_data` | ChEMBL | `kind="search"`（query/resource）、`"activities"`（chembl_id 或 target_chembl_id）、`"mechanisms"`（chembl_id）；统一列表 envelope |
-| `protein_record` | UniProt / RCSB / AlphaFold | `kind="uniprot"` 取条目（可选全序列）；`kind="pdb"` 取结构条目 + 实体摘要；`kind="alphafold"` 取预测模型（pLDDT、PDB/CIF/PAE 链接） |
+| `protein_record` | UniProt / RCSB / AlphaFold / Ensembl | `kind="uniprot"` 取条目（可选全序列）；`kind="pdb"` 取结构条目 + 实体摘要；`kind="alphafold"` 取预测模型；`kind="ensembl"` 取基因记录（symbol/Ensembl ID，按 organism taxid 映射物种） |
 | `protein_search` | UniProt / RCSB | `kind="uniprot"` 用 UniProt 查询语法；`kind="pdb"` 全文检索；统一 `next_cursor` |
 | `protein_map_ids` | UniProt | 官方 ID Mapping（submit → poll） |
 | `pubmed_record` | PubMed | pmid / doi → 标题、作者、期刊、年卷期页、摘要、DOI、PMCID |
@@ -105,7 +105,7 @@ mcpo 配置示例（`config.json`）：
 }
 ```
 
-申请步骤、各源是否有 key、以及 M6 扩展源（NOAA / NASA）的入口见 **[docs/CREDENTIALS.md](./docs/CREDENTIALS.md)**。不配任何 key 时 23 个基础源全部可用（22 个免 key；PubMed / Gene / ClinVar / GEO 无 key 时慢一些），MP 工具隐藏、BioGRID source 不可用。
+申请步骤、各源是否有 key、以及 M6 扩展源（NOAA / NASA）的入口见 **[docs/CREDENTIALS.md](./docs/CREDENTIALS.md)**。不配任何 key 时 24 个基础源全部可用（23 个免 key；PubMed / Gene / ClinVar / GEO 无 key 时慢一些），MP 工具隐藏、BioGRID source 不可用。
 
 ## Docker
 
@@ -150,7 +150,7 @@ GitHub Action `kdense-sources` 每季度（1/4/7/10 月 1 日）自动扫描；�
 ```bash
 pytest -q                 # hermetic（respx mock），0 egress
 ruff check .
-python scripts/live_smoke.py   # 真实打 23 个基础上游（配 key 时 25 个），人工跑
+python scripts/live_smoke.py   # 真实打 23 个基础上游（Ensembl 不在 smoke；配 key 时 25 个），人工跑
 ```
 
 - 设计与决策：[`docs/superpowers/specs/`](./docs/superpowers/specs/)

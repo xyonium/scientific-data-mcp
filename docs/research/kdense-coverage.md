@@ -8,8 +8,8 @@
 
 | 状态 | 数量 |
 |---|---|
-| ✅ 已实现 | 24 |
-| ⏳ M6 候选 | 40 |
+| ✅ 已实现 | 25 |
+| ⏳ M6 候选 | 39 |
 | ⏳ 暂缓 | 1 |
 | ➖ 归 finance-mcp | 12 |
 | ➖ 归 paper-search | 1 |
@@ -38,7 +38,7 @@
 | Biology & Genomics | EMDB | ⏳ M6 候选 | 免 key | 免 key；M3 池，未接 |
 | Biology & Genomics | ENA | ⏳ M6 候选 | 免 key | 免 key；M3 池，未接 |
 | Biology & Genomics | ENCODE | ⏳ M6 候选 | 免 key | 免 key；M3 池，未接 |
-| Biology & Genomics | Ensembl | ⏳ M6 候选 | 免 key | 免 key；M3 池，未接 |
+| Biology & Genomics | Ensembl | ✅ 已实现 | 免 key | 已接入（v0.12.0） |
 | Biology & Genomics | GEO (NCBI) | ✅ 已实现 | 免 key | 已接入（v0.9.0） |
 | Biology & Genomics | GTEx | ✅ 已实现 | 免 key | 已接入（v0.11.0） |
 | Biology & Genomics | Gene Ontology | ⏳ M6 候选 | 免 key | 免 key；M3 池，未接 |
@@ -109,4 +109,4 @@
 - “归 finance-mcp”/“归 paper-search” 的实际缺口见 2026-11-18 交接：finance 只缺 SEC EDGAR（+ World Bank 透传/Treasury 可选）；paper 暂不新增 USPTO。
 - “暂缓”不是永久排除；季度扫描或用户需求变化时可重新评估。
 - BRENDA 官方为 CC BY 4.0、需注册后走 SOAP，因此不是“付费”，归入暂缓（解析成本）。
-- Ensembl REST **暂停探测**（疑似短时突发与 403 重试触发 WAF；不要再请求，见 `docs/memory/ensembl-rest-access.md`）；ChEBI/ZINC 仍有访问障碍；MP 偶发 403（带 key 复测 200）。
+- Ensembl 通过用户配置的 3 节点自动路由恢复；严格 1 请求/次、5s、无重试、不主动探测。ChEBI/ZINC 仍有访问障碍；MP 偶发 403（带 key 复测 200）。

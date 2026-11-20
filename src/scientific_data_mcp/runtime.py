@@ -15,6 +15,7 @@ from .providers.chembl import ChemBLProvider
 from .providers.clinicaltrials import ClinicalTrialsProvider
 from .providers.clinvar import ClinVarProvider
 from .providers.dailymed import DailyMedProvider
+from .providers.ensembl import EnsemblProvider
 from .providers.gdc import GdcProvider
 from .providers.gene import GeneProvider
 from .providers.geo import GeoProvider
@@ -75,6 +76,7 @@ def build_service(settings: Settings | None = None) -> Service:
         "gdc": GdcProvider(http, settings),
         "cbioportal": CbioPortalProvider(http, settings),
         "gtex": GtexProvider(http, settings),
+        "ensembl": EnsemblProvider(http, settings),
     }
     if settings.materials_project_api_key:
         providers["materials_project"] = MaterialsProjectProvider(http, settings)

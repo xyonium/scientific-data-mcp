@@ -137,6 +137,7 @@ class PoliteClient:
         headers: dict | None = None,
         follow_redirects: bool = True,
         allow_status: tuple[int, ...] = (),
+        retry: bool = True,
     ) -> httpx.Response:
         return await self._request(
             "GET",
@@ -145,6 +146,7 @@ class PoliteClient:
             headers=headers,
             follow_redirects=follow_redirects,
             allow_status=allow_status,
+            retry=retry,
         )
 
     async def get_json(
