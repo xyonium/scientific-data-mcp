@@ -90,3 +90,13 @@ async def test_tool_mapping_and_validation(tools):
         await tools["monarch_associations"]("HGNC:3603", category="nope")
     )["error"]
     assert "entity" in (await tools["monarch_associations"](" "))["error"]
+
+
+@respx.mock
+async def test_all_category_omits_filter(tools):
+    route = respx.get(f"{BASE}/association").mock(
+        return_value=httpx.Response(200, json=PAYLOAD)
+    )
+    result = await tools["monarch_associations"]("HGNC:3603", category="all", limit=1)
+    assert result["next_offset"] == 1
+    assert "category" not in route.calls.last.request.url.params

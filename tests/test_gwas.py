@@ -90,3 +90,15 @@ async def test_tool_auto_and_efo_id(tools):
     assert efo["count"] == 1
     assert "invalid by" in (await tools["gwas_associations"]("x", by="nope"))["error"]
     assert "1-100" in (await tools["gwas_associations"]("rs7412", limit=0))["error"]
+
+
+@respx.mock
+async def test_last_page_has_no_next(tools):
+    respx.get(f"{BASE}/associations").mock(
+        return_value=httpx.Response(
+            200, json={"_embedded": {"associations": []}, "page": {"totalElements": 1}}
+        )
+    )
+    result = await tools["gwas_associations"]("RS7412", limit=1)
+    assert result["next_page"] is None
+    assert result["source_url"].endswith("rs7412")

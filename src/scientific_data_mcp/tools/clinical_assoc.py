@@ -73,8 +73,10 @@ def register(mcp: FastMCP, service: Service) -> ToolMap:
                 by = "efo_id"
             else:
                 by = "efo_trait"
+        if by == "rs_id":
+            query = query.lower()
         if by == "efo_id":
-            query = re.sub(r"[:_]", "_", query)
+            query = re.sub(r"[:_]", "_", query.upper())
         try:
             result = await gwas.associations(by, query, limit, page)
         except ValueError as exc:
@@ -84,7 +86,7 @@ def register(mcp: FastMCP, service: Service) -> ToolMap:
         total = result["total"]
         next_page = page + 1 if (page + 1) * limit < total else None
         source_url = (
-            f"https://www.ebi.ac.uk/gwas/variants/{query}"
+            f"https://www.ebi.ac.uk/gwas/variants/{quote(query, safe='')}"
             if by == "rs_id"
             else "https://www.ebi.ac.uk/gwas/"
         )
