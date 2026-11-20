@@ -36,12 +36,17 @@ class EnsemblProvider(Provider):
             url,
             params=params,
             headers={"Accept": "application/json"},
+            follow_redirects=False,
             retry=False,
             allow_status=(403,),
         )
-        if resp.status_code in (403, 429):
+        if 300 <= resp.status_code < 400:
             raise UpstreamError(
-                f"HTTP {resp.status_code} from rest.ensembl.org (edge/WAF); not retrying"
+                f"HTTP {resp.status_code} redirect from rest.ensembl.org; not following"
+            )
+        if resp.status_code == 403:
+            raise UpstreamError(
+                "HTTP 403 from rest.ensembl.org (edge/WAF); not retrying"
             )
         try:
             payload = resp.json()
