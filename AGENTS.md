@@ -79,3 +79,4 @@ docker build -t scientific-data-mcp:dev .
 
 - 仓库根有 `.codegraph/` 时，先用 MCP `codegraph_explore`（或 shell `codegraph query "<符号>"`）再 grep/read。注意 codegraph 0.9.9 没有 `explore` 子命令。
 - 取网页/搜索走 firecrawl（`firecrawl_scrape` / `firecrawl_search`），不用原生 WebFetch。
+- **不要探测 `rest.ensembl.org`**（ping/lookup/健康检查都不行）；该源暂停，规则见 `docs/memory/ensembl-rest-access.md`。403/429 立即停止，不重试、不换 IP。

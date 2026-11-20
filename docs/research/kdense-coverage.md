@@ -109,4 +109,4 @@
 - “归 finance-mcp”/“归 paper-search” 的实际缺口见 2026-11-18 交接：finance 只缺 SEC EDGAR（+ World Bank 透传/Treasury 可选）；paper 暂不新增 USPTO。
 - “暂缓”不是永久排除；季度扫描或用户需求变化时可重新评估。
 - BRENDA 官方为 CC BY 4.0、需注册后走 SOAP，因此不是“付费”，归入暂缓（解析成本）。
-- Ensembl REST 仍 403/504；ChEBI/ZINC 仍有访问障碍；MP 偶发 403（带 key 复测 200）。
+- Ensembl REST **暂停探测**（疑似短时突发与 403 重试触发 WAF；不要再请求，见 `docs/memory/ensembl-rest-access.md`）；ChEBI/ZINC 仍有访问障碍；MP 偶发 403（带 key 复测 200）。

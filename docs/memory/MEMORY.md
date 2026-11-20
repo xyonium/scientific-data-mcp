@@ -23,3 +23,4 @@
 - [HPO / GEO](hpo-geo.md) — HPO 表型术语；GEO 数据集；Ensembl/GTEx 仍不可达
 - [KEGG / DailyMed](kegg-dailymed.md) — KEGG 学术许可；DailyMed 标签元数据；ChEBI/ZINC 暂缓
 - [GDC / cBioPortal / GTEx](cancer-gtex.md) — 癌症研究目录 + GTEx 表达；MP 瞬时 403 非 key 失效
+- [Ensembl REST 暂停探测](ensembl-rest-access.md) — 疑似突发/403 重试导致节点被 WAF 封；不探测、不重试、不换 IP

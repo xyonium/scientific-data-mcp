@@ -28,3 +28,11 @@
 - 当次故障表现：DNS 解析到 AWS ALB（3.8.72.101 / 13.43.212.132），TCP 443 可连，但 TLS ClientHello 后 20–60s 无响应；`www.ensembl.org` 正常（193.62.193.83）。
 - 独立验证：Firecrawl/Jina 抓取失败，allorigins/codetabs 返回 **522**，说明是 REST 后端/边缘不可达，不是我们 URL 拼错。
 - 处理：不接入未验证的 provider；等 REST 恢复，或让 `rest.ensembl.org` 走可用出口后再实现。
+
+
+## 上游探测纪律（2026-11-20 起）
+
+- 不做短时突发探测；同一 host 连续请求间隔 ≥1s，边界/变体测试合并成少量请求。
+- 403/429 **不重试**、不换 UA/路径/IP；记录一次并停止，冷却 ≥24h。
+- 不通过轮换节点绕过封锁；不把不稳定源放进 CI/smoke。
+- Ensembl 已按此规则暂停，见 `ensembl-rest-access.md`。
