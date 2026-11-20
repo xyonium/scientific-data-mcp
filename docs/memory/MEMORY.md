@@ -16,7 +16,7 @@
 - [上游漂移信号](upstream-drift-signal.md) — suspect_drift/contact_admin 的分类与纪律
 - [工具面收敛 v0.4](tool-surface-v0.4.md) — 同类 I/O 合并，kind/by 切换；旧→新映射
 - [BioGRID 接入](biogrid.md) — key-gated；dict 响应、满页才有 next_offset、401 是 auth
-- [K-Dense 80 库逐源矩阵](../research/kdense-coverage.md) — 已实现 25 / M6 39 / finance 12 / paper 1 / 暂缓 1 / 付费 2
+- [K-Dense 80 库逐源矩阵](../research/kdense-coverage.md) — 已实现 27 / M6 37 / finance 12 / paper 1 / 暂缓 1 / 付费 2
 - [STRING / openFDA / ClinicalTrials](string-openfda-clinicaltrials.md) — 三个免 key 源；openFDA 404 NOT_FOUND=空；BioGRID 并入 protein_interactions
 - [AlphaFold / Open Targets / Reactome](biology-sources.md) — 三个免 key 源；AlphaFold 并入 protein_record；Reactome 名称需剥 HTML
 - [NCBI Gene / ClinVar / InterPro / QuickGO](genomics-annotations.md) — Gene/ClinVar 复用 NCBI key；ClinVar 分类在 germline_classification
@@ -25,3 +25,4 @@
 - [GDC / cBioPortal / GTEx](cancer-gtex.md) — 癌症研究目录 + GTEx 表达；MP 瞬时 403 非 key 失效
 - [Ensembl REST 暂停探测](ensembl-rest-access.md) — 疑似突发/403 重试导致节点被 WAF 封；不探测、不重试、不换 IP
 - [Ensembl 接入](ensembl.md) — 严格 1 请求/次、5s、无重试；并入 gene_record(kind=ensembl)
+- [ChEBI / BindingDB](chebi-bindingdb.md) — ChEBI 走 OLS4；BindingDB 响应 key 拼写特殊

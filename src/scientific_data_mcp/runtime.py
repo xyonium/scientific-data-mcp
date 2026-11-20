@@ -9,8 +9,10 @@ from .config import Settings
 from .http import PoliteClient
 from .providers.alphafold import AlphaFoldProvider
 from .providers.base import Provider
+from .providers.bindingdb import BindingDbProvider
 from .providers.biogrid import BioGridProvider
 from .providers.cbioportal import CbioPortalProvider
+from .providers.chebi import ChebiProvider
 from .providers.chembl import ChemBLProvider
 from .providers.clinicaltrials import ClinicalTrialsProvider
 from .providers.clinvar import ClinVarProvider
@@ -77,6 +79,8 @@ def build_service(settings: Settings | None = None) -> Service:
         "cbioportal": CbioPortalProvider(http, settings),
         "gtex": GtexProvider(http, settings),
         "ensembl": EnsemblProvider(http, settings),
+        "chebi": ChebiProvider(http, settings),
+        "bindingdb": BindingDbProvider(http, settings),
     }
     if settings.materials_project_api_key:
         providers["materials_project"] = MaterialsProjectProvider(http, settings)

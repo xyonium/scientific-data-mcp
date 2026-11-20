@@ -8,8 +8,8 @@
 
 | 状态 | 数量 |
 |---|---|
-| ✅ 已实现 | 25 |
-| ⏳ M6 候选 | 39 |
+| ✅ 已实现 | 27 |
+| ⏳ M6 候选 | 37 |
 | ⏳ 暂缓 | 1 |
 | ➖ 归 finance-mcp | 12 |
 | ➖ 归 paper-search | 1 |
@@ -22,8 +22,8 @@
 
 | 分类 | 源 | 状态 | key | 说明 |
 |---|---|---|---|---|
-| Chemistry & Drugs | BindingDB | ⏳ M6 候选 | 免 key | 免 key；M2 池，未接 |
-| Chemistry & Drugs | ChEBI | ⏳ M6 候选 | 免 key | 免 key；M2 池，未接 |
+| Chemistry & Drugs | BindingDB | ✅ 已实现 | 免 key | 已接入（v0.13.0） |
+| Chemistry & Drugs | ChEBI | ✅ 已实现 | 免 key | 已接入（v0.13.0） |
 | Chemistry & Drugs | ChEMBL | ✅ 已实现 | 免 key | 已接入（v0.6.0） |
 | Chemistry & Drugs | DailyMed | ✅ 已实现 | 免 key | 已接入（v0.10.0） |
 | Chemistry & Drugs | DrugBank | 💰 不做 | 付费 | 付费；免费替代 PubChem/ChEMBL/openFDA（openFDA 已接入） |
@@ -109,4 +109,4 @@
 - “归 finance-mcp”/“归 paper-search” 的实际缺口见 2026-11-18 交接：finance 只缺 SEC EDGAR（+ World Bank 透传/Treasury 可选）；paper 暂不新增 USPTO。
 - “暂缓”不是永久排除；季度扫描或用户需求变化时可重新评估。
 - BRENDA 官方为 CC BY 4.0、需注册后走 SOAP，因此不是“付费”，归入暂缓（解析成本）。
-- Ensembl 通过用户配置的 3 节点自动路由恢复；严格 1 请求/次、5s、无重试、不主动探测。ChEBI/ZINC 仍有访问障碍；MP 偶发 403（带 key 复测 200）。
+- Ensembl 通过用户配置的 3 节点自动路由恢复；严格 1 请求/次、5s、无重试、不主动探测。ChEBI 走 OLS4，BindingDB 免 key。

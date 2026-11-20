@@ -25,6 +25,8 @@ EXPECTED_TOOLS = {
     "dailymed",
     "cancer_studies",
     "gene_expression",
+    "chebi_compound",
+    "bindingdb_ligands",
 }
 
 

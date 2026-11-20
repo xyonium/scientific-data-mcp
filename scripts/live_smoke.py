@@ -60,6 +60,8 @@ CASES: list[tuple[str, dict, str]] = [
     ("cancer_studies", {"query": "breast", "source": "gdc", "limit": 2}, "count"),
     ("cancer_studies", {"query": "breast", "source": "cbioportal", "limit": 2}, "count"),
     ("gene_expression", {"gene_id": "ENSG00000141510", "limit": 2}, "count"),
+    ("chebi_compound", {"query": "aspirin", "limit": 2}, "count"),
+    ("bindingdb_ligands", {"uniprot": "P35355", "cutoff_nm": 1000, "limit": 2}, "count"),
 ]
 
 if os.environ.get("BIOGRID_ACCESS_KEY", "").strip():
