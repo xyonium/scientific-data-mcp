@@ -28,6 +28,7 @@ EXPECTED_TOOLS = {
     "bindingdb_ligands",
     "gwas_associations",
     "monarch_associations",
+    "clinpgx",
 }
 
 

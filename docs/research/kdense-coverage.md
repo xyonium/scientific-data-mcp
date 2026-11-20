@@ -8,8 +8,8 @@
 
 | 状态 | 数量 |
 |---|---|
-| ✅ 已实现 | 29 |
-| ⏳ M6 候选 | 35 |
+| ✅ 已实现 | 30 |
+| ⏳ M6 候选 | 34 |
 | ⏳ 暂缓 | 1 |
 | ➖ 归 finance-mcp | 12 |
 | ➖ 归 paper-search | 1 |
@@ -66,7 +66,7 @@
 | Biology & Genomics | dbSNP | ⏳ M6 候选 | 免 key | 免 key；M3 池，未接 |
 | Biology & Genomics | gnomAD | ⏳ M6 候选 | 免 key | 免 key；M3 池，未接 |
 | Disease & Clinical | COSMIC | 💰 不做 | 许可受限 | 许可受限；替代 openFDA/GDC/cBioPortal（openFDA 已接入） |
-| Disease & Clinical | ClinPGx (PharmGKB) | ⏳ M6 候选 | 免 key | 免 key；M4 池，未接 |
+| Disease & Clinical | ClinPGx (PharmGKB) | ✅ 已实现 | 免 key | 已接入（v0.16.0） |
 | Disease & Clinical | ClinVar | ✅ 已实现 | 免 key | 已接入（v0.8.0） |
 | Disease & Clinical | ClinicalTrials.gov | ✅ 已实现 | 免 key | 已接入（v0.6.0） |
 | Disease & Clinical | DisGeNET | ⏳ M6 候选 | 学术/许可 key | 学术/许可 key；M4 池，未接 |
@@ -109,4 +109,4 @@
 - “归 finance-mcp”/“归 paper-search” 的实际缺口见 2026-11-18 交接：finance 只缺 SEC EDGAR（+ World Bank 透传/Treasury 可选）；paper 暂不新增 USPTO。
 - “暂缓”不是永久排除；季度扫描或用户需求变化时可重新评估。
 - BRENDA 官方为 CC BY 4.0、需注册后走 SOAP，因此不是“付费”，归入暂缓（解析成本）。
-- Ensembl 通过用户配置的 3 节点自动路由恢复；严格 1 请求/次、5s、无重试、不主动探测。GWAS 旧 API 已 410，走 v2；Monarch 基因-疾病用 Causal 类别。
+- Ensembl 通过用户配置的 3 节点自动路由恢复；严格 1 请求/次、5s、无重试、不主动探测。GWAS 旧 API 已 410，走 v2；Monarch 基因-疾病用 Causal 类别。ClinPGx 走 summaryAnnotation；COD 从本网络超时、ZINC 仍 captcha，暂缓。

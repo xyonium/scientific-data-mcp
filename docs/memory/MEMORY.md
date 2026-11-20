@@ -16,7 +16,7 @@
 - [上游漂移信号](upstream-drift-signal.md) — suspect_drift/contact_admin 的分类与纪律
 - [工具面收敛 v0.4](tool-surface-v0.4.md) — 同类 I/O 合并，kind/by 切换；旧→新映射
 - [BioGRID 接入](biogrid.md) — key-gated；dict 响应、满页才有 next_offset、401 是 auth
-- [K-Dense 80 库逐源矩阵](../research/kdense-coverage.md) — 已实现 29 / M6 35 / finance 12 / paper 1 / 暂缓 1 / 付费 2
+- [K-Dense 80 库逐源矩阵](../research/kdense-coverage.md) — 已实现 30 / M6 34 / finance 12 / paper 1 / 暂缓 1 / 付费 2
 - [STRING / openFDA / ClinicalTrials](string-openfda-clinicaltrials.md) — 三个免 key 源；openFDA 404 NOT_FOUND=空；BioGRID 并入 protein_interactions
 - [AlphaFold / Open Targets / Reactome](biology-sources.md) — 三个免 key 源；AlphaFold 并入 protein_record；Reactome 名称需剥 HTML
 - [NCBI Gene / ClinVar / InterPro / QuickGO](genomics-annotations.md) — Gene/ClinVar 复用 NCBI key；ClinVar 分类在 germline_classification
@@ -27,3 +27,4 @@
 - [Ensembl 接入](ensembl.md) — 严格 1 请求/次、5s、无重试；并入 gene_record(kind=ensembl)
 - [ChEBI / BindingDB](chebi-bindingdb.md) — ChEBI 走 OLS4；BindingDB 响应 key 拼写特殊
 - [GWAS Catalog / Monarch](gwas-monarch.md) — GWAS 旧 API 410，走 v2；Monarch 基因-疾病用 Causal 类别
+- [ClinPGx](clinpgx.md) — summaryAnnotation；COD/ZINC 访问受阻暂缓

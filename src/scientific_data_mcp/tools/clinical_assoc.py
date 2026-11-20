@@ -26,6 +26,7 @@ _MONARCH_CATEGORIES = {
 def register(mcp: FastMCP, service: Service) -> ToolMap:
     gwas = service.providers["gwas"]
     monarch = service.providers["monarch"]
+    clinpgx = service.providers["clinpgx"]
 
     @guarded_tool(mcp, name="gwas_associations", source="gwas")
     async def gwas_associations(
@@ -153,4 +154,40 @@ def register(mcp: FastMCP, service: Service) -> ToolMap:
             "items": result["items"],
         }
 
-    return {"gwas_associations": gwas_associations, "monarch_associations": monarch_associations}
+    @guarded_tool(mcp, name="clinpgx", source="clinpgx")
+    async def clinpgx_tool(gene: str, drug: str = "", limit: int = 10) -> dict:
+        """Fetch ClinPGx (PharmGKB) pharmacogenomic summary annotations.
+
+        `gene` is a gene symbol ("CYP2C19"); `drug` is optional ("clopidogrel").
+        Returns the annotation accession, level of evidence, gene, drug,
+        allele phenotypes, related guidelines/diseases/labels and score.
+        ClinPGx is public read-only and asks for at most 2 requests/second.
+        An annotation is not an individualized dosing recommendation; only
+        upstream fields are returned, missing fields omitted. Failures
+        return an error dict (`error`, `source`).
+
+        Args:
+            gene: Gene symbol.
+            drug: Optional drug/chemical name.
+            limit: Annotations to return, 1-50 (default 10).
+        """
+        if not gene.strip():
+            return tool_error("gene must not be empty", source="clinpgx")
+        if not 1 <= limit <= 50:
+            return tool_error(f"limit must be 1-50, got {limit}", source="clinpgx")
+        try:
+            items = await clinpgx.annotations(gene.strip(), drug.strip() or None, limit)
+        except ProviderError as exc:
+            return provider_error_payload(exc, "clinpgx")
+        return {
+            "source": "clinpgx",
+            "source_url": "https://www.clinpgx.org/",
+            "count": len(items),
+            "items": items,
+        }
+
+    return {
+        "gwas_associations": gwas_associations,
+        "monarch_associations": monarch_associations,
+        "clinpgx": clinpgx_tool,
+    }

@@ -2,7 +2,7 @@
 
 [![PyPI](https://img.shields.io/pypi/v/scientific-data-mcp.svg)](https://pypi.org/project/scientific-data-mcp/)
 
-科研**实体数据** MCP —— 化合物 / 生物活性 / 蛋白序列与结构 / 文献元数据的**免费官方 API 直连**。一个 server，25 个基础工具（配 Materials Project key 时 26 个；BioGRID key 解锁互作 source，不增工具），零额度。同类输入输出的源合并为一个工具，用 `kind` / `by` 参数切换。
+科研**实体数据** MCP —— 化合物 / 生物活性 / 蛋白序列与结构 / 文献元数据的**免费官方 API 直连**。一个 server，26 个基础工具（配 Materials Project key 时 27 个；BioGRID key 解锁互作 source，不增工具），零额度。同类输入输出的源合并为一个工具，用 `kind` / `by` 参数切换。
 
 > 与 [paper-search](https://github.com/xyonium/paper-search)（文献检索 + RAG）、[finance-mcp](https://github.com/xyonium/finance-mcp)（金融/宏观）互补，不做重复。
 
@@ -22,7 +22,7 @@ kimi datasource 把一批本来就免 key 的官方科研 API（PubChem / ChEMBL
 
 ## 源与工具
 
-二十七个基础源完全免 key（PubChem / ChEMBL / UniProt / RCSB PDB / WHO / STRING / openFDA / ClinicalTrials.gov / AlphaFold DB / Open Targets / Reactome / NCBI Gene / ClinVar / InterPro / QuickGO / HPO / GEO / KEGG / DailyMed / GDC / cBioPortal / GTEx / Ensembl / ChEBI / BindingDB / GWAS Catalog / Monarch），PubMed / NCBI Gene / ClinVar / GEO 可选 `NCBI_API_KEY` 提速（3→10 req/s）；**Materials Project 和 BioGRID 需要免费 key**：MP 未配时 `material` 不注册；BioGRID 未配时 `protein_interactions(source="biogrid")` 返回明确错误，STRING 仍可用。openFDA 可选 key 只提额度。申请步骤见 [docs/CREDENTIALS.md](./docs/CREDENTIALS.md)。
+二十八个基础源完全免 key（PubChem / ChEMBL / UniProt / RCSB PDB / WHO / STRING / openFDA / ClinicalTrials.gov / AlphaFold DB / Open Targets / Reactome / NCBI Gene / ClinVar / InterPro / QuickGO / HPO / GEO / KEGG / DailyMed / GDC / cBioPortal / GTEx / Ensembl / ChEBI / BindingDB / GWAS Catalog / Monarch / ClinPGx），PubMed / NCBI Gene / ClinVar / GEO 可选 `NCBI_API_KEY` 提速（3→10 req/s）；**Materials Project 和 BioGRID 需要免费 key**：MP 未配时 `material` 不注册；BioGRID 未配时 `protein_interactions(source="biogrid")` 返回明确错误，STRING 仍可用。openFDA 可选 key 只提额度。申请步骤见 [docs/CREDENTIALS.md](./docs/CREDENTIALS.md)。
 
 | 工具 | 源 | 说明 |
 |------|----|------|
@@ -50,6 +50,7 @@ kimi datasource 把一批本来就免 key 的官方科研 API（PubChem / ChEMBL
 | `bindingdb_ligands` | BindingDB | UniProt 靶点 + nM cutoff → ligand SMILES / 亲和力；免 key，~1 req/s |
 | `gwas_associations` | GWAS Catalog | rs id / EFO 性状 id / 性状名 / 基因 → SNP-性状关联、p 值、效应等位、PMID；免 key |
 | `monarch_associations` | Monarch | HGNC/MONDO/HP curie → 基因-疾病、基因-表型、疾病-表型关联；免 key |
+| `clinpgx` | ClinPGx (PharmGKB) | 基因 ± 药物 → 药物基因组摘要注释、证据等级、等位/表型、指南；免 key，≤2 req/s |
 | `cancer_studies` | GDC / cBioPortal | `source="gdc"` 查 NCI GDC 项目；`source="cbioportal"` 查 cBioPortal 研究；统一列表 |
 | `gene_expression` | GTEx | Ensembl gene id → 各组织 median 表达（TPM） |
 
@@ -108,7 +109,7 @@ mcpo 配置示例（`config.json`）：
 }
 ```
 
-申请步骤、各源是否有 key、以及 M6 扩展源（NOAA / NASA）的入口见 **[docs/CREDENTIALS.md](./docs/CREDENTIALS.md)**。不配任何 key 时 28 个基础源全部可用（27 个免 key；PubMed / Gene / ClinVar / GEO 无 key 时慢一些），MP 工具隐藏、BioGRID source 不可用。
+申请步骤、各源是否有 key、以及 M6 扩展源（NOAA / NASA）的入口见 **[docs/CREDENTIALS.md](./docs/CREDENTIALS.md)**。不配任何 key 时 29 个基础源全部可用（28 个免 key；PubMed / Gene / ClinVar / GEO 无 key 时慢一些），MP 工具隐藏、BioGRID source 不可用。
 
 ## Docker
 
@@ -153,7 +154,7 @@ GitHub Action `kdense-sources` 每季度（1/4/7/10 月 1 日）自动扫描；�
 ```bash
 pytest -q                 # hermetic（respx mock），0 egress
 ruff check .
-python scripts/live_smoke.py   # 真实打 27 个基础上游（Ensembl 不在 smoke；配 key 时 29 个），人工跑
+python scripts/live_smoke.py   # 真实打 28 个基础上游（Ensembl 不在 smoke；配 key 时 30 个），人工跑
 ```
 
 - 设计与决策：[`docs/superpowers/specs/`](./docs/superpowers/specs/)

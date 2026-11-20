@@ -17,7 +17,7 @@
 
 ## 边界
 
-清单是"可以考虑的源"，不是"已接的源"。当前已接 29 个 K-Dense 源（含 PubMed 共 30 个工具源），逐源状态以 `docs/research/kdense-coverage.md` 为准；本项目基础 25 工具，Materials Project key 加 1。
+清单是"可以考虑的源"，不是"已接的源"。当前已接 30 个 K-Dense 源（含 PubMed 共 31 个工具源），逐源状态以 `docs/research/kdense-coverage.md` 为准；本项目基础 26 工具，Materials Project key 加 1。
 
 ## 2026-11-18 兄弟项目归属审计
 
