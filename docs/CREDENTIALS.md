@@ -85,7 +85,7 @@ python scripts/live_smoke.py   # pubmed_record 一项 PASS 即通
 | 源 | 官方说明 | 本项目限速 |
 |----|----------|-----------|
 | PubChem PUG-REST | 免 key，动态限速 | 5 req/s（0.2s 间隔） |
-| ChEMBL EBI REST | 免 key，"keep request rates moderate" | 0.5s 间隔 |
+| ChEMBL EBI REST | 免 key，"keep request rates moderate" | 1s 间隔 |
 | UniProt REST | 免 key | 0.2s 间隔 |
 | RCSB PDB Data/Search | 免 key | 0.2s / 0.5s |
 | WHO GHO OData | 免 key | 0.5s |
@@ -97,7 +97,7 @@ python scripts/live_smoke.py   # pubmed_record 一项 PASS 即通
 | Reactome | 免 key | 0.5s |
 | NCBI Gene | 免 key（可选 NCBI key 提速） | 0.34s / 0.1s |
 | ClinVar | 免 key（可选 NCBI key 提速） | 0.34s / 0.1s |
-| InterPro | 免 key | 0.5s |
+| InterPro | 免 key | 1s |
 | QuickGO | 免 key | 0.5s |
 | HPO | 免 key | 0.5s |
 | GEO (NCBI) | 免 key（可选 NCBI key 提速） | 0.34s / 0.1s |
@@ -107,7 +107,7 @@ python scripts/live_smoke.py   # pubmed_record 一项 PASS 即通
 | cBioPortal | 免 key | 0.5s |
 | GTEx | 免 key | 0.5s |
 | Ensembl | 免 key；低频（1 请求/次，5s，403 不重试） | 5s |
-| ChEBI | 免 key（OLS4） | 0.5s |
+| ChEBI | 免 key（OLS4） | 1s |
 | BindingDB | 免 key；~1 req/s | 1s |
 | GWAS Catalog | 免 key | 0.5s |
 | Monarch | 免 key | 0.5s |

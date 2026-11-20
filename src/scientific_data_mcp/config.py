@@ -21,7 +21,7 @@ DEFAULT_USER_AGENT = (
 # politeness guidance (NCBI 3/s without a key, PubChem <=5/s, ChEMBL moderate).
 HOST_DELAYS: dict[str, float] = {
     "pubchem.ncbi.nlm.nih.gov": 0.2,
-    "www.ebi.ac.uk": 0.5,
+    "www.ebi.ac.uk": 1.0,
     "rest.uniprot.org": 0.2,
     "data.rcsb.org": 0.2,
     "search.rcsb.org": 0.5,
