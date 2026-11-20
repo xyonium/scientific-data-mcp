@@ -95,8 +95,9 @@ def register(mcp: FastMCP, service: Service) -> ToolMap:
         """Look up ChEBI chemical entities by name or ChEBI id.
 
         `query` is a name ("aspirin") or id ("CHEBI:15365"); returns ChEBI
-        ids, names, definitions and synonyms. ChEBI is an EBI ontology, so
-        names are curated classes, not vendor products. Only upstream fields
+        ids, names and definitions (an exact id also returns synonyms).
+        ChEBI is an EBI ontology, so names are curated classes, not vendor
+        products. Only upstream fields
         are returned; missing fields are omitted, nothing is inferred or
         completed. Failures return an error dict (`error`, `source`).
 

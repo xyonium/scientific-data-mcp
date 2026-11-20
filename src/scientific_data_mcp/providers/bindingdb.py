@@ -37,9 +37,21 @@ class BindingDbProvider(Provider):
         data = payload.get("getLindsByUniprotResponse") if isinstance(payload, dict) else None
         if not isinstance(data, dict):
             raise UpstreamDrift("BindingDB response has no getLindsByUniprotResponse")
-        rows = data.get("bdb.affinities") or []
+        if "bdb.affinities" not in data:
+            raise UpstreamDrift("BindingDB response has no bdb.affinities")
+        rows = data["bdb.affinities"]
+        if not isinstance(rows, list):
+            raise UpstreamDrift("BindingDB bdb.affinities is not a list")
+        hit = data.get("bdb.hit")
+        if hit is None:
+            total = len(rows)
+        else:
+            try:
+                total = int(hit)
+            except (TypeError, ValueError) as exc:
+                raise UpstreamDrift(f"BindingDB bdb.hit is not numeric: {hit!r}") from exc
         items = [_normalize(row) for row in rows[:limit]]
-        return {"items": items, "total": int(data.get("bdb.hit") or len(rows))}
+        return {"items": items, "total": total}
 
 
 def _normalize(row: dict) -> dict:

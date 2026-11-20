@@ -76,12 +76,21 @@ async def test_term(provider):
 
 
 @respx.mock
-async def test_missing_term_is_not_found(provider):
+async def test_empty_terms_is_not_found(provider):
     respx.get(f"{BASE}/ontologies/chebi/terms").mock(
         return_value=httpx.Response(200, json={"_embedded": {"terms": []}})
     )
     with pytest.raises(NotFound):
         await provider.term("CHEBI:9999999")
+
+
+@respx.mock
+async def test_malformed_term_is_drift(provider):
+    respx.get(f"{BASE}/ontologies/chebi/terms").mock(
+        return_value=httpx.Response(200, json={"_embedded": {}})
+    )
+    with pytest.raises(UpstreamDrift):
+        await provider.term("CHEBI:15365")
 
 
 @respx.mock

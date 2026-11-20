@@ -82,3 +82,24 @@ async def test_tool_envelope_and_validation(tools):
     assert result["count"] == 1
     assert "uniprot" in (await tools["bindingdb_ligands"](" "))["error"]
     assert "1-100" in (await tools["bindingdb_ligands"]("P35355", limit=0))["error"]
+
+
+@respx.mock
+async def test_missing_affinities_is_drift(provider):
+    respx.get(f"{BASE}/getLigandsByUniprot").mock(
+        return_value=httpx.Response(200, json={"getLindsByUniprotResponse": {"bdb.hit": "1"}})
+    )
+    with pytest.raises(UpstreamDrift):
+        await provider.ligands("P35355")
+
+
+@respx.mock
+async def test_non_numeric_hit_is_drift(provider):
+    respx.get(f"{BASE}/getLigandsByUniprot").mock(
+        return_value=httpx.Response(
+            200,
+            json={"getLindsByUniprotResponse": {"bdb.hit": "NA", "bdb.affinities": []}},
+        )
+    )
+    with pytest.raises(UpstreamDrift):
+        await provider.ligands("P35355")

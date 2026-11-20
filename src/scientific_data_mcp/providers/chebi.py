@@ -40,10 +40,17 @@ class ChebiProvider(Provider):
         payload = await self.http.get_json(
             f"{self.base_url}/ontologies/chebi/terms", params={"iri": iri}
         )
-        try:
-            term = payload["_embedded"]["terms"][0]
-        except (KeyError, IndexError, TypeError) as exc:
-            raise NotFound(f"no ChEBI term for {chebi_id}") from exc
+        embedded = payload.get("_embedded") if isinstance(payload, dict) else None
+        if not isinstance(embedded, dict):
+            raise UpstreamDrift("ChEBI term response has no _embedded object")
+        terms = embedded.get("terms")
+        if not isinstance(terms, list):
+            raise UpstreamDrift("ChEBI term response has no terms list")
+        if not terms:
+            raise NotFound(f"no ChEBI term for {chebi_id}")
+        term = terms[0]
+        if not isinstance(term, dict):
+            raise UpstreamDrift("ChEBI term entry is not an object")
         return _normalize_term(term)
 
 
@@ -53,6 +60,7 @@ def _normalize_search(doc: dict) -> dict:
             "chebi_id": doc.get("obo_id"),
             "name": doc.get("label"),
             "description": (doc.get("description") or [None])[0],
+            "synonyms": doc.get("synonyms") or None,
             "type": doc.get("type"),
         }
     )
