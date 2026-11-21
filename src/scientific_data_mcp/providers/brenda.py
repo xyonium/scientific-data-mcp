@@ -89,7 +89,24 @@ class BrendaProvider(Provider):
             raise UpstreamError(f"BRENDA SOAP error: {msg}") from exc
         plain = _to_plain(result)
         if isinstance(plain, dict):
-            for key in (method, "return", "ArrayOfKmValues", "ArrayOfTurnoverNumbers"):
+            for key in (
+                method,
+                "return",
+                "KmValue",
+                "TurnoverNumber",
+                "KiValue",
+                "KcatKmValue",
+                "SubstratesProducts",
+                "EnzymeNames",
+                "Engineering",
+                "ArrayOfKmValues",
+                "ArrayOfTurnoverNumbers",
+                "ArrayOfKiValues",
+                "ArrayOfKcatKmValues",
+                "ArrayOfSubstratesProducts",
+                "ArrayOfEnzymeNames",
+                "ArrayOfEngineerings",
+            ):
                 if key in plain:
                     plain = plain[key]
                     break
