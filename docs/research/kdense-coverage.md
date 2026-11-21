@@ -8,8 +8,8 @@
 
 | 状态 | 数量 |
 |---|---|
-| ✅ 已实现 | 31 |
-| ⏳ M6 候选 | 33 |
+| ✅ 已实现 | 32 |
+| ⏳ M6 候选 | 32 |
 | ⏳ 暂缓 | 1 |
 | ➖ 归 finance-mcp | 12 |
 | ➖ 归 paper-search | 1 |
@@ -33,7 +33,7 @@
 | Chemistry & Drugs | ZINC | ⏳ M6 候选 | 免 key | 免 key；M2 池，未接 |
 | Biology & Genomics | Addgene | ⏳ M6 候选 | 机构批准 key | 机构批准 key；M3 池，未接 |
 | Biology & Genomics | AlphaFold DB | ✅ 已实现 | 免 key | 已接入（v0.7.0） |
-| Biology & Genomics | BRENDA | ⏳ 暂缓 | 免费注册（SOAP） | 免费但需注册 + SOAP，解析成本高，暂缓 |
+| Biology & Genomics | BRENDA | ✅ 已实现 | 免费注册（SOAP） | 已接入（v0.18.0，key-gated；1 req/s） |
 | Biology & Genomics | BioGRID | ✅ 已实现 | 免费 key | 已接入（v0.6.0） |
 | Biology & Genomics | EMDB | ⏳ M6 候选 | 免 key | 免 key；M3 池，未接 |
 | Biology & Genomics | ENA | ⏳ M6 候选 | 免 key | 免 key；M3 池，未接 |
@@ -108,5 +108,5 @@
 - “M6 候选”= 已确认属于本项目域、但当前版本未接；按 `docs/计划.md` 的 M2–M5 优先级排队。
 - “归 finance-mcp”/“归 paper-search” 的实际缺口见 2026-11-18 交接：finance 只缺 SEC EDGAR（+ World Bank 透传/Treasury 可选）；paper 暂不新增 USPTO。
 - “暂缓”不是永久排除；季度扫描或用户需求变化时可重新评估。
-- BRENDA 官方为 CC BY 4.0、需注册后走 SOAP，因此不是“付费”，归入暂缓（解析成本）。
-- Ensembl 通过用户配置的 3 节点自动路由恢复；严格 1 请求/次、5s、无重试、不主动探测。GWAS 旧 API 已 410，走 v2；Monarch 基因-疾病用 Causal 类别。ClinPGx 走 summaryAnnotation；COD 主站间歇超时，自动切英国/西班牙镜像；ZINC 仍 captcha，暂缓。
+- BRENDA 官方为 CC BY 4.0、需注册后走 SOAP；v0.18.0 已按 key-gated 接入，工具 `brenda` 只有配置 `BRENDA_EMAIL`/`BRENDA_PASSWORD` 时注册。
+- Ensembl 通过用户配置的 3 节点自动路由恢复；严格 1 请求/次、5s、无重试、不主动探测。GWAS 旧 API 已 410，走 v2；Monarch 基因-疾病用 Causal 类别。ClinPGx 走 summaryAnnotation；COD 主站间歇超时，自动切英国/西班牙镜像；BRENDA 需免费注册（SOAP）；ZINC 仍 captcha，暂缓。

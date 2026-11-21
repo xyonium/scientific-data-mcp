@@ -1,6 +1,6 @@
 # 配置与 API key 获取指南
 
-先说结论：**三十个基础源里二十九个完全免 key，什么都不配也能用。** 四个可选 key：NCBI E-utilities（PubMed 3→10 req/s）、Materials Project（材料工具）、BioGRID（互作 source）、openFDA（只提额度）；MP 未配时 `material` 不注册，BioGRID 未配时 `protein_interactions(source="biogrid")` 报明确错误。PubChem / ChEMBL / UniProt / RCSB PDB / WHO / STRING / ClinicalTrials.gov / AlphaFold DB / Open Targets / Reactome / InterPro / QuickGO / HPO / DailyMed / GDC / cBioPortal / GTEx / Ensembl / ChEBI / BindingDB / GWAS Catalog / Monarch / ClinPGx / COD 官方**不签发 key**；KEGG 学术免费、商用需许可。NCBI Gene / ClinVar / GEO 与 PubMed 共用 NCBI key。
+先说结论：**三十个基础源里二十九个完全免 key，什么都不配也能用。** 五个可选 key：NCBI E-utilities（PubMed 3→10 req/s）、Materials Project（材料工具）、BioGRID（互作 source）、openFDA（只提额度）、BRENDA（酶动力学，免费注册）；MP 未配时 `material` 不注册，BRENDA 未配时 `brenda` 不注册，BioGRID 未配时 `protein_interactions(source="biogrid")` 报明确错误。PubChem / ChEMBL / UniProt / RCSB PDB / WHO / STRING / ClinicalTrials.gov / AlphaFold DB / Open Targets / Reactome / InterPro / QuickGO / HPO / DailyMed / GDC / cBioPortal / GTEx / Ensembl / ChEBI / BindingDB / GWAS Catalog / Monarch / ClinPGx / COD 官方**不签发 key**；KEGG 学术免费、商用需许可。NCBI Gene / ClinVar / GEO 与 PubMed 共用 NCBI key。
 
 > 配好后把值写进你的配置处：
 > - **mcpo**：`config.json` 的 `scientific-data.env` 块
@@ -67,6 +67,51 @@ python scripts/live_smoke.py   # pubmed_record 一项 PASS 即通
 
 ---
 
+### 5. BRENDA（`BRENDA_EMAIL` + `BRENDA_PASSWORD`，免费注册，SOAP）
+
+影响 `brenda` 酶工具：**没配时工具不注册**（和 `material` 一样），配好后服务启动即多 1 个工具。BRENDA 是酶动力学/底物/抑制剂/突变体数据最全的源，但只提供 SOAP，且要求 ≤1 req/s。
+
+1. 打开 [brenda-enzymes.org/register.php](https://www.brenda-enzymes.org/register.php)，填邮箱、姓名、机构注册
+2. 收确认邮件并激活账号；登录后确认能打开 [BRENDA 首页](https://www.brenda-enzymes.org/)
+3. 在本机 `.env`（**不要提交到 git**）写入：
+
+```bash
+BRENDA_EMAIL=you@example.edu
+BRENDA_PASSWORD=your-brenda-password
+```
+
+4. 加载环境变量并重启 MCP：
+
+```bash
+set -a; . ./.env; set +a
+.venv/bin/scientific-data-mcp --http --port 8000
+```
+
+5. 工具面应出现 `brenda`。测试一条（EC 1.1.1.1 的 Km）：
+
+```bash
+set -a; . ./.env; set +a
+.venv/bin/python - <<'PY'
+import asyncio
+from scientific_data_mcp.config import Settings
+from scientific_data_mcp.runtime import build_service
+
+async def main():
+    svc = build_service(Settings.from_env())
+    rows = await svc.providers["brenda"].query("km", "1.1.1.1", "Homo sapiens")
+    print(len(rows), rows[:1])
+    await svc.aclose()
+
+asyncio.run(main())
+PY
+```
+
+**认证细节**：BRENDA SOAP 不收 API key；请求参数是 `email` + **SHA-256(password)**。本项目只在本机把 `BRENDA_PASSWORD` 哈希后传给 SOAP，明文只存在你的 `.env`/环境变量里；不要把密码写进 README、聊天记录或提交。若出现 `auth` 错误，先确认第 3 步的邮箱/密码与登录 BRENDA 网页一致。
+
+**限制**：官方要求 ≤1 req/s；本项目固定 1s 间隔、**不自动重试**，避免被 BRENDA 当 bot。数据 CC BY 4.0；不要批量抓取或再分发。工具 `brenda(enzyme, kind=..., organism=..., limit=...)`，`kind` 支持 `km` / `kcat` / `ki` / `kcat_km` / `substrates` / `names` / `engineering`。
+
+---
+
 ## 第 1 级 · M6 扩展源（尚未接入，先给入口）
 
 以下源有**免费注册 key**，属于 `docs/计划.md` 的 M6 候选；当前版本**没有实现**，变量名是接入时的约定。填了也不会生效，等 provider 落地后再按这里申请。
@@ -76,7 +121,7 @@ python scripts/live_smoke.py   # pubmed_record 一项 PASS 即通
 | `NOAA_TOKEN` | NOAA CDO | 免费 token，5 req/s | [ncdc.noaa.gov/cdo-web/token](https://www.ncdc.noaa.gov/cdo-web/token) |
 | `NASA_API_KEY` | NASA Open APIs | 免费 key，1,000 req/hr（DEMO_KEY 30/hr） | [api.nasa.gov](https://api.nasa.gov/) |
 
-无 key 的 M6 候选（DisGeNET、OMIM 等）不需要申请，接入时直接免 key。ZINC 仍返回 captcha，暂缓。
+需要许可的 M6 候选是 DisGeNET / OMIM（见上表）；ZINC 仍返回 captcha，暂缓。
 
 ---
 

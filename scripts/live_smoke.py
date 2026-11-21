@@ -79,6 +79,11 @@ if os.environ.get("MATERIALS_PROJECT_API_KEY", "").strip():
         ("material", {"by": "formula", "query": "SiO2", "limit": 2}, "count"),
     ]
 
+if os.environ.get("BRENDA_EMAIL", "").strip() and os.environ.get("BRENDA_PASSWORD", "").strip():
+    CASES += [
+        ("brenda", {"enzyme": "1.1.1.1", "kind": "km", "limit": 2}, "count"),
+    ]
+
 
 def _summarize(result: dict) -> str:
     if "error" in result:

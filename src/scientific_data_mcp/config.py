@@ -3,8 +3,8 @@
 The twenty-nine keyless base sources work without configuration; PubMed
 works without a key at a lower rate. ``NCBI_API_KEY`` and
 ``OPENFDA_API_KEY`` are optional and only lift rate limits. Materials
-Project and BioGRID are key-gated: their providers are only created when
-their keys are present (the ``material`` tool appears only with MP; the
+Project, BioGRID and BRENDA are key-gated: their providers are only
+created when their credentials are present (the ``material`` tool appears only with MP; the
 shared ``protein_interactions`` tool stays available for STRING).
 """
 
@@ -49,6 +49,7 @@ HOST_DELAYS: dict[str, float] = {
     "www.crystallography.net": 1.0,
     "cod.psdi.ac.uk": 1.0,
     "qiserver.ugr.es": 1.0,
+    "www.brenda-enzymes.org": 1.0,
 }
 
 
@@ -59,6 +60,8 @@ class Settings:
     materials_project_api_key: str | None = None
     biogrid_access_key: str | None = None
     openfda_api_key: str | None = None
+    brenda_email: str | None = None
+    brenda_password: str | None = None
     timeout: float = 30.0
     max_retries: int = 4
     retry_budget: float = 45.0
@@ -81,10 +84,14 @@ class Settings:
         mp_key = os.environ.get("MATERIALS_PROJECT_API_KEY", "").strip() or None
         bg_key = os.environ.get("BIOGRID_ACCESS_KEY", "").strip() or None
         fda_key = os.environ.get("OPENFDA_API_KEY", "").strip() or None
+        brenda_email = os.environ.get("BRENDA_EMAIL", "").strip() or None
+        brenda_password = os.environ.get("BRENDA_PASSWORD", "").strip() or None
         return cls(
             ncbi_api_key=key,
             ncbi_email=email,
             materials_project_api_key=mp_key,
             biogrid_access_key=bg_key,
             openfda_api_key=fda_key,
+            brenda_email=brenda_email,
+            brenda_password=brenda_password,
         )

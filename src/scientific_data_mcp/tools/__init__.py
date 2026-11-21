@@ -15,6 +15,7 @@ from .chemistry import register as register_chemistry
 from .clinical import register as register_clinical
 from .clinical_assoc import register as register_clinical_assoc
 from .datasets import register as register_datasets
+from .enzymes import register as register_enzymes
 from .expression import register as register_expression
 from .genomics import register as register_genomics
 from .interactions import register as register_interactions
@@ -39,6 +40,7 @@ def register_all(mcp: FastMCP, service: Service) -> ToolMap:
     tools.update(register_interactions(mcp, service))
     tools.update(register_clinical(mcp, service))
     tools.update(register_clinical_assoc(mcp, service))
+    tools.update(register_enzymes(mcp, service))
     tools.update(register_biology(mcp, service))
     tools.update(register_genomics(mcp, service))
     tools.update(register_annotations(mcp, service))

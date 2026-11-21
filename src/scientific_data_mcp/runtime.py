@@ -11,6 +11,7 @@ from .providers.alphafold import AlphaFoldProvider
 from .providers.base import Provider
 from .providers.bindingdb import BindingDbProvider
 from .providers.biogrid import BioGridProvider
+from .providers.brenda import BrendaProvider
 from .providers.cbioportal import CbioPortalProvider
 from .providers.chebi import ChebiProvider
 from .providers.chembl import ChemBLProvider
@@ -94,4 +95,6 @@ def build_service(settings: Settings | None = None) -> Service:
         providers["materials_project"] = MaterialsProjectProvider(http, settings)
     if settings.biogrid_access_key:
         providers["biogrid"] = BioGridProvider(http, settings)
+    if settings.brenda_email and settings.brenda_password:
+        providers["brenda"] = BrendaProvider(http, settings)
     return Service(settings=settings, http=http, providers=providers)
