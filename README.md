@@ -107,7 +107,9 @@ mcpo 配置示例（`config.json`）：
   "NCBI_EMAIL": "you@example.com",
   "MATERIALS_PROJECT_API_KEY": "免费申请；不配则不注册材料工具",
   "BIOGRID_ACCESS_KEY": "免费申请；不配则 protein_interactions 的 biogrid source 不可用",
-  "OPENFDA_API_KEY": "可选；只提额度，不配也能用"
+  "OPENFDA_API_KEY": "可选；只提额度，不配也能用",
+  "BRENDA_EMAIL": "免费注册；不配则不注册酶工具",
+  "BRENDA_PASSWORD": "BRENDA 登录密码；本机哈希后传 SOAP，不要提交"
 }
 ```
 

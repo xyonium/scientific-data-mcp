@@ -91,6 +91,7 @@ async def test_tool_envelope_and_validation(tools):
     assert result["count"] == 1
     assert result["total"] == 2
     assert "invalid EC" in (await tools["brenda"]("1.1.1"))["error"]
+    assert (await tools["brenda"]("1.1.1.n1"))["count"] == 2
     assert "invalid kind" in (await tools["brenda"]("1.1.1.1", kind="nope"))["error"]
     assert "1-100" in (await tools["brenda"]("1.1.1.1", limit=0))["error"]
 

@@ -13,7 +13,7 @@ from ._guard import guarded_tool, provider_error_payload
 
 ToolMap = dict[str, Callable]
 
-_EC = re.compile(r"^\d+\.\d+\.\d+\.\d+$")
+_EC = re.compile(r"^\d+\.\d+\.\d+\.(?:\d+|n\d+)$", re.IGNORECASE)
 _KINDS = ("km", "kcat", "ki", "kcat_km", "substrates", "names", "engineering")
 
 

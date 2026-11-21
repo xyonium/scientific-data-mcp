@@ -47,6 +47,7 @@ class BrendaProvider(Provider):
         self._password_sha = hashlib.sha256((settings.brenda_password or "").encode()).hexdigest()
         self._service = service
         self._lock = asyncio.Lock()
+        self._pace_lock = asyncio.Lock()
         self._last_call = 0.0
 
     async def _get_service(self):
@@ -64,11 +65,12 @@ class BrendaProvider(Provider):
         return self._service
 
     async def _pace(self) -> None:
-        now = time.monotonic()
-        wait = 1.0 - (now - self._last_call)
-        if wait > 0:
-            await asyncio.sleep(wait)
-        self._last_call = time.monotonic()
+        async with self._pace_lock:
+            now = time.monotonic()
+            wait = 1.0 - (now - self._last_call)
+            if wait > 0:
+                await asyncio.sleep(wait)
+            self._last_call = time.monotonic()
 
     async def query(self, kind: str, ec_number: str, organism: str = "") -> list[dict]:
         method, fields = _SUBSTRATES if kind == "substrates" else _METHODS[kind]
