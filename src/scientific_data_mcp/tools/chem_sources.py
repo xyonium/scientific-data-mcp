@@ -174,7 +174,8 @@ def register(mcp: FastMCP, service: Service) -> ToolMap:
         authors, journal/year, DOI, space group and unit cell. COD is
         experimental data (complements Materials Project's DFT data); a
         mirror may lag the main site. Only upstream fields are returned;
-        missing fields omitted. Failures return an error dict.
+        missing fields omitted, nothing is inferred or completed. Failures
+        return an error dict.
 
         Args:
             cod_id: Exact COD entry id.

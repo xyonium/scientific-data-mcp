@@ -10,7 +10,7 @@ from __future__ import annotations
 import time
 
 from ..config import Settings
-from ..errors import ProviderError, RateLimited, UpstreamError
+from ..errors import AuthError, ProviderError, RateLimited, UpstreamError
 from ..http import PoliteClient
 from .base import Provider, omit_none
 
@@ -56,7 +56,7 @@ class CodProvider(Provider):
             except ProviderError as exc:
                 errors.append(f"{host}: {exc}")
                 now = time.monotonic()
-                cooldown = 3600.0 if isinstance(exc, (RateLimited,)) else 600.0
+                cooldown = 3600.0 if isinstance(exc, (RateLimited, AuthError)) else 600.0
                 # main is known-flaky: cool it longer than mirrors
                 if host == _MAIN:
                     cooldown = max(cooldown, 600.0)
