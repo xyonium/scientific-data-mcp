@@ -1,6 +1,6 @@
 # 配置与 API key 获取指南
 
-先说结论：**二十九个基础源里二十八个完全免 key，什么都不配也能用。** 四个可选 key：NCBI E-utilities（PubMed 3→10 req/s）、Materials Project（材料工具）、BioGRID（互作 source）、openFDA（只提额度）；MP 未配时 `material` 不注册，BioGRID 未配时 `protein_interactions(source="biogrid")` 报明确错误。PubChem / ChEMBL / UniProt / RCSB PDB / WHO / STRING / ClinicalTrials.gov / AlphaFold DB / Open Targets / Reactome / InterPro / QuickGO / HPO / DailyMed / GDC / cBioPortal / GTEx / Ensembl / ChEBI / BindingDB / GWAS Catalog / Monarch / ClinPGx 官方**不签发 key**；KEGG 学术免费、商用需许可。NCBI Gene / ClinVar / GEO 与 PubMed 共用 NCBI key。
+先说结论：**三十个基础源里二十九个完全免 key，什么都不配也能用。** 四个可选 key：NCBI E-utilities（PubMed 3→10 req/s）、Materials Project（材料工具）、BioGRID（互作 source）、openFDA（只提额度）；MP 未配时 `material` 不注册，BioGRID 未配时 `protein_interactions(source="biogrid")` 报明确错误。PubChem / ChEMBL / UniProt / RCSB PDB / WHO / STRING / ClinicalTrials.gov / AlphaFold DB / Open Targets / Reactome / InterPro / QuickGO / HPO / DailyMed / GDC / cBioPortal / GTEx / Ensembl / ChEBI / BindingDB / GWAS Catalog / Monarch / ClinPGx / COD 官方**不签发 key**；KEGG 学术免费、商用需许可。NCBI Gene / ClinVar / GEO 与 PubMed 共用 NCBI key。
 
 > 配好后把值写进你的配置处：
 > - **mcpo**：`config.json` 的 `scientific-data.env` 块
@@ -76,7 +76,7 @@ python scripts/live_smoke.py   # pubmed_record 一项 PASS 即通
 | `NOAA_TOKEN` | NOAA CDO | 免费 token，5 req/s | [ncdc.noaa.gov/cdo-web/token](https://www.ncdc.noaa.gov/cdo-web/token) |
 | `NASA_API_KEY` | NASA Open APIs | 免费 key，1,000 req/hr（DEMO_KEY 30/hr） | [api.nasa.gov](https://api.nasa.gov/) |
 
-无 key 的 M6 候选（DisGeNET、OMIM 等）不需要申请，接入时直接免 key。**COD 当前从本网络超时，ZINC 仍返回 captcha，均暂缓。**
+无 key 的 M6 候选（DisGeNET、OMIM 等）不需要申请，接入时直接免 key。ZINC 仍返回 captcha，暂缓。
 
 ---
 
@@ -112,6 +112,7 @@ python scripts/live_smoke.py   # pubmed_record 一项 PASS 即通
 | GWAS Catalog | 免 key | 0.5s |
 | Monarch | 免 key | 0.5s |
 | ClinPGx | 免 key；官方 ≤2 req/s | 1s |
+| COD | 免 key；主站间歇超时，自动切英国/西班牙镜像 | 1s |
 
 限速表在 `src/scientific_data_mcp/config.py` 的 `HOST_DELAYS`。
 

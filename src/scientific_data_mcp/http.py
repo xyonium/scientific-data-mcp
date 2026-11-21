@@ -68,6 +68,7 @@ class PoliteClient:
         follow_redirects: bool = True,
         retry: bool = True,
         allow_status: tuple[int, ...] = (),
+        timeout: float | None = None,
     ) -> httpx.Response:
         host = urlparse(url).netloc
         last: Exception | None = None
@@ -76,6 +77,9 @@ class PoliteClient:
         for attempt in range(attempts):
             await self._pace(host)
             try:
+                request_kwargs = {}
+                if timeout is not None:
+                    request_kwargs["timeout"] = timeout
                 resp = await self._client.request(
                     method,
                     url,
@@ -84,6 +88,7 @@ class PoliteClient:
                     data=form,
                     headers=headers,
                     follow_redirects=follow_redirects,
+                    **request_kwargs,
                 )
             except httpx.HTTPError as exc:
                 last = UpstreamError(f"network error from {host}: {exc}")
@@ -138,6 +143,7 @@ class PoliteClient:
         follow_redirects: bool = True,
         allow_status: tuple[int, ...] = (),
         retry: bool = True,
+        timeout: float | None = None,
     ) -> httpx.Response:
         return await self._request(
             "GET",
@@ -147,6 +153,7 @@ class PoliteClient:
             follow_redirects=follow_redirects,
             allow_status=allow_status,
             retry=retry,
+            timeout=timeout,
         )
 
     async def get_json(
@@ -155,9 +162,16 @@ class PoliteClient:
         params: dict | None = None,
         headers: dict | None = None,
         follow_redirects: bool = True,
+        retry: bool = True,
+        timeout: float | None = None,
     ) -> Any:
         resp = await self.get_response(
-            url, params=params, headers=headers, follow_redirects=follow_redirects
+            url,
+            params=params,
+            headers=headers,
+            follow_redirects=follow_redirects,
+            retry=retry,
+            timeout=timeout,
         )
         if resp.status_code == 204:
             return None

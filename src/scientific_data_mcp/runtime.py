@@ -17,6 +17,7 @@ from .providers.chembl import ChemBLProvider
 from .providers.clinicaltrials import ClinicalTrialsProvider
 from .providers.clinpgx import ClinPgxProvider
 from .providers.clinvar import ClinVarProvider
+from .providers.cod import CodProvider
 from .providers.dailymed import DailyMedProvider
 from .providers.ensembl import EnsemblProvider
 from .providers.gdc import GdcProvider
@@ -87,6 +88,7 @@ def build_service(settings: Settings | None = None) -> Service:
         "gwas": GwasProvider(http, settings),
         "monarch": MonarchProvider(http, settings),
         "clinpgx": ClinPgxProvider(http, settings),
+        "cod": CodProvider(http, settings),
     }
     if settings.materials_project_api_key:
         providers["materials_project"] = MaterialsProjectProvider(http, settings)

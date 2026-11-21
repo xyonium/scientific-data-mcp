@@ -29,6 +29,7 @@ EXPECTED_TOOLS = {
     "gwas_associations",
     "monarch_associations",
     "clinpgx",
+    "cod_crystals",
 }
 
 

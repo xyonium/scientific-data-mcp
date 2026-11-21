@@ -1,6 +1,6 @@
 """Runtime settings.
 
-The twenty-eight keyless base sources work without configuration; PubMed
+The twenty-nine keyless base sources work without configuration; PubMed
 works without a key at a lower rate. ``NCBI_API_KEY`` and
 ``OPENFDA_API_KEY`` are optional and only lift rate limits. Materials
 Project and BioGRID are key-gated: their providers are only created when
@@ -46,6 +46,9 @@ HOST_DELAYS: dict[str, float] = {
     "bindingdb.org": 1.0,
     "api.monarchinitiative.org": 0.5,
     "api.clinpgx.org": 1.0,
+    "www.crystallography.net": 1.0,
+    "cod.psdi.ac.uk": 1.0,
+    "qiserver.ugr.es": 1.0,
 }
 
 
