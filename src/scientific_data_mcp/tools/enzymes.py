@@ -23,6 +23,7 @@ def register(mcp: FastMCP, service: Service) -> ToolMap:
     rhea = service.providers.get("rhea")
     mcsa = service.providers.get("mcsa")
     brenda = service.providers.get("brenda")
+    sabio = service.providers.get("sabio")
 
     if rhea is not None:
 
@@ -128,6 +129,54 @@ def register(mcp: FastMCP, service: Service) -> ToolMap:
             }
 
         tools["mcsa_sites"] = mcsa_sites
+
+    if sabio is not None:
+
+        @guarded_tool(mcp, name="sabio_kinetics", source="sabio")
+        async def sabio_kinetics(
+            ec_number: str, page: int = 1, limit: int = 20
+        ) -> dict:
+            """Fetch SABIO-RK kinetic law entries by EC number.
+
+            Returns kinetic parameters (kcat, Km, Ki, kcat/Km...), units,
+            organism, enzyme/mutant, reaction equation, pH/temperature/buffer
+            and PubMed reference. SABIO-RK includes experimental conditions
+            that BRENDA rows do not; use it alongside `brenda`. Only upstream
+            fields are returned; missing fields omitted, nothing is inferred.
+            Failures return an error dict (`error`, `source`).
+
+            Args:
+                ec_number: Full EC number, e.g. "1.1.1.1".
+                page: 1-based page (default 1).
+                limit: Entries per page, 1-50 (default 20).
+            """
+            ec = ec_number.strip()
+            if not _EC.match(ec):
+                return tool_error(
+                    f"invalid EC number: {ec!r}",
+                    hint='use a full EC number such as "1.1.1.1"',
+                    source="sabio",
+                )
+            if not 1 <= page <= 10_000:
+                return tool_error(f"page out of range: {page}", source="sabio")
+            if not 1 <= limit <= 50:
+                return tool_error(f"limit must be 1-50, got {limit}", source="sabio")
+            try:
+                result = await sabio.kinetics(ec, page, limit)
+            except ProviderError as exc:
+                return provider_error_payload(exc, "sabio")
+            total = result["total"]
+            next_page = page + 1 if page * result["page_size"] < total else None
+            return {
+                "source": "sabio",
+                "source_url": f"https://sabiork.h-its.org/ui/search?q=ecnumber:{ec}",
+                "count": len(result["items"]),
+                "total": total,
+                "next_page": next_page,
+                "items": result["items"],
+            }
+
+        tools["sabio_kinetics"] = sabio_kinetics
 
     if brenda is not None:
 

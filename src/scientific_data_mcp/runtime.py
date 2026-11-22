@@ -40,7 +40,9 @@ from .providers.quickgo import QuickGoProvider
 from .providers.rcsb import RcsbProvider
 from .providers.reactome import ReactomeProvider
 from .providers.rhea import RheaProvider
+from .providers.sabio import SabioProvider
 from .providers.string_db import StringDbProvider
+from .providers.unichem import UniChemProvider
 from .providers.uniprot import UniProtProvider
 from .providers.who import WhoProvider
 
@@ -94,6 +96,8 @@ def build_service(settings: Settings | None = None) -> Service:
         "cod": CodProvider(http, settings),
         "rhea": RheaProvider(http, settings),
         "mcsa": McsaProvider(http, settings),
+        "unichem": UniChemProvider(http, settings),
+        "sabio": SabioProvider(http, settings),
     }
     if settings.materials_project_api_key:
         providers["materials_project"] = MaterialsProjectProvider(http, settings)

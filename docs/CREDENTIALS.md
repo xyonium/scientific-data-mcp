@@ -1,6 +1,6 @@
 # 配置与 API key 获取指南
 
-先说结论：**三十二个基础源里三十一个完全免 key，什么都不配也能用。** 五个可选 key：NCBI E-utilities（PubMed 3→10 req/s）、Materials Project（材料工具）、BioGRID（互作 source）、openFDA（只提额度）、BRENDA（酶动力学，免费注册）；MP 未配时 `material` 不注册，BRENDA 未配时 `brenda` 不注册，BioGRID 未配时 `protein_interactions(source="biogrid")` 报明确错误。PubChem / ChEMBL / UniProt / RCSB PDB / WHO / STRING / ClinicalTrials.gov / AlphaFold DB / Open Targets / Reactome / InterPro / QuickGO / HPO / DailyMed / GDC / cBioPortal / GTEx / Ensembl / ChEBI / BindingDB / GWAS Catalog / Monarch / ClinPGx / COD / Rhea / M-CSA 官方**不签发 key**；KEGG 学术免费、商用需许可。NCBI Gene / ClinVar / GEO 与 PubMed 共用 NCBI key。
+先说结论：**三十四个基础源里三十三个完全免 key，什么都不配也能用。** 五个可选 key：NCBI E-utilities（PubMed 3→10 req/s）、Materials Project（材料工具）、BioGRID（互作 source）、openFDA（只提额度）、BRENDA（酶动力学，免费注册）；MP 未配时 `material` 不注册，BRENDA 未配时 `brenda` 不注册，BioGRID 未配时 `protein_interactions(source="biogrid")` 报明确错误。PubChem / ChEMBL / UniProt / RCSB PDB / WHO / STRING / ClinicalTrials.gov / AlphaFold DB / Open Targets / Reactome / InterPro / QuickGO / HPO / DailyMed / GDC / cBioPortal / GTEx / Ensembl / ChEBI / BindingDB / GWAS Catalog / Monarch / ClinPGx / COD / Rhea / M-CSA / UniChem / SABIO-RK 官方**不签发 key**；KEGG 学术免费、商用需许可。NCBI Gene / ClinVar / GEO 与 PubMed 共用 NCBI key。
 
 > 配好后把值写进你的配置处：
 > - **mcpo**：`config.json` 的 `scientific-data.env` 块
@@ -160,6 +160,8 @@ PY
 | COD | 免 key；主站间歇超时，自动切英国/西班牙镜像 | 1s |
 | Rhea | 免 key | 0.5s |
 | M-CSA | 免 key | 1s（与 www.ebi.ac.uk 共用） |
+| UniChem | 免 key | 1s（与 www.ebi.ac.uk 共用） |
+| SABIO-RK | 免 key；官方 60 req/min | 1s |
 
 限速表在 `src/scientific_data_mcp/config.py` 的 `HOST_DELAYS`。
 

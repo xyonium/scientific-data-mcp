@@ -23,7 +23,7 @@
 
 ## SABIO-RK
 
-旧 `sabioRestWebServices` 路径现在 404/SPA；新站点 API 未确认。**暂不接入**，等官方新 API 稳定；BRENDA 已覆盖动力学主数据。
+新 export API 已确认并接入：`/export-api/sabio/kinlaw-entry/json`；见 `unichem-sabio.md`。旧 `sabioRestWebServices` 已废弃。
 
 ## 验证
 

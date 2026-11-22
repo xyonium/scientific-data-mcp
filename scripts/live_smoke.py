@@ -68,6 +68,8 @@ CASES: list[tuple[str, dict, str]] = [
     ("cod_crystals", {"cod_id": "1526463", "limit": 1}, "count"),
     ("rhea_reactions", {"query": "1.1.1.1", "limit": 2}, "count"),
     ("mcsa_sites", {"enzyme": "1.1.1.1", "limit": 1}, "count"),
+    ("unichem_map", {"inchikey": "BSYNRYMUTXBXSQ-UHFFFAOYSA-N", "limit": 2}, "count"),
+    ("sabio_kinetics", {"ec_number": "1.1.1.1", "limit": 2}, "count"),
 ]
 
 if os.environ.get("BIOGRID_ACCESS_KEY", "").strip():

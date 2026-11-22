@@ -21,6 +21,7 @@ def register(mcp: FastMCP, service: Service) -> ToolMap:
     chebi = service.providers["chebi"]
     bindingdb = service.providers["bindingdb"]
     cod = service.providers["cod"]
+    unichem = service.providers["unichem"]
 
     @guarded_tool(mcp, name="dailymed", source="dailymed")
     async def dailymed_tool(query: str, limit: int = 5) -> dict:
@@ -221,9 +222,40 @@ def register(mcp: FastMCP, service: Service) -> ToolMap:
             "items": items,
         }
 
+    @guarded_tool(mcp, name="unichem_map", source="unichem")
+    async def unichem_map(inchikey: str, limit: int = 20) -> dict:
+        """Map an InChIKey to compound ids across UniChem sources.
+
+        `inchikey` is a standard 27-character InChIKey (e.g.
+        "BSYNRYMUTXBXSQ-UHFFFAOYSA-N"). Returns each source (ChEMBL, ChEBI,
+        PubChem, DrugBank, ...), its compound ids and record URL. UniChem is
+        an EBI cross-reference hub; it does not add new chemistry, only
+        identity mapping. Only upstream fields are returned; missing fields
+        omitted, nothing is inferred. Failures return an error dict.
+
+        Args:
+            inchikey: 27-character InChIKey.
+            limit: Sources to return, 1-50 (default 20).
+        """
+        if not 1 <= limit <= 50:
+            return tool_error(f"limit must be 1-50, got {limit}", source="unichem")
+        try:
+            items = await unichem.map_inchikey(inchikey.strip(), limit)
+        except ValueError as exc:
+            return tool_error(str(exc), source="unichem")
+        except ProviderError as exc:
+            return provider_error_payload(exc, "unichem")
+        return {
+            "source": "unichem",
+            "source_url": f"https://www.ebi.ac.uk/unichem/compoundsources?type=inchikey&compound={inchikey.strip()}",
+            "count": len(items),
+            "items": items,
+        }
+
     return {
         "dailymed": dailymed_tool,
         "bindingdb_ligands": bindingdb_ligands,
         "compound_lookup": compound_lookup,
         "cod_crystals": cod_crystals,
+        "unichem_map": unichem_map,
     }

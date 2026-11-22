@@ -32,6 +32,8 @@ EXPECTED_TOOLS = {
     "cod_crystals",
     "rhea_reactions",
     "mcsa_sites",
+    "unichem_map",
+    "sabio_kinetics",
 }
 
 
