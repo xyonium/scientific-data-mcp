@@ -99,5 +99,7 @@ async def test_tool_envelope_and_validation(tools):
 async def test_no_credentials_no_provider():
     service = build_service(Settings())
     assert "brenda" not in service.providers
-    assert register(FastMCP("test"), service) == {}
+    registered = register(FastMCP("test"), service)
+    assert "brenda" not in registered
+    assert {"rhea_reactions", "mcsa_sites"} <= set(registered)
     await service.aclose()

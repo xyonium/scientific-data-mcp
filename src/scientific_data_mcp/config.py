@@ -1,6 +1,6 @@
 """Runtime settings.
 
-The twenty-nine keyless base sources work without configuration; PubMed
+The thirty-one keyless base sources work without configuration; PubMed
 works without a key at a lower rate. ``NCBI_API_KEY`` and
 ``OPENFDA_API_KEY`` are optional and only lift rate limits. Materials
 Project, BioGRID and BRENDA are key-gated: their providers are only
@@ -50,6 +50,7 @@ HOST_DELAYS: dict[str, float] = {
     "cod.psdi.ac.uk": 1.0,
     "qiserver.ugr.es": 1.0,
     "www.brenda-enzymes.org": 1.0,
+    "www.rhea-db.org": 0.5,
 }
 
 

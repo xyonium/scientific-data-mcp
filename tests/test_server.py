@@ -30,6 +30,8 @@ EXPECTED_TOOLS = {
     "monarch_associations",
     "clinpgx",
     "cod_crystals",
+    "rhea_reactions",
+    "mcsa_sites",
 }
 
 

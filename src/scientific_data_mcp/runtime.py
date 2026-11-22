@@ -30,6 +30,7 @@ from .providers.hpo import HpoProvider
 from .providers.interpro import InterProProvider
 from .providers.kegg import KeggProvider
 from .providers.materials_project import MaterialsProjectProvider
+from .providers.mcsa import McsaProvider
 from .providers.monarch import MonarchProvider
 from .providers.openfda import OpenFdaProvider
 from .providers.opentargets import OpenTargetsProvider
@@ -38,6 +39,7 @@ from .providers.pubmed import PubMedProvider
 from .providers.quickgo import QuickGoProvider
 from .providers.rcsb import RcsbProvider
 from .providers.reactome import ReactomeProvider
+from .providers.rhea import RheaProvider
 from .providers.string_db import StringDbProvider
 from .providers.uniprot import UniProtProvider
 from .providers.who import WhoProvider
@@ -90,6 +92,8 @@ def build_service(settings: Settings | None = None) -> Service:
         "monarch": MonarchProvider(http, settings),
         "clinpgx": ClinPgxProvider(http, settings),
         "cod": CodProvider(http, settings),
+        "rhea": RheaProvider(http, settings),
+        "mcsa": McsaProvider(http, settings),
     }
     if settings.materials_project_api_key:
         providers["materials_project"] = MaterialsProjectProvider(http, settings)

@@ -12,7 +12,7 @@
 | `protein_search` + `protein_structure_search` | `protein_search(kind="uniprot"|"pdb", query, size, cursor?)` |
 | `material_get` + `material_search` | `material(by="id"|"formula"|"chemsys"|"elements", query, limit?)` |
 
-保留独立：`chem_similar_compounds`（SMILES→CID 列表）、`protein_map_ids`（mapping envelope）、`pubmed_record`（单记录）、`who_data`（观测列表）、`material`（v0.4.0 合并后单工具）。v0.6.0 把 BioGRID 与 STRING 合并为 `protein_interactions(source=...)`，并新增 `openfda`、`clinical_trials`；v0.7.0 再加 AlphaFold（并入 protein_record）、opentargets、pathways；v0.8.0 再加 gene_record/clinvar/protein_annotations；v0.9.0 再加 phenotypes/geo_datasets；v0.10.0 再加 kegg_compound/dailymed；v0.11.0 再加 cancer_studies/gene_expression；v0.13.0 再加 ChEBI/BindingDB；v0.14.0 把 ChEBI/KEGG 合并为 `compound_lookup(source=...)`；v0.15.0 再加 gwas_associations/monarch_associations；v0.16.0 再加 clinpgx；v0.17.0 再加 cod_crystals；基础工具 27 个（MP key 时 28 个）。
+保留独立：`chem_similar_compounds`（SMILES→CID 列表）、`protein_map_ids`（mapping envelope）、`pubmed_record`（单记录）、`who_data`（观测列表）、`material`（v0.4.0 合并后单工具）。v0.6.0 把 BioGRID 与 STRING 合并为 `protein_interactions(source=...)`，并新增 `openfda`、`clinical_trials`；v0.7.0 再加 AlphaFold（并入 protein_record）、opentargets、pathways；v0.8.0 再加 gene_record/clinvar/protein_annotations；v0.9.0 再加 phenotypes/geo_datasets；v0.10.0 再加 kegg_compound/dailymed；v0.11.0 再加 cancer_studies/gene_expression；v0.13.0 再加 ChEBI/BindingDB；v0.14.0 把 ChEBI/KEGG 合并为 `compound_lookup(source=...)`；v0.15.0 再加 gwas_associations/monarch_associations；v0.16.0 再加 clinpgx；v0.17.0 再加 cod_crystals；v0.18.0 加 key-gated brenda；v0.19.0 加 rhea_reactions/mcsa_sites；基础工具 29 个（MP key 时 30 个，BRENDA 再加 1）。
 
 ## 设计约束
 
