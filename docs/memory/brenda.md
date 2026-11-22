@@ -30,5 +30,5 @@
 
 ## 验证
 
-- 单测用 fake service 验证参数/哈希/method/错误映射；**没有用户凭证，未做 live SOAP 调用**。
+- 单测用 fake service 验证参数/哈希/method/错误映射；2026-11-22 用真实凭证 live 验证：EC 1.1.1.1 + Homo sapiens 返回 181 条 Km；工具层不限物种返回 1067 条；字段 commentary/ecNumber/kmValue/kmValueMaximum/ligandStructureId/literature/organism/substrate。
 - 配好后跑 `docs/CREDENTIALS.md` 第 5 节的 Python 片段或 `live_smoke.py`（只在 env 有 BRENDA 时追加用例）。
