@@ -59,12 +59,14 @@ def _normalize(row: dict) -> dict:
         )
     reaction = row.get("reaction") or {}
     compounds = [
-        {
-            "name": c.get("name"),
-            "type": c.get("type"),
-            "chebi_id": c.get("chebi_id"),
-            "count": c.get("count"),
-        }
+        omit_none(
+            {
+                "name": c.get("name"),
+                "type": c.get("type"),
+                "chebi_id": c.get("chebi_id"),
+                "count": c.get("count"),
+            }
+        )
         for c in (reaction.get("compounds") or [])
         if isinstance(c, dict)
     ]
@@ -75,7 +77,7 @@ def _normalize(row: dict) -> dict:
             "ec_numbers": row.get("all_ecs") or None,
             "uniprot_id": row.get("reference_uniprot_id"),
             "description": row.get("description"),
-            "reaction": {"ec": reaction.get("ec"), "compounds": compounds} if reaction else None,
+            "reaction": omit_none({"ec": reaction.get("ec"), "compounds": compounds}) if reaction else None,
             "residues": residues or None,
         }
     )

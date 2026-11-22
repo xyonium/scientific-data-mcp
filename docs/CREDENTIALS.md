@@ -159,7 +159,7 @@ PY
 | ClinPGx | 免 key；官方 ≤2 req/s | 1s |
 | COD | 免 key；主站间歇超时，自动切英国/西班牙镜像 | 1s |
 | Rhea | 免 key | 0.5s |
-| M-CSA | 免 key | 0.5s |
+| M-CSA | 免 key | 1s（与 www.ebi.ac.uk 共用） |
 
 限速表在 `src/scientific_data_mcp/config.py` 的 `HOST_DELAYS`。
 

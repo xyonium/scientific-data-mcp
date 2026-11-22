@@ -19,7 +19,7 @@
   - M-CSA id：`entries.mcsa_ids=255`
 - 响应 `{count, results:[...]}`；归一化 mcsa_id/enzyme_name/ec_numbers/uniprot_id/description/reaction/催化 residues（residue/roles/pdb/chain）。
 - 0 条正常；缺 results/count → drift。
-- 0.5s host delay；免 key。
+- 1s host delay（与 www.ebi.ac.uk 共用）；免 key。
 
 ## SABIO-RK
 

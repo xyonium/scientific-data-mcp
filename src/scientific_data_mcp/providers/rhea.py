@@ -30,7 +30,7 @@ class RheaProvider(Provider):
             total = int(payload.get("count"))
         except (TypeError, ValueError) as exc:
             raise UpstreamDrift("Rhea count is not numeric") from exc
-        return {"items": [_normalize(row) for row in rows], "total": total}
+        return {"items": [_normalize(row) for row in rows[:limit]], "total": total}
 
 
 def _normalize(row: dict) -> dict:
